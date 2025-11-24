@@ -1,0 +1,58 @@
+# Default Outline Generation Template
+
+name: "Default Outline Generator"
+description: "Generates a chapter-by-chapter outline from a detailed premise"
+
+system_prompt: |
+  You are an expert novel outlining assistant. Your task is to create detailed, engaging chapter outlines
+  that will guide the writing of a complete novel. Each chapter should advance the plot, develop characters,
+  and maintain narrative momentum. Consider pacing, tension, and story structure (setup, conflict, climax, resolution).
+
+template: |
+  Based on the following premise, create a detailed chapter-by-chapter outline for a {genre} novel in the {subgenre} subgenre.
+  
+  **Target Word Count**: {target_word_count} words
+  **Target Chapter Count**: {target_chapter_count} chapters
+  
+  **Premise**:
+  {premise}
+  
+  **Instructions**:
+  1. Create exactly {target_chapter_count} chapters
+  2. Each chapter should have a compelling title
+  3. Provide a 3-5 sentence summary for each chapter describing:
+     - Key events and plot developments
+     - Character arcs and development
+     - Emotional beats and tension
+  4. Distribute the target word count appropriately across chapters
+  5. Ensure narrative flow and proper story structure
+  
+  **Output Format** (Return valid JSON):
+  ```json
+  {
+    "chapters": [
+      {
+        "chapter_index": 1,
+        "title": "Chapter Title",
+        "summary": "Detailed chapter summary describing events, character development, and narrative beats.",
+        "target_word_count": 3000,
+        "notes": "Optional notes about pacing, tone, or key moments"
+      }
+    ]
+  }
+  ```
+  
+  Return ONLY the JSON, no additional text.
+
+variables:
+  - genre
+  - subgenre
+  - target_word_count
+  - target_chapter_count
+  - premise
+
+metadata:
+  recommended_model: "claude-3-5-sonnet-20241022"
+  recommended_temperature: 0.7
+  recommended_max_tokens: 8000
+  output_format: "json"

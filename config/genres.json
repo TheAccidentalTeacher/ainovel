@@ -1,0 +1,398 @@
+[
+  {
+    "id": "christian",
+    "name": "Christian",
+    "order": 1,
+    "description": "Faith-based fiction with Christian themes and values",
+    "subgenres": [
+      "Christian Romance",
+      "Christian Historical Fiction",
+      "Christian Contemporary",
+      "Christian Suspense/Thriller",
+      "Christian Fantasy",
+      "Christian Science Fiction",
+      "Amish Fiction",
+      "Biblical Fiction",
+      "Inspirational Fiction",
+      "Christian Mystery"
+    ]
+  },
+  {
+    "id": "romance",
+    "name": "Romance",
+    "order": 2,
+    "description": "Love stories with emotional and romantic relationships as the central focus",
+    "subgenres": [
+      "Contemporary Romance",
+      "Historical Romance",
+      "Paranormal Romance",
+      "Romantic Suspense",
+      "Erotic Romance",
+      "Romantic Comedy",
+      "Regency Romance",
+      "Western Romance",
+      "Billionaire Romance",
+      "Small Town Romance"
+    ]
+  },
+  {
+    "id": "fantasy",
+    "name": "Fantasy",
+    "order": 3,
+    "description": "Imaginative fiction featuring magic, supernatural elements, and alternate worlds",
+    "subgenres": [
+      "Epic Fantasy",
+      "Urban Fantasy",
+      "Dark Fantasy",
+      "High Fantasy",
+      "Sword and Sorcery",
+      "Paranormal Fantasy",
+      "Fairy Tale Retelling",
+      "Portal Fantasy",
+      "Grimdark Fantasy",
+      "Cozy Fantasy"
+    ]
+  },
+  {
+    "id": "science-fiction",
+    "name": "Science Fiction",
+    "order": 4,
+    "description": "Speculative fiction based on scientific and technological concepts",
+    "subgenres": [
+      "Space Opera",
+      "Cyberpunk",
+      "Hard Science Fiction",
+      "Military Science Fiction",
+      "Time Travel",
+      "Dystopian",
+      "Post-Apocalyptic",
+      "First Contact",
+      "Space Western",
+      "Biopunk"
+    ]
+  },
+  {
+    "id": "mystery",
+    "name": "Mystery",
+    "order": 5,
+    "description": "Crime-solving narratives focused on uncovering secrets and solving puzzles",
+    "subgenres": [
+      "Cozy Mystery",
+      "Police Procedural",
+      "Private Detective",
+      "Whodunit",
+      "Noir",
+      "Historical Mystery",
+      "Amateur Sleuth",
+      "Locked Room Mystery",
+      "Legal Thriller",
+      "Culinary Mystery"
+    ]
+  },
+  {
+    "id": "thriller",
+    "name": "Thriller",
+    "order": 6,
+    "description": "Fast-paced, suspenseful stories designed to keep readers on edge",
+    "subgenres": [
+      "Psychological Thriller",
+      "Action Thriller",
+      "Espionage/Spy Thriller",
+      "Medical Thriller",
+      "Legal Thriller",
+      "Techno-Thriller",
+      "Political Thriller",
+      "Domestic Thriller",
+      "Crime Thriller",
+      "Conspiracy Thriller"
+    ]
+  },
+  {
+    "id": "horror",
+    "name": "Horror",
+    "order": 7,
+    "description": "Fiction designed to frighten, unsettle, or horrify the reader",
+    "subgenres": [
+      "Supernatural Horror",
+      "Psychological Horror",
+      "Gothic Horror",
+      "Survival Horror",
+      "Cosmic Horror",
+      "Body Horror",
+      "Folk Horror",
+      "Zombie Horror",
+      "Vampire Horror",
+      "Ghost Stories"
+    ]
+  },
+  {
+    "id": "historical-fiction",
+    "name": "Historical Fiction",
+    "order": 8,
+    "description": "Stories set in a specific historical time period with authentic period details",
+    "subgenres": [
+      "Ancient History",
+      "Medieval Historical",
+      "Renaissance Historical",
+      "Victorian Era",
+      "World War I",
+      "World War II",
+      "American Civil War",
+      "Regency Era",
+      "Colonial America",
+      "Ancient Rome/Greece"
+    ]
+  },
+  {
+    "id": "literary-fiction",
+    "name": "Literary Fiction",
+    "order": 9,
+    "description": "Character-driven narratives with emphasis on style, theme, and social commentary",
+    "subgenres": [
+      "Contemporary Literary",
+      "Experimental Fiction",
+      "Philosophical Fiction",
+      "Social Commentary",
+      "Magical Realism",
+      "Stream of Consciousness",
+      "Metafiction",
+      "Bildungsroman",
+      "Satire",
+      "Character Study"
+    ]
+  },
+  {
+    "id": "young-adult",
+    "name": "Young Adult (YA)",
+    "order": 10,
+    "description": "Fiction targeting readers aged 12-18 with coming-of-age themes",
+    "subgenres": [
+      "YA Fantasy",
+      "YA Dystopian",
+      "YA Contemporary",
+      "YA Romance",
+      "YA Science Fiction",
+      "YA Mystery",
+      "YA Paranormal",
+      "YA Historical",
+      "YA Thriller",
+      "Coming of Age"
+    ]
+  },
+  {
+    "id": "adventure",
+    "name": "Adventure",
+    "order": 11,
+    "description": "Action-packed stories featuring quests, journeys, and daring exploits",
+    "subgenres": [
+      "Survival Adventure",
+      "Sea Adventure",
+      "Treasure Hunt",
+      "Jungle Adventure",
+      "Mountain/Arctic Adventure",
+      "Archaeological Adventure",
+      "Quest Adventure",
+      "War Adventure",
+      "Exploration Fiction",
+      "Swashbuckler"
+    ]
+  },
+  {
+    "id": "western",
+    "name": "Western",
+    "order": 12,
+    "description": "Stories set in the American Old West (late 1800s)",
+    "subgenres": [
+      "Traditional Western",
+      "Revisionist Western",
+      "Contemporary Western",
+      "Western Romance",
+      "Weird Western",
+      "Western Mystery",
+      "Outlaw Western",
+      "Ranch Life",
+      "Frontier Fiction",
+      "Cowboy Western"
+    ]
+  },
+  {
+    "id": "crime",
+    "name": "Crime",
+    "order": 13,
+    "description": "Fiction focused on criminal activity and law enforcement",
+    "subgenres": [
+      "Heist",
+      "Organized Crime",
+      "True Crime Fiction",
+      "Gangster Fiction",
+      "Noir Crime",
+      "Detective Fiction",
+      "Serial Killer Fiction",
+      "White Collar Crime",
+      "Vigilante Justice",
+      "Police Drama"
+    ]
+  },
+  {
+    "id": "womens-fiction",
+    "name": "Women's Fiction",
+    "order": 14,
+    "description": "Character-driven narratives focusing on women's life experiences and relationships",
+    "subgenres": [
+      "Contemporary Women's Fiction",
+      "Chick Lit",
+      "Book Club Fiction",
+      "Family Saga",
+      "Domestic Fiction",
+      "Women's Friendship",
+      "Mothers and Daughters",
+      "Career Women",
+      "Women's Coming of Age",
+      "Women's Uplifting Fiction"
+    ]
+  },
+  {
+    "id": "lgbtq",
+    "name": "LGBTQ+ Fiction",
+    "order": 15,
+    "description": "Stories centering LGBTQ+ characters, relationships, and experiences",
+    "subgenres": [
+      "LGBTQ+ Romance",
+      "LGBTQ+ Contemporary",
+      "LGBTQ+ Fantasy",
+      "LGBTQ+ Science Fiction",
+      "LGBTQ+ Young Adult",
+      "LGBTQ+ Historical",
+      "Queer Literary Fiction",
+      "LGBTQ+ Mystery",
+      "LGBTQ+ Thriller",
+      "Coming Out Stories"
+    ]
+  },
+  {
+    "id": "urban-fiction",
+    "name": "Urban Fiction",
+    "order": 16,
+    "description": "Stories set in urban environments, often exploring street life and contemporary urban culture",
+    "subgenres": [
+      "Street Lit",
+      "Hip Hop Fiction",
+      "Urban Romance",
+      "Urban Drama",
+      "Urban Crime",
+      "Gangsta Fiction",
+      "Urban Contemporary",
+      "Hood Fiction",
+      "Urban Thriller",
+      "Urban Fantasy"
+    ]
+  },
+  {
+    "id": "paranormal",
+    "name": "Paranormal",
+    "order": 17,
+    "description": "Fiction featuring supernatural or unexplained phenomena",
+    "subgenres": [
+      "Vampire Fiction",
+      "Werewolf Fiction",
+      "Witch Fiction",
+      "Ghost Stories",
+      "Psychic Fiction",
+      "Shapeshifter Fiction",
+      "Demon Fiction",
+      "Angel Fiction",
+      "Fae Fiction",
+      "Paranormal Mystery"
+    ]
+  },
+  {
+    "id": "humor",
+    "name": "Humor/Comedy",
+    "order": 18,
+    "description": "Fiction designed to entertain and amuse through comedic situations and wit",
+    "subgenres": [
+      "Romantic Comedy",
+      "Satirical Fiction",
+      "Absurdist Fiction",
+      "Comic Fantasy",
+      "Parody",
+      "Dark Comedy",
+      "Sitcom Fiction",
+      "Farce",
+      "Comic Caper",
+      "Humorous Mystery"
+    ]
+  },
+  {
+    "id": "family-saga",
+    "name": "Family Saga",
+    "order": 19,
+    "description": "Multi-generational stories following families over time",
+    "subgenres": [
+      "Multi-Generational Saga",
+      "Dynasty Fiction",
+      "Historical Family Saga",
+      "Contemporary Family Saga",
+      "Immigrant Family Saga",
+      "Southern Family Saga",
+      "Epic Family Drama",
+      "Inheritance Drama",
+      "Family Secrets",
+      "Legacy Fiction"
+    ]
+  },
+  {
+    "id": "suspense",
+    "name": "Suspense",
+    "order": 20,
+    "description": "Tension-filled narratives that keep readers in anxious anticipation",
+    "subgenres": [
+      "Psychological Suspense",
+      "Romantic Suspense",
+      "Legal Suspense",
+      "Medical Suspense",
+      "Domestic Suspense",
+      "Supernatural Suspense",
+      "Crime Suspense",
+      "Political Suspense",
+      "International Suspense",
+      "Courtroom Suspense"
+    ]
+  },
+  {
+    "id": "action",
+    "name": "Action",
+    "order": 21,
+    "description": "Fast-paced fiction focused on physical feats, chases, and combat",
+    "subgenres": [
+      "Military Action",
+      "Mercenary Fiction",
+      "Assassin Fiction",
+      "Special Forces",
+      "Vigilante Action",
+      "Martial Arts Fiction",
+      "Gun Action",
+      "Chase Fiction",
+      "Commando Fiction",
+      "Black Ops"
+    ]
+  },
+  {
+    "id": "magical-realism",
+    "name": "Magical Realism",
+    "order": 22,
+    "description": "Realistic fiction with subtle magical or fantastical elements woven into everyday life",
+    "subgenres": [
+      "Latin American Magical Realism",
+      "Contemporary Magical Realism",
+      "Fabulism",
+      "Mythic Fiction",
+      "Slipstream",
+      "Folkloric Fiction",
+      "Dreamlike Fiction",
+      "Surreal Fiction",
+      "Enchanted Realism",
+      "Speculative Literary Fiction"
+    ]
+  }
+]

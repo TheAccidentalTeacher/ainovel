@@ -1,0 +1,307 @@
+"""
+Story Bible Generation Service
+
+Extracts structured Story Bible (characters, settings, themes, plot) from premise
+using AI. Provides deep character profiles, setting details, and narrative structure.
+"""
+
+import json
+import logging
+from typing import Dict, Any, List
+
+from backend.models.schemas import (
+    StoryBible,
+    Character,
+    Setting,
+    Premise,
+    AIConfig
+)
+from backend.services.ai_service import get_ai_service
+
+logger = logging.getLogger(__name__)
+
+
+STORY_BIBLE_SYSTEM_PROMPT = """You are an expert narrative analyst and story development consultant. Your job is to extract comprehensive Story Bible information from a novel premise.
+
+**Your Task:**
+Parse the premise and extract:
+1. **Characters**: All named characters with deep profiles (physical description, personality, backstory, goals, character arc, relationships, quirks, role)
+2. **Settings**: All locations with detailed descriptions, atmosphere, significance, special features
+3. **Themes**: Major themes present in the story
+4. **Humor Style**: Description of humor level and style (if applicable)
+5. **Tone Notes**: Overall tone, pacing, voice, POV guidelines
+6. **Genre Guidelines**: Genre-specific elements and constraints
+7. **Main Plot Arc**: Primary story arc from beginning to end
+8. **Subplots**: Secondary storylines (B-story, C-story)
+9. **Key Milestones**: Major plot events/turning points
+
+**Format Requirements:**
+- Be thorough and detailed - this Story Bible will be used to maintain consistency across the entire novel
+- For characters: extract physical details, personality traits, backstory, motivations, arc, relationships
+- For settings: vivid descriptions, mood/atmosphere, why they matter
+- Extract exact names, ages, and details from the premise
+- Maintain the tone and genre style of the original premise
+- Return valid JSON matching the specified schema
+
+**Response must be valid JSON only, no explanatory text.**"""
+
+
+def create_story_bible_prompt(premise: Premise) -> str:
+    """Create the story bible generation prompt."""
+    return f"""Generate a comprehensive Story Bible from this novel premise:
+
+**Genre:** {premise.genre}
+**Subgenre:** {premise.subgenre or 'None'}
+**Target Word Count:** {premise.target_word_count:,} words
+**Target Chapters:** {premise.target_chapter_count}
+
+**Premise:**
+{premise.content}
+
+---
+
+Extract and structure all Story Bible components. Return JSON with this exact structure:
+
+{{
+  "characters": [
+    {{
+      "name": "Full Character Name",
+      "aliases": ["Nickname", "Alternate Name"],
+      "age": "Age or range",
+      "physical_description": "Detailed appearance (100-200 words)",
+      "personality": "Key personality traits (100-150 words)",
+      "backstory": "Character history and background (150-300 words)",
+      "goals": "Motivations, desires, what they want (100 words)",
+      "character_arc": "How they change throughout story (100-150 words)",
+      "relationships": {{"Character Name": "relationship description"}},
+      "quirks": "Unique features, mannerisms, habits (50-100 words)",
+      "role": "protagonist/antagonist/love interest/mentor/supporting/etc",
+      "practical_complications": "How unusual traits affect daily life: custom furniture, modified clothing, environmental interactions (50-100 words). Example for three-legged character: 'Custom three-legged stool at workbench, modified trousers, distinctive walking rhythm, children ask questions, needs wider doorways'",
+      "sensory_signatures": "Non-visual sensory details: scent, voice, texture, sound of movement (50-100 words). Example: 'Voice has slight rasp, hands smell of sawdust and lemon oil, footsteps create three-beat rhythm, calloused hands'",
+      "internal_obstacles": "Contradictory desires, past hurts, emotional blocks (50-100 words). Example: 'Fears being seen as curiosity not person, wants love but expects rejection, struggles between pride and shame'",
+      "speech_patterns": "Deflection habits, evasions, inarticulate moments (50-100 words). Example: 'Changes subject when emotions run deep, uses humor to deflect, goes silent when hurt, says I should go when wants to stay'"
+    }}
+  ],
+  "settings": [
+    {{
+      "name": "Location Name",
+      "description": "Physical description (150-250 words)",
+      "atmosphere": "Mood, feeling, tone (50-100 words)",
+      "significance": "Why it matters to plot (50-100 words)",
+      "special_features": "Unique rules, properties, elements (50-150 words)",
+      "sensory_palette": ["sawdust smell", "lemon oil scent", "smooth wood texture", "rhythmic sanding sounds", "wood shavings underfoot"]
+    }}
+  ],
+  "themes": ["Theme 1", "Theme 2", "Theme 3"],
+  "humor_style": "Description of humor level and style (100 words)",
+  "tone_notes": "Overall tone, pacing, voice, POV guidelines (150 words)",
+  "genre_guidelines": "Genre-specific elements to maintain (100-150 words)",
+  "main_plot_arc": "Primary story arc beginning → middle → end (200-300 words)",
+  "subplots": ["B-story description", "C-story description"],
+  "key_milestones": ["Major event 1", "Major event 2", "Climax", "Resolution"]
+}}
+
+Be thorough and detailed. This Story Bible will maintain consistency across the entire novel generation process."""
+
+
+async def generate_story_bible_from_premise(
+    premise: Premise,
+    ai_config: AIConfig
+) -> StoryBible:
+    """
+    Generate a Story Bible by analyzing the premise with AI.
+    
+    Args:
+        premise: The novel premise to analyze
+        ai_config: AI configuration for generation
+        
+    Returns:
+        StoryBible with extracted characters, settings, themes, plot structure
+        
+    Raises:
+        ValueError: If AI response is invalid or parsing fails
+        Exception: For AI service errors
+    """
+    logger.info(
+        f"Generating Story Bible for premise_id={premise.id}, "
+        f"model={ai_config.model_name}"
+    )
+    
+    # Claude Sonnet 4.5 supports up to 64K output tokens
+    # Use 16K for comprehensive Story Bibles with many characters/settings
+    ai_config.max_tokens = 16000
+    
+    # Create AI service
+    ai_service = get_ai_service()
+    
+    # Build prompt
+    system_prompt = STORY_BIBLE_SYSTEM_PROMPT
+    user_prompt = create_story_bible_prompt(premise)
+    
+    logger.debug(f"System prompt length: {len(system_prompt)} chars")
+    logger.debug(f"User prompt length: {len(user_prompt)} chars")
+    
+    # Call AI
+    try:
+        response_data = await ai_service.generate_text(
+            prompt=user_prompt,
+            config=ai_config,
+            system_prompt=system_prompt
+        )
+        
+        response_text = response_data["content"]
+        
+        logger.info(f"AI response received: {len(response_text)} chars")
+        logger.debug(f"Raw AI response preview: {response_text[:500]}...")
+        
+        # Parse JSON response
+        story_bible_data = parse_story_bible_json(response_text)
+        
+        # Create Character objects
+        characters = [
+            Character(
+                name=char_data["name"],
+                aliases=char_data.get("aliases", []),
+                age=char_data.get("age"),
+                physical_description=char_data.get("physical_description", ""),
+                personality=char_data.get("personality", ""),
+                backstory=char_data.get("backstory", ""),
+                goals=char_data.get("goals", ""),
+                character_arc=char_data.get("character_arc", ""),
+                relationships=char_data.get("relationships", {}),
+                quirks=char_data.get("quirks", ""),
+                role=char_data.get("role", ""),
+                practical_complications=char_data.get("practical_complications", ""),
+                sensory_signatures=char_data.get("sensory_signatures", ""),
+                internal_obstacles=char_data.get("internal_obstacles", ""),
+                speech_patterns=char_data.get("speech_patterns", "")
+            )
+            for char_data in story_bible_data.get("characters", [])
+        ]
+        
+        # Create Setting objects
+        settings = [
+            Setting(
+                name=setting_data["name"],
+                description=setting_data.get("description", ""),
+                atmosphere=setting_data.get("atmosphere", ""),
+                significance=setting_data.get("significance", ""),
+                special_features=setting_data.get("special_features", ""),
+                sensory_palette=setting_data.get("sensory_palette", [])
+            )
+            for setting_data in story_bible_data.get("settings", [])
+        ]
+        
+        # Create StoryBible
+        story_bible = StoryBible(
+            project_id=premise.project_id,
+            characters=characters,
+            settings=settings,
+            themes=story_bible_data.get("themes", []),
+            humor_style=story_bible_data.get("humor_style", ""),
+            tone_notes=story_bible_data.get("tone_notes", ""),
+            genre_guidelines=story_bible_data.get("genre_guidelines", ""),
+            main_plot_arc=story_bible_data.get("main_plot_arc", ""),
+            subplots=story_bible_data.get("subplots", []),
+            key_milestones=story_bible_data.get("key_milestones", [])
+        )
+        
+        logger.info(
+            f"Story Bible generated successfully: "
+            f"{len(characters)} characters, {len(settings)} settings"
+        )
+        
+        return story_bible
+        
+    except Exception as e:
+        logger.error(f"Story Bible generation failed: {e}", exc_info=True)
+        raise
+
+
+def parse_story_bible_json(response: str) -> Dict[str, Any]:
+    """
+    Parse AI response as JSON, handling markdown code blocks.
+    
+    Args:
+        response: Raw AI response text
+        
+    Returns:
+        Parsed JSON dictionary
+        
+    Raises:
+        ValueError: If JSON parsing fails
+    """
+    # Strip markdown code blocks if present
+    content = response.strip()
+    
+    # Remove ```json ... ``` wrappers
+    if content.startswith("```"):
+        lines = content.split("\n")
+        if lines[0].strip().startswith("```"):
+            lines = lines[1:]  # Remove first ```json line
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]  # Remove closing ```
+        content = "\n".join(lines)
+    
+    # Parse JSON
+    try:
+        data = json.loads(content)
+        logger.debug(f"Successfully parsed Story Bible JSON: {list(data.keys())}")
+        return data
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parsing failed: {e}")
+        logger.error(f"Response content: {content[:1000]}...")
+        raise ValueError(f"Failed to parse Story Bible JSON: {e}")
+
+
+def format_story_bible_for_context(story_bible: StoryBible) -> str:
+    """
+    Format Story Bible as concise text for inclusion in AI prompts.
+    
+    Args:
+        story_bible: StoryBible object
+        
+    Returns:
+        Formatted text suitable for prompt context
+    """
+    lines = ["=== STORY BIBLE ===\n"]
+    
+    # Characters
+    lines.append("**CHARACTERS:**")
+    for char in story_bible.characters:
+        lines.append(f"\n- **{char.name}** ({char.role})")
+        if char.aliases:
+            lines.append(f"  Aliases: {', '.join(char.aliases)}")
+        if char.age:
+            lines.append(f"  Age: {char.age}")
+        lines.append(f"  Physical: {char.physical_description[:150]}...")
+        lines.append(f"  Personality: {char.personality[:150]}...")
+        lines.append(f"  Goals: {char.goals[:100]}...")
+        lines.append(f"  Arc: {char.character_arc[:150]}...")
+    
+    # Settings
+    lines.append("\n**SETTINGS:**")
+    for setting in story_bible.settings:
+        lines.append(f"\n- **{setting.name}**")
+        lines.append(f"  {setting.description[:200]}...")
+        lines.append(f"  Atmosphere: {setting.atmosphere[:100]}...")
+    
+    # Themes & Tone
+    lines.append("\n**THEMES:**")
+    for theme in story_bible.themes:
+        lines.append(f"- {theme}")
+    
+    lines.append(f"\n**TONE:** {story_bible.tone_notes}")
+    lines.append(f"**HUMOR:** {story_bible.humor_style}")
+    
+    # Plot
+    lines.append(f"\n**MAIN PLOT ARC:**\n{story_bible.main_plot_arc}")
+    
+    if story_bible.subplots:
+        lines.append("\n**SUBPLOTS:**")
+        for i, subplot in enumerate(story_bible.subplots, 1):
+            lines.append(f"{i}. {subplot}")
+    
+    lines.append("\n" + "="*50)
+    
+    return "\n".join(lines)

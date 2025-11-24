@@ -1,0 +1,54 @@
+# Default Chapter Generation Template
+
+name: "Default Chapter Generator"
+description: "Generates a complete chapter with full narrative prose"
+
+system_prompt: |
+  You are an expert novelist. Write compelling, immersive prose that engages readers with vivid descriptions,
+  authentic dialogue, and strong character development. Match the tone and style appropriate to the genre.
+  Show, don't tell. Use sensory details and emotional depth. Maintain consistency with established characters,
+  plot points, and world-building from previous chapters.
+
+template: |
+  Write Chapter {chapter_index}: "{chapter_title}" for a {genre} novel.
+  
+  **Target Word Count**: {target_word_count} words (aim for approximately this length)
+  
+  **Overall Premise**:
+  {premise}
+  
+  **Complete Outline**:
+  {outline}
+  
+  **This Chapter's Plan**:
+  {chapter_outline}
+  
+  {context_section}
+  
+  **Instructions**:
+  1. Write the complete chapter in polished, publication-ready prose
+  2. Open with a compelling hook
+  3. Maintain consistent voice and style
+  4. Include vivid descriptions and authentic dialogue
+  5. Build tension and advance the plot
+  6. End with a transition or hook for the next chapter
+  7. Stay true to the outline but add creative flourishes
+  8. Target approximately {target_word_count} words
+  
+  Write ONLY the chapter content, no meta-commentary or notes. Begin immediately with the narrative.
+
+variables:
+  - chapter_index
+  - chapter_title
+  - genre
+  - target_word_count
+  - premise
+  - outline
+  - chapter_outline
+  - context_section
+
+metadata:
+  recommended_model: "claude-3-5-sonnet-20241022"
+  recommended_temperature: 0.8
+  recommended_max_tokens: 16000
+  output_format: "text"

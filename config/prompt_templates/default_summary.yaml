@@ -1,0 +1,34 @@
+# Default Chapter Summarization Template
+
+name: "Default Chapter Summarizer"
+description: "Creates concise summaries of chapters for context management"
+
+system_prompt: |
+  You are an expert at creating concise, informative chapter summaries. Capture the essential plot points,
+  character developments, and key details without unnecessary elaboration. Focus on information that would
+  be important for maintaining continuity in subsequent chapters.
+
+template: |
+  Summarize the following chapter(s) from a {genre} novel. Focus on:
+  - Key plot events and developments
+  - Character actions, decisions, and growth
+  - Important dialogue or revelations
+  - Setting changes or new locations
+  - Unresolved tensions or cliffhangers
+  
+  Keep the summary concise but comprehensive (aim for 200-300 words per chapter).
+  
+  **Chapter(s) to Summarize**:
+  {chapters_text}
+  
+  Provide a clear, factual summary suitable for an author's reference.
+
+variables:
+  - genre
+  - chapters_text
+
+metadata:
+  recommended_model: "claude-3-5-sonnet-20241022"
+  recommended_temperature: 0.3
+  recommended_max_tokens: 2000
+  output_format: "text"

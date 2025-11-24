@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # MongoDB for local development
+  mongodb:
+    image: mongo:7
+    container_name: ai-novel-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: ai_novel_generator
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ai-novel-network
+
+  # Redis for Celery broker and result backend
+  redis:
+    image: redis:7-alpine
+    container_name: ai-novel-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-novel-network
+    command: redis-server --appendonly yes
+
+  # FastAPI backend
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ai-novel-api
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: development
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DATABASE: ai_novel_generator
+      REDIS_URI: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    volumes:
+      - ./backend:/app/backend
+      - ./config:/app/config
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ai-novel-network
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery worker
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ai-novel-worker
+    environment:
+      ENVIRONMENT: development
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DATABASE: ai_novel_generator
+      REDIS_URI: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    volumes:
+      - ./backend:/app/backend
+      - ./config:/app/config
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ai-novel-network
+    command: celery -A backend.workers.celery_app worker --loglevel=info --concurrency=2
+
+  # React frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: ai-novel-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    networks:
+      - ai-novel-network
+    command: npm run dev
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  ai-novel-network:
+    driver: bridge
