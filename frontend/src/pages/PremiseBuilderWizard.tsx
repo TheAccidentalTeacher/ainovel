@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 
 // ==================== TYPE DEFINITIONS ====================
@@ -88,6 +88,7 @@ const API_BASE = 'http://127.0.0.1:8000/api'
 
 export default function PremiseBuilderWizard() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -179,67 +180,74 @@ export default function PremiseBuilderWizard() {
 
   // Load or create session on mount
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search)
+    const mode = searchParams.get('mode') || 'new' // 'new' | 'resume'
+    console.log('🚦 [INIT] Wizard mode:', mode)
+
     const initSession = async () => {
       console.log('🚀 [INIT] Starting session initialization...')
       try {
         setIsLoading(true)
         setError(null)
-        
-        // Check localStorage for existing session
-        const savedSessionId = localStorage.getItem('premiseBuilderSessionId')
-        console.log('💾 [INIT] Checking localStorage for saved session:', savedSessionId)
-        
-        if (savedSessionId) {
-          // Try to load existing session
-          console.log('🔄 [INIT] Found saved session, attempting to restore:', savedSessionId)
-          const response = await fetch(`${API_BASE}/premise-builder/sessions/${savedSessionId}`)
-          console.log('📡 [API] Session fetch response status:', response.status)
-          
-          if (response.ok) {
-            const data = await response.json()
-            console.log('✅ [INIT] Successfully loaded existing session:', data)
-            
-            // Restore session state
-            const session = data.session
-            console.log('🔧 [STATE] Restoring session state - ID:', session.id, 'Step:', session.current_step)
-            
-            // Restore form data FIRST (before setting loading to false)
-            if (session.project_stub) {
-              console.log('📝 [STATE] Restoring project stub:', session.project_stub)
-              setProjectTitle(session.project_stub.title || '')
-              setLogline(session.project_stub.logline || '')
+        if (mode === 'resume') {
+          // Resume last saved session if possible
+          const savedSessionId = localStorage.getItem('premiseBuilderSessionId')
+          console.log('💾 [INIT] [RESUME] Checking localStorage for saved session:', savedSessionId)
+
+          if (savedSessionId) {
+            console.log('🔄 [INIT] [RESUME] Found saved session, attempting to restore:', savedSessionId)
+            const response = await fetch(`${API_BASE}/premise-builder/sessions/${savedSessionId}`)
+            console.log('📡 [API] Session fetch response status:', response.status)
+
+            if (response.ok) {
+              const data = await response.json()
+              console.log('✅ [INIT] Successfully loaded existing session:', data)
+
+              const session = data.session
+              console.log('🔧 [STATE] Restoring session state - ID:', session.id, 'Step:', session.current_step)
+
+              if (session.project_stub) {
+                console.log('📝 [STATE] Restoring project stub:', session.project_stub)
+                setProjectTitle(session.project_stub.title || '')
+                setLogline(session.project_stub.logline || '')
+              }
+              if (session.genre_profile) {
+                console.log('🎭 [STATE] Restoring genre profile:', session.genre_profile)
+                setPrimaryGenre(session.genre_profile.primary_genre || '')
+                setSecondaryGenre(session.genre_profile.secondary_genre || '')
+                setSubgenres(session.genre_profile.subgenres || [])
+              }
+              if (session.tone_theme_profile) {
+                console.log('🎨 [STATE] Restoring tone/theme profile:', session.tone_theme_profile)
+                setToneAdjectives(session.tone_theme_profile.tone_adjectives || [])
+                setDarknessLevel(session.tone_theme_profile.darkness_level || 5)
+                setHumorLevel(session.tone_theme_profile.humor_level || 5)
+                setThemes(session.tone_theme_profile.themes || [])
+                setEmotionalTone(session.tone_theme_profile.emotional_tone || '')
+                setCoreValues(session.tone_theme_profile.core_values || [])
+                setCentralQuestion(session.tone_theme_profile.central_question || '')
+                setAtmosphericElements(session.tone_theme_profile.atmospheric_elements || [])
+              }
+
+              setSessionId(session.id)
+              setCurrentStep(session.current_step)
+
+              console.log('✅ [INIT] Session restoration complete')
+              setIsLoading(false)
+              return
+            } else {
+              console.log('⚠️ [INIT] [RESUME] Saved session not found (status:', response.status, '), falling back to new session')
+              localStorage.removeItem('premiseBuilderSessionId')
             }
-            if (session.genre_profile) {
-              console.log('🎭 [STATE] Restoring genre profile:', session.genre_profile)
-              setPrimaryGenre(session.genre_profile.primary_genre || '')
-              setSecondaryGenre(session.genre_profile.secondary_genre || '')
-              setSubgenres(session.genre_profile.subgenres || [])
-            }
-            if (session.tone_theme_profile) {
-              console.log('🎨 [STATE] Restoring tone/theme profile:', session.tone_theme_profile)
-              setToneAdjectives(session.tone_theme_profile.tone_adjectives || [])
-              setDarknessLevel(session.tone_theme_profile.darkness_level || 5)
-              setHumorLevel(session.tone_theme_profile.humor_level || 5)
-              setThemes(session.tone_theme_profile.themes || [])
-              setEmotionalTone(session.tone_theme_profile.emotional_tone || '')
-              setCoreValues(session.tone_theme_profile.core_values || [])
-              setCentralQuestion(session.tone_theme_profile.central_question || '')
-              setAtmosphericElements(session.tone_theme_profile.atmospheric_elements || [])
-            }
-            
-            // Set session ID and step LAST, right before clearing loading
-            setSessionId(session.id)
-            setCurrentStep(session.current_step)
-            
-            console.log('✅ [INIT] Session restoration complete')
-            setIsLoading(false)
-            return
           } else {
-            console.log('⚠️ [INIT] Saved session not found (status:', response.status, '), creating new one')
-            localStorage.removeItem('premiseBuilderSessionId')
+            console.log('⚠️ [INIT] [RESUME] No saved sessionId found, falling back to new session')
           }
+        } else {
+          // Explicitly clear any old session when starting fresh
+          console.log('🧹 [INIT] [NEW] Clearing any saved session and starting fresh')
+          localStorage.removeItem('premiseBuilderSessionId')
         }
-        
+
         // Create new session
         const url = `${API_BASE}/premise-builder/sessions`
         console.log('🆕 [INIT] Creating new session at:', url)

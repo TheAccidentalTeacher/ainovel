@@ -1,14 +1,23 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { PlusIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from 'react'
 import apiClient from '../lib/api-client'
 import type { Project } from '../types'
 
 export default function HomePage() {
+  const [hasSavedSession, setHasSavedSession] = useState(false)
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiClient.listProjects(),
   })
+
+  // Check for saved premise builder session
+  useEffect(() => {
+    const savedSessionId = localStorage.getItem('premiseBuilderSessionId')
+    setHasSavedSession(!!savedSessionId)
+  }, [])
 
   if (isLoading) {
     return (
@@ -38,13 +47,24 @@ export default function HomePage() {
           <h1 className="text-3xl font-bold text-white">Your Projects</h1>
           <p className="text-gray-400 mt-1">Manage and create AI-generated novels</p>
         </div>
-        <Link
-          to="/new"
-          className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          New Project
-        </Link>
+        <div className="flex gap-3">
+          {hasSavedSession && (
+            <Link
+              to="/premise-builder/new?mode=resume"
+              className="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors border border-gray-600"
+            >
+              <span className="mr-2">📋</span>
+              Resume Last Session
+            </Link>
+          )}
+          <Link
+            to="/new"
+            className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            New Project
+          </Link>
+        </div>
       </div>
 
       {/* Projects Grid */}

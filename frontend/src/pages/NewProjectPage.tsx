@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import apiClient from '../lib/api-client'
@@ -7,6 +7,13 @@ import type { Genre } from '../types'
 export default function NewProjectPage() {
   const navigate = useNavigate()
   const [showManualForm, setShowManualForm] = useState(false)
+  const [hasSavedSession, setHasSavedSession] = useState(false)
+
+  // Check for saved premise builder session
+  useEffect(() => {
+    const savedSessionId = localStorage.getItem('premiseBuilderSessionId')
+    setHasSavedSession(!!savedSessionId)
+  }, [])
   const [formData, setFormData] = useState({
     title: '',
     genre: '',
@@ -148,6 +155,29 @@ export default function NewProjectPage() {
             </button>
           </div>
         </div>
+
+        {/* Resume Saved Session Option */}
+        {hasSavedSession && (
+          <div className="mt-6">
+            <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">💾</span>
+                  <div>
+                    <h3 className="text-blue-300 font-medium">Resume Previous Session</h3>
+                    <p className="text-blue-200 text-sm">You have an unfinished guided premise builder session</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/premise-builder/new?mode=resume')}
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  Resume
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 text-center">
           <button
