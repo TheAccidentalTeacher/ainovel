@@ -34,11 +34,17 @@ async def get_genres() -> List[Genre]:
         return _genre_cache
     
     # Load from JSON file
-    project_root = Path(__file__).parent.parent.parent
-    genres_path = project_root / "config" / "genres.json"
+    # In Docker: /app/config/genres.json, Local: ../config/genres.json
+    genres_path = Path(__file__).parent.parent / "config" / "genres.json"
+    if not genres_path.exists():
+        # Fallback for different directory structures
+        genres_path = Path(__file__).parent.parent.parent / "config" / "genres.json"
     
     if not genres_path.exists():
-        logger.error("genres_file_not_found", path=str(genres_path))
+        logger.error("genres_file_not_found", path=str(genres_path), checked_paths=[
+            str(Path(__file__).parent.parent / "config" / "genres.json"),
+            str(Path(__file__).parent.parent.parent / "config" / "genres.json")
+        ])
         return []
     
     try:
