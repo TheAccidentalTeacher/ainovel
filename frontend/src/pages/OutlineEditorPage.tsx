@@ -136,7 +136,7 @@ export default function OutlineEditorPage() {
                 <input
                   type="text"
                   value={(chapter.characters_present || []).join(', ')}
-                  onChange={(e) => updateChapter(index, 'characters_present', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                  onChange={(e) => updateChapter(index, 'characters_present', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
                   className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
                   placeholder="Character names (comma separated)..."
                 />
@@ -146,7 +146,7 @@ export default function OutlineEditorPage() {
                 <input
                   type="text"
                   value={(chapter.locations || []).join(', ')}
-                  onChange={(e) => updateChapter(index, 'locations', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                  onChange={(e) => updateChapter(index, 'locations', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
                   className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
                   placeholder="Location names (comma separated)..."
                 />
@@ -203,7 +203,7 @@ export default function OutlineEditorPage() {
               <input
                 type="text"
                 value={(chapter.tone_notes || []).join(', ')}
-                onChange={(e) => updateChapter(index, 'tone_notes', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                onChange={(e) => updateChapter(index, 'tone_notes', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
                 className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
                 placeholder="Mood tags: humor, tension, romance, etc. (comma separated)..."
               />
