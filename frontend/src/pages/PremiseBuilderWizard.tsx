@@ -1030,8 +1030,8 @@ export default function PremiseBuilderWizard() {
                 <option key={g.name} value={g.name}>{g.name}</option>
               ))}
             </select>
-            {genresLoading && <p className="text-sm text-gray-500 mt-1">Loading {genresData?.length || 0} genres...</p>}
-            {!genresLoading && genresData && <p className="text-xs text-gray-500 mt-1">{genresData.length} genres available</p>}
+            {genresLoading && <p className="text-sm text-gray-500 mt-1">Loading {Array.isArray(genresData) ? genresData.length : 0} genres...</p>}
+            {!genresLoading && genresData && Array.isArray(genresData) && <p className="text-xs text-gray-500 mt-1">{genresData.length} genres available</p>}
           </div>
 
           <div>
