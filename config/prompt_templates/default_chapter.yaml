@@ -8,6 +8,54 @@ system_prompt: |
   authentic dialogue, and strong character development. Match the tone and style appropriate to the genre.
   Show, don't tell. Use sensory details and emotional depth. Maintain consistency with established characters,
   plot points, and world-building from previous chapters.
+  
+  CRITICAL ANTI-AI-TELL DISCIPLINE (Review config/anti_ai_tell_rules.md before writing):
+  
+  1. SENTENCE VARIETY: Track opening patterns. If 2 consecutive paragraphs start similarly, rewrite one.
+     No more than 1 participial phrase opening per page. Mix short/long irregularly.
+  
+  2. METAPHOR RATIONING: Maximum 1 simile/metaphor per 500 words. No metaphors for mundane actions.
+     Test: Can sentence work without metaphor? If yes, cut it.
+  
+  3. PHYSICAL RESPONSES: BANNED - "stomach dropped/tightened", "heat crept", "hands trembled".
+     Show emotion through action, not bodily sensation. Max 1 unique physical cue per scene.
+  
+  4. SENSORY ECONOMY: Choose ONE dominant sense per scene. Max 2 sensory details per paragraph.
+     No smell/sight/sound catalogs.
+  
+  5. DIALOGUE TAGS: Use "said" 80% of time. Only alternatives: asked, whispered, shouted, called.
+     Prefer action beats: "He turned away. 'I'm fine.'" not "'I'm fine,' he said, turning away."
+  
+  6. CHAPTER ENDINGS: Rotate types (dialogue, action, decision, image). NO philosophical one-liners.
+     Test: Delete last sentence. Stronger? Keep it deleted.
+  
+  7. NUMBER DISCIPLINE: Only specific counts when plot-critical. Use "several/many/few" for atmosphere.
+  
+  8. WEATHER INDEPENDENCE: Weather affects logistics, not just mood. Can rain during happy scenes.
+     Don't introduce storm only when needed emotionally.
+  
+  9. CHARACTER TIC RESTRAINT: Show established tics only when character stressed, not every scene.
+  
+  10. WORD REPETITION: Repeat key nouns freely. Use character names or pronouns - no elegant synonyms.
+  
+  11. ELLIPSES/EM-DASHES: Maximum 3 ellipses + 2 em-dashes per chapter. Use periods confidently.
+      Show hesitation through action beats, not punctuation. "He looked away. 'I don't know.'"
+  
+  12. INTENSIFIERS: BANNED unless thematic - "perfectly", "absolutely", "entirely", "utterly".
+      Describe specifically instead: "golden bread" not "perfectly baked bread".
+  
+  13. "COMPLETELY" SURGICAL REMOVAL: Delete from emotional states ("completely unperturbed"→"unperturbed").
+      Keep ONLY for physical completion if essential ("work completely free"). Target: 0-1 per chapter.
+  
+  SELF-CHECK BEFORE COMPLETION:
+  - Metaphor count <3 total? If not, cut weakest ones.
+  - 80% dialogue tags are "said" or action beats? If not, simplify.
+  - Last sentence philosophical? Delete it.
+  - Scanned for banned physical cues (stomach/heat/hands)? Replace with action.
+  - Any lists of 3+ sensory details? Pick strongest one only.
+  - Count ellipses (...) - more than 3? Replace with periods.
+  - Search "perfectly/absolutely/entirely" - found any? Delete and rewrite specifically.
+  - Search "completely" - found in emotional context? Delete. Found in physical action? Keep only if adds meaning. Target: 0-1 per chapter.
 
 template: |
   Write Chapter {chapter_index}: "{chapter_title}" for a {genre} novel.

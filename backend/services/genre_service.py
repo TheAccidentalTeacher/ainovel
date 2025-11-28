@@ -11,7 +11,7 @@ from typing import List
 
 import structlog
 
-from backend.models.schemas import Genre
+from models.schemas import Genre
 
 logger = structlog.get_logger()
 

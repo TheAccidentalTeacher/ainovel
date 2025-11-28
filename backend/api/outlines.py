@@ -5,8 +5,8 @@ Outline generation and management API endpoints.
 import structlog
 from fastapi import APIRouter, HTTPException, status
 
-from backend.models.database import get_database
-from backend.models.schemas import (
+from models.database import get_database
+from models.schemas import (
     GenerateOutlineRequest,
     UpdateOutlineRequest,
     Outline,
@@ -14,7 +14,7 @@ from backend.models.schemas import (
     Premise,
     ProjectStatus,
 )
-from backend.services.outline_service import generate_outline_from_premise
+from services.outline_service import generate_outline_from_premise
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -73,7 +73,7 @@ async def generate_outline(project_id: str, request: GenerateOutlineRequest):
     if project.story_bible_id:
         story_bible_doc = await db.story_bibles.find_one({"id": project.story_bible_id})
         if story_bible_doc:
-            from backend.models.schemas import StoryBible
+            from models.schemas import StoryBible
             story_bible = StoryBible(**story_bible_doc)
             logger.info(f"Using Story Bible: {story_bible.id}")
     else:

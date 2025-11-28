@@ -9,8 +9,8 @@ from typing import Optional
 from datetime import datetime
 import structlog
 
-from backend.models.schemas import Chapter, ChapterSummary, AIConfig, AIProvider
-from backend.services.ai_service import get_ai_service
+from models.schemas import Chapter, ChapterSummary, AIConfig, AIProvider
+from services.ai_service import get_ai_service
 
 logger = structlog.get_logger()
 

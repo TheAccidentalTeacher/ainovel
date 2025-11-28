@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from backend.models.premise_builder import (
+from models.premise_builder import (
     BuilderSessionStatus,
     PremiseBuilderSession,
     CreateBuilderSessionRequest,
@@ -30,8 +30,8 @@ from backend.models.premise_builder import (
     StructureTargets,
     ConstraintsProfile,
 )
-from backend.models.database import get_database
-from backend.services.premise_builder_service import PremiseBuilderService
+from models.database import get_database
+from services.premise_builder_service import PremiseBuilderService
 
 
 logger = logging.getLogger(__name__)
@@ -203,6 +203,43 @@ async def invoke_ai_assistant(
         raise HTTPException(status_code=500, detail=f"AI assistance failed: {str(e)}")
 
 
+@router.post("/sessions/{session_id}/ai/debug")
+async def debug_ai_prompt(
+    session_id: str,
+    request: AIAssistRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> dict:
+    """
+    DEBUG endpoint: Shows exact prompt that will be sent to AI.
+    
+    Returns the full prompt with all genre selections, comedy elements, etc.
+    Use this to verify your selections are actually being included.
+    """
+    service = PremiseBuilderService(db)
+    
+    session = await service.get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+    
+    # Build the prompt without actually calling AI
+    prompt = service._build_assistant_prompt(
+        session=session,
+        action=request.action,
+        context=request.context,
+        user_input=request.user_input
+    )
+    
+    return {
+        "session_id": session_id,
+        "action": request.action,
+        "context": request.context,
+        "full_prompt": prompt,
+        "prompt_length": len(prompt),
+        "comedy_elements_in_context": request.context.get("comedy_elements", []),
+        "subgenres_in_context": request.context.get("subgenres", [])
+    }
+
+
 @router.post("/sessions/{session_id}/baseline", response_model=BuilderSessionResponse)
 async def generate_baseline_premise(
     session_id: str,
@@ -221,19 +258,15 @@ async def generate_baseline_premise(
     if not session:
         raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
     
-    # Validate prerequisites
-    if not all([
-        session.genre_profile,
-        session.tone_theme_profile,
-        session.character_seeds,
-        session.plot_intent,
-        session.structure_targets,
-        session.constraints_profile
-    ]):
+    # Validate minimum prerequisites - need at least genre to generate anything meaningful
+    if not session.genre_profile:
         raise HTTPException(
             status_code=400,
-            detail="Cannot generate baseline premise. Complete steps 1-6 first."
+            detail="Cannot generate baseline premise. At least genre (step 1) is required."
         )
+    
+    # Warn if skipping steps but allow generation to proceed
+    # The AI will work with whatever information is available
     
     try:
         updated_session = await service.generate_baseline_premise(
@@ -389,3 +422,31 @@ async def abandon_builder_session(
     except Exception as e:
         logger.error(f"Failed to abandon session {session_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to abandon session: {str(e)}")
+
+
+@router.get("/sessions/{session_id}/preview")
+async def get_session_preview(
+    session_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Get live HTML preview of premise decisions made so far.
+    
+    Returns a styled HTML document showing all decisions in a readable format.
+    """
+    from fastapi.responses import HTMLResponse
+    from services.premise_preview_service import generate_preview_html
+    
+    service = PremiseBuilderService(db)
+    
+    session = await service.get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+    
+    try:
+        html_content = generate_preview_html(session)
+        return HTMLResponse(content=html_content)
+    
+    except Exception as e:
+        logger.error(f"Failed to generate preview for session {session_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to generate preview: {str(e)}")

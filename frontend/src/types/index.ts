@@ -118,6 +118,7 @@ export interface Project {
   outline_id?: string;
   genre?: string;
   subgenre?: string;
+  folder?: string;
   total_chapters: number;
   completed_chapters: number;
   total_word_count: number;

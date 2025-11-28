@@ -8,8 +8,8 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import StreamingResponse
 
-from backend.models.database import get_database
-from backend.models.schemas import (
+from models.database import get_database
+from models.schemas import (
     Chapter,
     ChapterOutline,
     ChapterSummary,
@@ -19,8 +19,8 @@ from backend.models.schemas import (
     Outline,
     ProjectStatus,
 )
-from backend.services.chapter_service import generate_chapter_from_outline, format_chapter_generation_prompt, CHAPTER_SYSTEM_PROMPT
-from backend.services.ai_service import get_ai_service
+from services.chapter_service import generate_chapter_from_outline, format_chapter_generation_prompt, CHAPTER_SYSTEM_PROMPT
+from services.ai_service import get_ai_service
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -464,3 +464,38 @@ async def delete_chapter(project_id: str, chapter_index: int) -> None:
         )
     
     logger.info("chapter_deleted", project_id=project_id, chapter_index=chapter_index)
+
+
+@router.delete(
+    "/{project_id}/chapters",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete All Chapters",
+    description="Delete all chapters for a project (used before regenerating)"
+)
+async def delete_all_chapters(project_id: str) -> None:
+    """
+    Delete all chapters for a project.
+    
+    Args:
+        project_id: Project UUID
+        
+    Raises:
+        HTTPException: 404 if project not found
+    """
+    db = await get_database()
+    
+    # Verify project exists
+    project_doc = await db.projects.find_one({"id": project_id})
+    if not project_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_id} not found"
+        )
+    
+    # Delete all chapters
+    result = await db.chapters.delete_many({"project_id": project_id})
+    
+    # Also delete all summaries
+    await db.summaries.delete_many({"project_id": project_id})
+    
+    logger.info("all_chapters_deleted", project_id=project_id, count=result.deleted_count)

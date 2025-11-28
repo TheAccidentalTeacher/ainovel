@@ -12,8 +12,8 @@ from fastapi.responses import StreamingResponse
 import structlog
 import json
 
-from backend.models.database import get_database
-from backend.models.schemas import (
+from models.database import get_database
+from models.schemas import (
     Project,
     Premise,
     StoryBible,
@@ -23,8 +23,8 @@ from backend.models.schemas import (
     AIConfig,
     AIProvider,
 )
-from backend.services.chapter_service import generate_chapter_from_outline
-from backend.services.summary_service import generate_chapter_summary
+from services.chapter_service import generate_chapter_from_outline
+from services.summary_service import generate_chapter_summary
 
 logger = structlog.get_logger()
 
@@ -86,10 +86,13 @@ async def generate_all_chapters(
         project_id=project_id,
         total_chapters=len(outline.chapters),
         has_story_bible=story_bible is not None,
+        chapter_count=len(outline.chapters),
+        outline_chapters=[{"index": ch.chapter_index, "title": ch.title} for ch in outline.chapters],
     )
     
     async def generation_stream() -> AsyncIterator[str]:
         """Generate all chapters and yield progress events."""
+        logger.info("generation_stream_started", project_id=project_id)
         total_words = 0
         
         try:
@@ -115,6 +118,12 @@ async def generate_all_chapters(
                     continue
                 
                 try:
+                    logger.info(
+                        "fetching_context",
+                        project_id=project_id,
+                        chapter_index=chapter_index,
+                    )
+                    
                     # Fetch previous chapters for context
                     previous_chapters_docs = await db.chapters.find({
                         "project_id": project_id,
@@ -134,6 +143,7 @@ async def generate_all_chapters(
                         chapter_index=chapter_index,
                         context_chapters=len(previous_chapters),
                         context_summaries=len(previous_summaries),
+                        chapter_title=chapter_outline.title,
                     )
                     
                     # Configure AI for more human-like variation
@@ -145,6 +155,11 @@ async def generate_all_chapters(
                     )
                     
                     # Generate chapter with context
+                    logger.info(
+                        "calling_chapter_service",
+                        project_id=project_id,
+                        chapter_index=chapter_index,
+                    )
                     chapter = await generate_chapter_from_outline(
                         chapter_outline=chapter_outline,
                         premise=premise,
@@ -155,11 +170,30 @@ async def generate_all_chapters(
                         previous_summaries=previous_summaries,
                     )
                     
+                    logger.info(
+                        "chapter_generation_complete",
+                        project_id=project_id,
+                        chapter_index=chapter_index,
+                        word_count=chapter.word_count,
+                        chapter_id=chapter.id,
+                    )
+                    
                     # Save chapter
+                    logger.info(
+                        "saving_chapter",
+                        project_id=project_id,
+                        chapter_index=chapter_index,
+                        chapter_id=chapter.id,
+                    )
                     await db.chapters.insert_one(chapter.model_dump())
                     total_words += chapter.word_count
                     
                     # Send chapter complete event
+                    logger.info(
+                        "sending_chapter_complete_event",
+                        project_id=project_id,
+                        chapter_index=chapter_index,
+                    )
                     yield f"data: {json.dumps({'event': 'chapter_complete', 'chapter_index': chapter_index, 'word_count': chapter.word_count, 'chapter_id': chapter.id})}\n\n"
                     
                     logger.info(

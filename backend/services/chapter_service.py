@@ -7,7 +7,7 @@ import structlog
 from typing import Optional, Tuple, List
 from datetime import datetime
 
-from backend.models.schemas import (
+from models.schemas import (
     ChapterOutline,
     StoryBible,
     Chapter,
@@ -15,12 +15,57 @@ from backend.models.schemas import (
     AIConfig,
     Premise,
 )
-from backend.services.ai_service import get_ai_service
-from backend.services.context_builder import build_chapter_context
+from services.ai_service import get_ai_service
+from services.context_builder import build_chapter_context
 
 logger = structlog.get_logger()
 
+
+def _get_darkness_guidance(level: int) -> str:
+    """Get AI guidance for darkness level."""
+    guidance = {
+        1: "Pure lighthearted - conflicts resolve easily, minimal tension, feel-good throughout",
+        2: "Mostly cheerful - small challenges that build character, gentle emotional beats",
+        3: "Lightly serious - meaningful conflicts with low real danger, uplifting resolution",
+        4: "Gentle drama - emotional depth without trauma, relationships tested but not broken",
+        5: "Balanced - authentic challenges, earned victories, bittersweet moments possible",
+        6: "Moderately dark - real consequences, difficult choices, some pain but not overwhelming",
+        7: "Notably dark - trauma possible, morally gray situations, victories come with cost",
+        8: "Very dark - brutal realism, characters broken and changed, hope is fragile",
+        9: "Grimdark - nihilistic elements, pyrrhic victories, goodness is rare and costly",
+        10: "Maximum darkness - unflinching brutality, systemic evil, survival is the only victory"
+    }
+    return guidance.get(level, "")
+
+
+def _get_humor_guidance(level: int) -> str:
+    """Get AI guidance for humor level."""
+    guidance = {
+        1: "Deadly serious - zero comedic relief, tension never breaks, characters don't joke",
+        2: "Mostly serious - occasional wry observation, but humor is fleeting and dry",
+        3: "Lightly earnest - understated humor, characters may smile but rarely laugh",
+        4: "Gentle humor - situational comedy, gentle teasing, wholesome funny moments",
+        5: "Balanced - comedy emerges organically from character/situation, not forced",
+        6: "Moderately funny - witty banter, comedic subplots, laugh-out-loud moments",
+        7: "Very humorous - running gags, comedic set pieces, even serious moments have levity",
+        8: "Predominantly comedy - constant jokes, physical comedy, characters are comedic archetypes",
+        9: "Farcical - absurd scenarios, slapstick dominates, reality takes a backseat",
+        10: "Pure comedy - maximalist humor, no sincere moments, everything is a punchline"
+    }
+    return guidance.get(level, "")
+
+
 CHAPTER_SYSTEM_PROMPT = """You are an expert novelist specializing in narrative prose. Your task is to write a complete chapter based on the provided outline and Story Bible.
+
+**THEOLOGICAL FRAMEWORK FOR CHRISTIAN FICTION:**
+When writing Christian genre fiction, assume conservative evangelical/Reformed Baptist theology:
+- Grace through faith alone (sola fide), not works-based salvation
+- Scripture as ultimate authority (sola scriptura)  
+- Personal conversion experience and ongoing relationship with Christ
+- Believer's baptism by immersion
+- Congregational church governance
+- Avoid Catholic sacramental theology, papal authority, salvation through church/sacraments, or prayers to Mary/saints (except in historical settings where Catholicism is period-accurate)
+These theological underpinnings should naturally inform character worldviews, moral reasoning, prayer life, and spiritual themes without being preachy or didactic. Characters should wrestle with faith authentically, not deliver sermons.
 
 **Your writing must:**
 - Follow the exact structure provided (opening scene → plot events → closing scene)
@@ -311,9 +356,36 @@ async def generate_chapter_from_outline(
         else:
             logger.warning("Generating chapter without Story Bible - may lack consistency")
         
-        # Add premise context
+        # Add premise context with comprehensive genre guidance
         prompt_parts.append("=== STORY PREMISE ===")
-        prompt_parts.append(f"Genre: {premise.genre} / {premise.subgenre}")
+        
+        genre_guidance = f"Genre: {premise.genre}"
+        if premise.subgenre:
+            genre_guidance += f" / {premise.subgenre}"
+        
+        if premise.subgenres:
+            genre_guidance += f"\nSubgenres to Blend: {', '.join(premise.subgenres)}"
+            genre_guidance += "\n  → Incorporate authentic elements from ALL these subgenres"
+        
+        if premise.comedy_elements:
+            genre_guidance += f"\nComedy Elements: {', '.join(premise.comedy_elements)}"
+            genre_guidance += "\n  → CRITICAL: Showcase these comedy styles where appropriate in this chapter"
+        
+        if premise.tone_adjectives:
+            genre_guidance += f"\nTone: {', '.join(premise.tone_adjectives)}"
+        
+        if premise.darkness_level is not None:
+            darkness_guidance = _get_darkness_guidance(premise.darkness_level)
+            genre_guidance += f"\nDarkness Level: {premise.darkness_level}/10 - {darkness_guidance}"
+        
+        if premise.humor_level is not None:
+            humor_guidance = _get_humor_guidance(premise.humor_level)
+            genre_guidance += f"\nHumor Level: {premise.humor_level}/10 - {humor_guidance}"
+        
+        if premise.themes:
+            genre_guidance += f"\nThemes to Explore: {', '.join(premise.themes)}"
+        
+        prompt_parts.append(genre_guidance)
         prompt_parts.append(f"\n{premise.content}")
         prompt_parts.append("\n" + "=" * 50 + "\n")
         
@@ -394,7 +466,7 @@ def format_chapter_generation_prompt(
     """
     # Use context builder for rich context
     if previous_chapters or previous_summaries:
-        from backend.services.context_builder import ChapterContext
+        from services.context_builder import ChapterContext
         
         context = ChapterContext(
             story_bible=story_bible,
@@ -415,9 +487,36 @@ def format_chapter_generation_prompt(
             prompt_parts.append(format_story_bible_for_chapter(story_bible))
             prompt_parts.append("\n" + "=" * 50 + "\n")
         
-        # Add premise context
+        # Add premise context with comprehensive genre guidance
         prompt_parts.append("=== STORY PREMISE ===")
-        prompt_parts.append(f"Genre: {premise.genre} / {premise.subgenre}")
+        
+        genre_guidance = f"Genre: {premise.genre}"
+        if premise.subgenre:
+            genre_guidance += f" / {premise.subgenre}"
+        
+        if premise.subgenres:
+            genre_guidance += f"\nSubgenres to Blend: {', '.join(premise.subgenres)}"
+            genre_guidance += "\n  → Incorporate authentic elements from ALL these subgenres"
+        
+        if premise.comedy_elements:
+            genre_guidance += f"\nComedy Elements: {', '.join(premise.comedy_elements)}"
+            genre_guidance += "\n  → CRITICAL: Showcase these comedy styles where appropriate in this chapter"
+        
+        if premise.tone_adjectives:
+            genre_guidance += f"\nTone: {', '.join(premise.tone_adjectives)}"
+        
+        if premise.darkness_level is not None:
+            darkness_guidance = _get_darkness_guidance(premise.darkness_level)
+            genre_guidance += f"\nDarkness Level: {premise.darkness_level}/10 - {darkness_guidance}"
+        
+        if premise.humor_level is not None:
+            humor_guidance = _get_humor_guidance(premise.humor_level)
+            genre_guidance += f"\nHumor Level: {premise.humor_level}/10 - {humor_guidance}"
+        
+        if premise.themes:
+            genre_guidance += f"\nThemes: {', '.join(premise.themes)}"
+        
+        prompt_parts.append(genre_guidance)
         prompt_parts.append(f"\n{premise.content}")
         prompt_parts.append("\n" + "=" * 50 + "\n")
         
@@ -428,7 +527,7 @@ def format_chapter_generation_prompt(
     prompt = "\n".join(prompt_parts)
     
     # Calculate token needs
-    from backend.models.schemas import AIProvider
+    from models.schemas import AIProvider
     estimated_tokens = int(chapter_outline.target_word_count * 1.5)
     max_tokens = min(64000, max(estimated_tokens, 8000))
     

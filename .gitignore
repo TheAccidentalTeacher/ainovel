@@ -37,6 +37,10 @@ ENV/
 .env
 .env.local
 .env.*.local
+.env.railway
+backend/.env
+backend/.env.local
+backend/.env.railway
 
 # Testing
 .pytest_cache/

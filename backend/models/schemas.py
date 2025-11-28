@@ -88,6 +88,17 @@ class Premise(BaseModel):
     project_id: str = Field(..., description="Parent project ID")
     genre: str = Field(..., description="Primary genre")
     subgenre: Optional[str] = Field(None, description="Subgenre if applicable")
+    
+    # Extended genre data for comprehensive AI prompting
+    subgenres: List[str] = Field(default_factory=list, description="All selected subgenres")
+    comedy_elements: List[str] = Field(default_factory=list, description="Comedy styles to incorporate")
+    
+    # Tone and theme data
+    tone_adjectives: List[str] = Field(default_factory=list, description="Tone descriptors")
+    darkness_level: Optional[int] = Field(None, ge=1, le=10, description="Darkness level 1-10")
+    humor_level: Optional[int] = Field(None, ge=1, le=10, description="Humor level 1-10")
+    themes: List[str] = Field(default_factory=list, description="Major thematic elements")
+    
     target_word_count: int = Field(..., ge=1000, le=250000, description="Target manuscript word count")
     target_chapter_count: int = Field(..., ge=1, le=100, description="Target number of chapters")
     content: str = Field(..., min_length=10, description="Premise text (up to 5000 words)")
@@ -289,6 +300,7 @@ class Project(BaseModel):
     # Metadata
     genre: Optional[str] = Field(None, description="Primary genre")
     subgenre: Optional[str] = Field(None, description="Subgenre")
+    folder: Optional[str] = Field(None, description="Optional folder for organization (e.g., 'Series Name', 'Drafts')")
     total_chapters: int = Field(0, description="Total chapters planned")
     completed_chapters: int = Field(0, description="Chapters successfully generated")
     total_word_count: int = Field(0, description="Cumulative manuscript word count")
@@ -316,6 +328,7 @@ class CreateProjectRequest(BaseModel):
     title: Optional[str] = Field(None, description="Project title")
     genre: str = Field(..., description="Primary genre")
     subgenre: Optional[str] = Field(None, description="Subgenre")
+    folder: Optional[str] = Field(None, description="Optional folder for organization")
     target_word_count: int = Field(..., ge=1000, le=250000)
     target_chapter_count: int = Field(..., ge=1, le=100)
     premise: str = Field(..., min_length=10, description="Premise content (up to 5000 words)")

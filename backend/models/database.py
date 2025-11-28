@@ -10,7 +10,7 @@ from typing import Optional
 import structlog
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
-from backend.config.settings import get_settings
+from config.settings import get_settings
 
 logger = structlog.get_logger()
 
@@ -101,6 +101,12 @@ async def _create_indexes(db: AsyncIOMotorDatabase) -> None:
     
     # Summaries collection indexes
     await db.summaries.create_index([("project_id", 1), ("chapter_range", 1)])
+    
+    # Book covers collection indexes
+    await db.book_covers.create_index("project_id")
+    await db.book_covers.create_index([("status", 1), ("created_at", -1)])
+    await db.cover_design_briefs.create_index("project_id")
+    await db.cover_iterations.create_index("book_cover_id")
     
     logger.info("database_indexes_created")
 

@@ -10,7 +10,7 @@ from typing import Dict, Any, Optional
 
 import structlog
 
-from backend.models.schemas import (
+from models.schemas import (
     Premise,
     Outline,
     ChapterOutline,
@@ -18,13 +18,57 @@ from backend.models.schemas import (
     Project,
     StoryBible
 )
-from backend.services.ai_service import get_ai_service
-from backend.services.story_bible_service import format_story_bible_for_context
+from services.ai_service import get_ai_service
+from services.story_bible_service import format_story_bible_for_context
 
 logger = structlog.get_logger()
 
 
+def _get_darkness_guidance(level: int) -> str:
+    """Get AI guidance for darkness level."""
+    guidance = {
+        1: "Pure lighthearted - conflicts resolve easily, minimal tension, feel-good throughout",
+        2: "Mostly cheerful - small challenges that build character, gentle emotional beats",
+        3: "Lightly serious - meaningful conflicts with low real danger, uplifting resolution",
+        4: "Gentle drama - emotional depth without trauma, relationships tested but not broken",
+        5: "Balanced - authentic challenges, earned victories, bittersweet moments possible",
+        6: "Moderately dark - real consequences, difficult choices, some pain but not overwhelming",
+        7: "Notably dark - trauma possible, morally gray situations, victories come with cost",
+        8: "Very dark - brutal realism, characters broken and changed, hope is fragile",
+        9: "Grimdark - nihilistic elements, pyrrhic victories, goodness is rare and costly",
+        10: "Maximum darkness - unflinching brutality, systemic evil, survival is the only victory"
+    }
+    return guidance.get(level, "")
+
+
+def _get_humor_guidance(level: int) -> str:
+    """Get AI guidance for humor level."""
+    guidance = {
+        1: "Deadly serious - zero comedic relief, tension never breaks, characters don't joke",
+        2: "Mostly serious - occasional wry observation, but humor is fleeting and dry",
+        3: "Lightly earnest - understated humor, characters may smile but rarely laugh",
+        4: "Gentle humor - situational comedy, gentle teasing, wholesome funny moments",
+        5: "Balanced - comedy emerges organically from character/situation, not forced",
+        6: "Moderately funny - witty banter, comedic subplots, laugh-out-loud moments",
+        7: "Very humorous - running gags, comedic set pieces, even serious moments have levity",
+        8: "Predominantly comedy - constant jokes, physical comedy, characters are comedic archetypes",
+        9: "Farcical - absurd scenarios, slapstick dominates, reality takes a backseat",
+        10: "Pure comedy - maximalist humor, no sincere moments, everything is a punchline"
+    }
+    return guidance.get(level, "")
+
+
 OUTLINE_SYSTEM_PROMPT = """You are an expert novel outlining consultant. You MUST return valid JSON with structured chapter data.
+
+**THEOLOGICAL FRAMEWORK FOR CHRISTIAN FICTION:**
+When working with Christian genre fiction, assume conservative evangelical/Reformed Baptist theology:
+- Grace through faith alone (sola fide), not works-based salvation
+- Scripture as ultimate authority (sola scriptura)
+- Personal conversion and relationship with Christ
+- Believer's baptism by immersion
+- Congregational church governance
+- Avoid Catholic sacramental theology, papal authority, or salvation through church/sacraments (except in historical settings where Catholicism is period-accurate)
+These theological underpinnings should naturally inform character worldviews, moral reasoning, and spiritual themes without being preachy or didactic.
 
 **CRITICAL: You must return ONLY valid JSON in this EXACT format:**
 
@@ -88,10 +132,37 @@ def create_outline_prompt(
     else:
         story_bible_context = "(No Story Bible available - extract from premise)"
     
+    # Build comprehensive genre guidance
+    genre_guidance = f"""**Genre:** {premise.genre}"""
+    if premise.subgenre:
+        genre_guidance += f"\n**Subgenre:** {premise.subgenre}"
+    
+    if premise.subgenres:
+        genre_guidance += f"\n**Subgenres to Blend:** {', '.join(premise.subgenres)}"
+        genre_guidance += f"\n  → Your outline MUST authentically incorporate elements from ALL these subgenres"
+    
+    if premise.comedy_elements:
+        genre_guidance += f"\n**Comedy Elements:** {', '.join(premise.comedy_elements)}"
+        genre_guidance += f"\n  → CRITICAL: Showcase these comedy styles prominently in appropriate chapters"
+    
+    if premise.tone_adjectives:
+        genre_guidance += f"\n**Tone:** {', '.join(premise.tone_adjectives)}"
+    
+    if premise.darkness_level is not None:
+        darkness_guidance = _get_darkness_guidance(premise.darkness_level)
+        genre_guidance += f"\n**Darkness Level:** {premise.darkness_level}/10 - {darkness_guidance}"
+    
+    if premise.humor_level is not None:
+        humor_guidance = _get_humor_guidance(premise.humor_level)
+        genre_guidance += f"\n**Humor Level:** {premise.humor_level}/10 - {humor_guidance}"
+    
+    if premise.themes:
+        genre_guidance += f"\n**Themes to Explore:** {', '.join(premise.themes)}"
+    
     return f"""Generate a detailed {target_chapter_count}-chapter outline for this novel:
 
-**Genre:** {premise.genre}
-**Subgenre:** {premise.subgenre or 'General'}
+{genre_guidance}
+
 **Target Word Count:** {premise.target_word_count:,} words
 **Target Chapters:** {target_chapter_count}
 **Words per Chapter:** ~{premise.target_word_count // target_chapter_count:,}

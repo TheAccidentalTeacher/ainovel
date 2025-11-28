@@ -12,7 +12,7 @@ from docx import Document
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-from backend.models.schemas import Project, Premise, Chapter
+from models.schemas import Project, Premise, Chapter
 
 logger = structlog.get_logger()
 
@@ -120,3 +120,75 @@ def generate_manuscript_docx(
     )
     
     return buffer
+
+
+def generate_manuscript_markdown(
+    project: Project,
+    premise: Premise,
+    chapters: list[Chapter],
+) -> str:
+    """
+    Generate a complete manuscript in Markdown format.
+    
+    Args:
+        project: Project metadata
+        premise: Project premise with genre info
+        chapters: List of chapters in order
+        
+    Returns:
+        String containing full manuscript in Markdown
+    """
+    logger.info(
+        "generating_manuscript_markdown",
+        project_id=project.id,
+        chapter_count=len(chapters),
+        total_words=sum(ch.word_count for ch in chapters),
+    )
+    
+    # Build markdown content
+    lines = []
+    
+    # Title page
+    lines.append(f"# {project.title}\n")
+    lines.append(f"**Genre:** {premise.genre}")
+    if premise.subgenre:
+        lines.append(f" / {premise.subgenre}")
+    lines.append("\n")
+    
+    # Word count
+    total_words = sum(ch.word_count for ch in chapters)
+    lines.append(f"*{total_words:,} words*\n")
+    lines.append("\n---\n\n")
+    
+    # Add each chapter
+    for chapter in sorted(chapters, key=lambda x: x.chapter_index):
+        logger.debug(
+            "adding_chapter_to_markdown",
+            chapter_index=chapter.chapter_index,
+            title=chapter.title,
+            word_count=chapter.word_count,
+        )
+        
+        # Chapter heading
+        lines.append(f"## Chapter {chapter.chapter_index}: {chapter.title}\n\n")
+        
+        # Chapter content
+        paragraphs = chapter.content.split('\n\n')
+        for para_text in paragraphs:
+            if para_text.strip():
+                lines.append(f"{para_text.strip()}\n\n")
+        
+        # Section break between chapters
+        lines.append("\n---\n\n")
+    
+    markdown_content = "".join(lines)
+    
+    logger.info(
+        "manuscript_markdown_generated",
+        project_id=project.id,
+        chapters=len(chapters),
+        total_words=total_words,
+        content_length=len(markdown_content),
+    )
+    
+    return markdown_content

@@ -12,8 +12,8 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.config.settings import get_settings
-from backend.models.database import get_database, close_database_connection
+from config.settings import get_settings
+from models.database import get_database, close_database_connection
 
 # Configure structured logging
 structlog.configure(
@@ -80,7 +80,7 @@ def create_application() -> FastAPI:
     )
     
     # Register API routes
-    from backend.api import health, projects, genres, outlines, story_bible, chapters, summaries, bulk_generation, export, premise_builder
+    from api import health, projects, genres, outlines, story_bible, chapters, summaries, bulk_generation, export, premise_builder
     
     app.include_router(health.router, prefix="/api", tags=["health"])
     app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
@@ -92,6 +92,12 @@ def create_application() -> FastAPI:
     app.include_router(bulk_generation.router, prefix="/api/projects", tags=["bulk-generation"])
     app.include_router(export.router, prefix="/api/projects", tags=["export"])
     app.include_router(genres.router, prefix="/api", tags=["genres"])
+    
+    # === Book Cover Generation (Feature Flagged) ===
+    # Router enabled for testing - feature flag still controls access
+    # Requires: BOOK_COVERS_ENABLED=true in .env to use endpoints
+    from book_covers.routes import router as book_covers_router
+    app.include_router(book_covers_router, prefix="/api/book-covers", tags=["book-covers"])
     
     return app
 

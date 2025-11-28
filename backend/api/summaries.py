@@ -9,9 +9,9 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Path, Query
 import structlog
 
-from backend.models.database import get_database
-from backend.models.schemas import ChapterSummary
-from backend.services.summary_service import (
+from models.database import get_database
+from models.schemas import ChapterSummary
+from services.summary_service import (
     generate_chapter_summary,
     generate_multi_chapter_summary,
 )
@@ -45,7 +45,7 @@ async def create_chapter_summary(
             detail=f"Chapter {chapter_index} not found for project {project_id}"
         )
     
-    from backend.models.schemas import Chapter
+    from models.schemas import Chapter
     chapter = Chapter(**chapter_doc)
     
     try:
@@ -103,7 +103,7 @@ async def create_multi_chapter_summary(
             detail=f"Chapters not found: {sorted(missing)}"
         )
     
-    from backend.models.schemas import Chapter
+    from models.schemas import Chapter
     chapters = [Chapter(**doc) for doc in chapter_docs]
     
     try:

@@ -11,7 +11,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from backend.models.schemas import (
+from models.schemas import (
     StoryBible,
     StoryBibleResponse,
     GenerateStoryBibleRequest,
@@ -20,8 +20,8 @@ from backend.models.schemas import (
     Project,
     AIConfig
 )
-from backend.services.story_bible_service import generate_story_bible_from_premise
-from backend.models.database import get_database
+from services.story_bible_service import generate_story_bible_from_premise
+from models.database import get_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

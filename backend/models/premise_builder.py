@@ -55,6 +55,7 @@ class PacingPreference(str, Enum):
 class ProjectStub(BaseModel):
     """Step 0: Basic project identification."""
     title: str = Field(..., min_length=1, max_length=200, description="Project title")
+    folder: Optional[str] = Field(None, max_length=100, description="Optional folder/series for organization")
     logline: Optional[str] = Field(None, max_length=25000, description="Story concept or elevator pitch")
 
 
@@ -75,9 +76,9 @@ class ToneThemeProfile(BaseModel):
     darkness_level: int = Field(default=5, ge=1, le=10, description="1=lighthearted, 10=grimdark")
     humor_level: int = Field(default=5, ge=1, le=10, description="1=serious, 10=comedic")
     themes: List[str] = Field(default_factory=list, description="Major thematic elements")
-    emotional_tone: Optional[str] = Field(None, max_length=500, description="Overall emotional journey (e.g., 'despair to hope', 'innocence lost')")
+    emotional_tone: Optional[str] = Field(None, max_length=2000, description="Overall emotional journey (e.g., 'despair to hope', 'innocence lost')")
     core_values: List[str] = Field(default_factory=list, description="Core values explored (justice, family, freedom, etc.)")
-    central_question: Optional[str] = Field(None, max_length=500, description="The big question the story explores (e.g., 'What makes us human?')")
+    central_question: Optional[str] = Field(None, max_length=2000, description="The big question the story explores (e.g., 'What makes us human?')")
     atmospheric_elements: List[str] = Field(default_factory=list, description="Atmosphere/mood descriptors (claustrophobic, whimsical, foreboding, etc.)")
     heat_level: Optional[HeatLevel] = Field(None, description="Romance heat level (if applicable)")
 
@@ -86,10 +87,10 @@ class CharacterSeed(BaseModel):
     """Single character seed for Step 3."""
     name: str = Field(..., description="Character name")
     role: str = Field(..., description="protagonist, antagonist, supporting, mentor, etc.")
-    brief_description: str = Field(..., max_length=300, description="Quick bio/personality (AI can expand)")
-    goal: Optional[str] = Field(None, max_length=200, description="What they want")
-    flaw: Optional[str] = Field(None, max_length=200, description="Internal obstacle or weakness")
-    arc_notes: Optional[str] = Field(None, max_length=300, description="How they change")
+    brief_description: str = Field(..., max_length=2000, description="Character description (can be expanded by AI)")
+    goal: Optional[str] = Field(None, max_length=500, description="What they want")
+    flaw: Optional[str] = Field(None, max_length=500, description="Internal obstacle or weakness")
+    arc_notes: Optional[str] = Field(None, max_length=500, description="How they change")
 
 
 class CharacterSeeds(BaseModel):
@@ -101,13 +102,41 @@ class CharacterSeeds(BaseModel):
 
 class PlotIntent(BaseModel):
     """Step 4: Plot expectations and structure."""
-    primary_conflict: str = Field(..., max_length=500, description="Central story problem/question")
-    stakes: str = Field(..., max_length=300, description="What's at risk if protagonist fails")
-    inciting_incident: Optional[str] = Field(None, max_length=300, description="What kicks off the story")
-    midpoint_twist: Optional[str] = Field(None, max_length=300, description="Major turning point")
-    climax_notes: Optional[str] = Field(None, max_length=300, description="Final confrontation details")
-    ending_vibe: str = Field(default="hopeful", description="How story ends emotionally (triumph, bittersweet, tragic, open)")
-    subplots: List[str] = Field(default_factory=list, description="B-story, C-story summaries")
+    # Core Conflict & Stakes
+    primary_conflict: str = Field(..., max_length=2000, description="Central story problem/question")
+    conflict_types: List[str] = Field(default_factory=list, description="Conflict categories (internal, interpersonal, societal, supernatural, etc.)")
+    stakes: str = Field(..., max_length=1000, description="What's at risk if protagonist fails")
+    stakes_layers: List[str] = Field(default_factory=list, description="Personal, relational, global stakes")
+    
+    # Three-Act Structure Points
+    inciting_incident: Optional[str] = Field(None, max_length=1000, description="What kicks off the story")
+    first_plot_point: Optional[str] = Field(None, max_length=1000, description="Point of no return / entering new world")
+    midpoint_shift: Optional[str] = Field(None, max_length=1000, description="Major revelation or reversal that changes everything")
+    second_plot_point: Optional[str] = Field(None, max_length=1000, description="All is lost moment / dark night of the soul")
+    climax_confrontation: Optional[str] = Field(None, max_length=1000, description="Final confrontation/showdown")
+    resolution: Optional[str] = Field(None, max_length=1000, description="How conflicts resolve and loose ends tie up")
+    
+    # Story Beats & Moments
+    key_story_beats: List[str] = Field(default_factory=list, description="Major plot beats and turning points")
+    emotional_beats: List[str] = Field(default_factory=list, description="Key emotional moments and character reactions")
+    
+    # Ending & Tone
+    ending_vibe: str = Field(default="hopeful", description="How story ends emotionally (triumph, bittersweet, tragic, open, ambiguous)")
+    final_image: Optional[str] = Field(None, max_length=500, description="The last scene/moment that closes the story")
+    
+    # Subplots & Threads
+    romantic_subplot: Optional[str] = Field(None, max_length=1000, description="Romance thread if applicable")
+    secondary_subplot: Optional[str] = Field(None, max_length=1000, description="B-story or secondary character arc")
+    thematic_subplot: Optional[str] = Field(None, max_length=1000, description="Philosophical or thematic exploration thread")
+    additional_subplots: List[str] = Field(default_factory=list, description="Other plot threads")
+    
+    # Twists & Surprises
+    major_twists: List[str] = Field(default_factory=list, description="Plot twists and revelations")
+    red_herrings: List[str] = Field(default_factory=list, description="Misdirections and false leads")
+    
+    # Pacing & Tension
+    tension_escalation: Optional[str] = Field(None, max_length=1000, description="How tension builds throughout")
+    pacing_notes: Optional[str] = Field(None, max_length=1000, description="Pacing strategy and rhythm")
 
 
 class StructureTargets(BaseModel):
@@ -220,19 +249,16 @@ class AIAssistResponse(BaseModel):
 
 class GenerateBaselinePremiseRequest(BaseModel):
     """Request to synthesize baseline premise from collected steps (Step 7)."""
-    session_id: str
     refinement_prompt: Optional[str] = Field(None, description="User modification request")
 
 
 class GeneratePremiumPremiseRequest(BaseModel):
     """Request to generate final premium premise (Step 8)."""
-    session_id: str
     refinement_prompt: Optional[str] = Field(None, description="Final modification request")
 
 
 class CompleteBuilderSessionRequest(BaseModel):
     """Request to finalize session and persist premise to project."""
-    session_id: str
     accept_premium_premise: bool = Field(default=True, description="Use premium premise or manual override")
     manual_premise_override: Optional[str] = Field(None, description="User's manual premise if rejecting AI")
 

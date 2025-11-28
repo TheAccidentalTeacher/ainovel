@@ -9,7 +9,7 @@ from typing import Optional
 from dataclasses import dataclass
 import structlog
 
-from backend.models.schemas import (
+from models.schemas import (
     Premise,
     StoryBible,
     ChapterOutline,
@@ -45,11 +45,35 @@ class ChapterContext:
             sections.append(format_story_bible_compact(self.story_bible))
             sections.append("")
         
-        # Premise
+        # Premise with comprehensive genre guidance
         sections.append("=" * 80)
         sections.append("STORY PREMISE")
         sections.append("=" * 80)
-        sections.append(f"Genre: {self.premise.genre} / {self.premise.subgenre}")
+        
+        genre_line = f"Genre: {self.premise.genre}"
+        if self.premise.subgenre:
+            genre_line += f" / {self.premise.subgenre}"
+        sections.append(genre_line)
+        
+        if self.premise.subgenres:
+            sections.append(f"Subgenres to Blend: {', '.join(self.premise.subgenres)}")
+        
+        if self.premise.comedy_elements:
+            sections.append(f"Comedy Elements: {', '.join(self.premise.comedy_elements)}")
+            sections.append("  → Showcase these comedy styles where appropriate")
+        
+        if self.premise.tone_adjectives:
+            sections.append(f"Tone: {', '.join(self.premise.tone_adjectives)}")
+        
+        if self.premise.darkness_level is not None:
+            sections.append(f"Darkness Level: {self.premise.darkness_level}/10")
+        
+        if self.premise.humor_level is not None:
+            sections.append(f"Humor Level: {self.premise.humor_level}/10")
+        
+        if self.premise.themes:
+            sections.append(f"Themes: {', '.join(self.premise.themes)}")
+        
         sections.append(f"Target: {self.premise.target_word_count:,} words in {self.premise.target_chapter_count} chapters")
         sections.append("")
         sections.append(self.premise.content)

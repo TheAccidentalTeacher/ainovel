@@ -6,14 +6,15 @@ Handles CRUD operations for projects, premises, and outline management.
 
 from typing import List, Optional
 from uuid import uuid4
+from datetime import datetime
 
 import structlog
 from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel
 
-from backend.config.settings import get_settings
-from backend.models.database import get_database
-from backend.models.schemas import (
+from config.settings import get_settings
+from models.database import get_database
+from models.schemas import (
     CreateProjectRequest,
     Project,
     ProjectResponse,
@@ -52,6 +53,7 @@ async def create_project(request: CreateProjectRequest) -> ProjectResponse:
         "title": request.title or f"{request.genre} Novel",
         "genre": request.genre,
         "subgenre": request.subgenre,
+        "folder": request.folder,
         "total_chapters": request.target_chapter_count,
         "status": ProjectStatus.DRAFT,
     }
@@ -180,7 +182,7 @@ async def get_project(project_id: str) -> ProjectResponse:
     if project.story_bible_id:
         story_bible_doc = await db.story_bibles.find_one({"id": project.story_bible_id})
         if story_bible_doc:
-            from backend.models.schemas import StoryBible
+            from models.schemas import StoryBible
             story_bible = StoryBible(**story_bible_doc)
     
     # Fetch outline if exists
@@ -188,10 +190,70 @@ async def get_project(project_id: str) -> ProjectResponse:
     if project.outline_id:
         outline_doc = await db.outlines.find_one({"id": project.outline_id})
         if outline_doc:
-            from backend.models.schemas import Outline
+            from models.schemas import Outline
             outline = Outline(**outline_doc)
     
     return ProjectResponse(project=project, premise=premise, story_bible=story_bible, outline=outline)
+
+
+@router.patch(
+    "/{project_id}",
+    response_model=ProjectResponse,
+    summary="Update Project",
+    description="Update project metadata (title, folder)"
+)
+async def update_project(project_id: str, title: Optional[str] = None, folder: Optional[str] = None) -> ProjectResponse:
+    """
+    Update project metadata.
+    
+    Args:
+        project_id: Project UUID
+        title: New title (optional)
+        folder: New folder/organization name (optional)
+        
+    Returns:
+        ProjectResponse: Updated project
+        
+    Raises:
+        HTTPException: 404 if project not found
+    """
+    db = await get_database()
+    
+    # Check project exists
+    project_doc = await db.projects.find_one({"id": project_id})
+    if not project_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_id} not found"
+        )
+    
+    # Build update dict
+    update_data = {"updated_at": datetime.utcnow()}
+    if title is not None:
+        update_data["title"] = title
+    if folder is not None:
+        update_data["folder"] = folder
+    
+    # Update project
+    await db.projects.update_one(
+        {"id": project_id},
+        {"$set": update_data}
+    )
+    
+    # Fetch updated project
+    updated_doc = await db.projects.find_one({"id": project_id})
+    project = Project(**updated_doc)
+    
+    # Fetch premise
+    premise = None
+    if project.premise_id:
+        premise_doc = await db.premises.find_one({"id": project.premise_id})
+        if premise_doc:
+            premise = Premise(**premise_doc)
+    
+    logger.info("project_updated", project_id=project_id, updates=update_data)
+    
+    return ProjectResponse(project=project, premise=premise)
 
 
 @router.delete(

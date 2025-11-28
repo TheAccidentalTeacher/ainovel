@@ -28,17 +28,31 @@ export default function ProjectDetailPage() {
 
   // Generate Story Bible mutation
   const generateStoryBibleMutation = useMutation({
-    mutationFn: () => apiClient.generateStoryBible(id!),
-    onSuccess: () => {
+    mutationFn: () => {
+      console.log('[ProjectDetail] 📖 Generating Story Bible for project:', id);
+      return apiClient.generateStoryBible(id!);
+    },
+    onSuccess: (data) => {
+      console.log('[ProjectDetail] ✅ Story Bible generated:', data);
       queryClient.invalidateQueries({ queryKey: ['project', id] });
+    },
+    onError: (error) => {
+      console.error('[ProjectDetail] ❌ Story Bible generation failed:', error);
     },
   });
 
   // Generate outline mutation
   const generateOutlineMutation = useMutation({
-    mutationFn: () => apiClient.generateOutline(id!),
-    onSuccess: () => {
+    mutationFn: () => {
+      console.log('[ProjectDetail] 📝 Generating outline for project:', id);
+      return apiClient.generateOutline(id!);
+    },
+    onSuccess: (data) => {
+      console.log('[ProjectDetail] ✅ Outline generated:', data);
       queryClient.invalidateQueries({ queryKey: ['project', id] });
+    },
+    onError: (error) => {
+      console.error('[ProjectDetail] ❌ Outline generation failed:', error);
     },
   });
 
@@ -86,10 +100,41 @@ export default function ProjectDetailPage() {
 
   // Generate chapter mutation
   const generateChapterMutation = useMutation({
-    mutationFn: (chapterIndex: number) => apiClient.generateChapter(id!, chapterIndex),
-    onSuccess: () => {
+    mutationFn: (chapterIndex: number) => {
+      console.log('[ProjectDetail] 📄 Generating chapter:', chapterIndex, 'for project:', id);
+      return apiClient.generateChapter(id!, chapterIndex);
+    },
+    onSuccess: (data, chapterIndex) => {
+      console.log('[ProjectDetail] ✅ Chapter', chapterIndex, 'generated:', data);
       queryClient.invalidateQueries({ queryKey: ['chapters', id] });
       queryClient.invalidateQueries({ queryKey: ['project', id] });
+    },
+    onError: (error, chapterIndex) => {
+      console.error('[ProjectDetail] ❌ Chapter', chapterIndex, 'generation failed:', error);
+    },
+  });
+
+  // Regenerate all chapters mutation
+  const regenerateAllChaptersMutation = useMutation({
+    mutationFn: async () => {
+      console.log('[ProjectDetail] 🗑️ Deleting all chapters for project:', id);
+      const result = await apiClient.deleteAllChapters(id!);
+      console.log('[ProjectDetail] ✅ All chapters deleted:', result);
+      return result;
+    },
+    onSuccess: () => {
+      console.log('[ProjectDetail] 🎬 Starting bulk generation after deletion...');
+      // Invalidate queries to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ['chapters', id] });
+      queryClient.invalidateQueries({ queryKey: ['project', id] });
+      // Start bulk generation
+      console.log('[ProjectDetail] 📊 Setting showBulkProgress to true');
+      setShowBulkProgress(true);
+      console.log('[ProjectDetail] 🚀 Calling bulkGeneration.startBulkGeneration...');
+      bulkGeneration.startBulkGeneration(id!);
+    },
+    onError: (error) => {
+      console.error('[ProjectDetail] ❌ Regenerate all chapters failed:', error);
     },
   });
 
@@ -388,15 +433,61 @@ export default function ProjectDetailPage() {
                 {chapters?.length || 0} of {outline.chapters.length} chapters generated
               </div>
               {chapters && chapters.length > 0 && (
-                <button
-                  onClick={() => {
-                    const url = `http://127.0.0.1:8000/api/projects/export/${id}/manuscript.docx`;
-                    window.open(url, '_blank');
-                  }}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
-                >
-                  Download DOCX
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      const url = `http://127.0.0.1:8000/api/projects/export/${id}/manuscript.docx`;
+                      window.open(url, '_blank');
+                    }}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
+                  >
+                    Download DOCX
+                  </button>
+                  <button
+                    onClick={() => {
+                      const url = `http://127.0.0.1:8000/api/projects/export/${id}/manuscript.md`;
+                      window.open(url, '_blank');
+                    }}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
+                  >
+                    Download MD
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(`http://127.0.0.1:8000/api/projects/export/${id}/manuscript-text`);
+                        if (!response.ok) throw new Error('Failed to fetch manuscript');
+                        const data = await response.json();
+                        navigate('/cover-designer', { 
+                          state: { 
+                            manuscriptText: data.text,
+                            projectTitle: data.title,
+                            projectId: data.project_id
+                          } 
+                        });
+                      } catch (err) {
+                        console.error('Error loading manuscript:', err);
+                        alert('Failed to load manuscript for cover designer');
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
+                  >
+                    Generate Book Cover
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(
+                        `⚠️ WARNING: This will permanently delete all ${chapters.length} generated chapters and regenerate them from scratch.\n\nThis cannot be undone. Are you sure you want to continue?`
+                      )) {
+                        regenerateAllChaptersMutation.mutate();
+                      }
+                    }}
+                    disabled={regenerateAllChaptersMutation.isPending || bulkGeneration.isGenerating || isStreaming}
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                  >
+                    Regenerate All Chapters
+                  </button>
+                </>
               )}
               {(chapters?.length || 0) < outline.chapters.length && (
                 <button

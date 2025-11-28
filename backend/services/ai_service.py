@@ -9,11 +9,12 @@ from typing import Optional, List, Dict, Any, AsyncIterator
 from enum import Enum
 
 import structlog
+import httpx
 from openai import AsyncOpenAI
 from anthropic import AsyncAnthropic
 
-from backend.config.settings import get_settings
-from backend.models.schemas import AIProvider, AIConfig
+from config.settings import get_settings
+from models.schemas import AIProvider, AIConfig
 
 logger = structlog.get_logger()
 
@@ -30,7 +31,20 @@ class AIService:
         settings = get_settings()
         
         self.openai_client = AsyncOpenAI(api_key=settings.openai_api_key) if settings.openai_api_key else None
-        self.anthropic_client = AsyncAnthropic(api_key=settings.anthropic_api_key) if settings.anthropic_api_key else None
+        
+        # Configure Anthropic client with connection pooling and timeouts
+        if settings.anthropic_api_key:
+            http_client = httpx.AsyncClient(
+                limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
+                timeout=httpx.Timeout(timeout=300.0, connect=10.0, read=300.0, write=30.0)
+            )
+            self.anthropic_client = AsyncAnthropic(
+                api_key=settings.anthropic_api_key,
+                http_client=http_client,
+                max_retries=3
+            )
+        else:
+            self.anthropic_client = None
         
         self.settings = settings
     
@@ -104,6 +118,7 @@ class AIService:
             )
             
             # Set timeout to 20 minutes for long-running operations
+            # The client now has built-in retry logic (max_retries=3)
             response = await self.anthropic_client.messages.create(**kwargs, timeout=1200.0)
             
             content = response.content[0].text if response.content else ""
@@ -127,7 +142,7 @@ class AIService:
             }
             
         except Exception as e:
-            logger.error("anthropic_generation_failed", error=str(e), model=config.model_name)
+            logger.error("anthropic_generation_failed", error=str(e), model=config.model_name, exc_info=True)
             raise
     
     async def generate_text_stream(

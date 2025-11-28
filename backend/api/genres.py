@@ -9,8 +9,8 @@ from typing import List
 import structlog
 from fastapi import APIRouter
 
-from backend.models.schemas import Genre
-from backend.services.genre_service import get_genres
+from models.schemas import Genre
+from services.genre_service import get_genres
 
 logger = structlog.get_logger()
 router = APIRouter()

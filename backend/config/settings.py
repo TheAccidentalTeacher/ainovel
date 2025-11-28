@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     
     # Security
     cors_origins: List[str] = Field(
-        default=["http://localhost:3000", "http://localhost:5173"],
+        default=["http://localhost:3000", "http://localhost:5173", "http://localhost:5174"],
         description="Allowed CORS origins"
     )
     api_key_header: str = Field(default="X-API-Key", description="API key header name")
@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     # AI Provider API Keys
     openai_api_key: str = Field(default="", description="OpenAI API key")
     anthropic_api_key: str = Field(default="", description="Anthropic API key")
+    
+    # Feature Flags
+    book_covers_enabled: bool = Field(default=False, description="Enable book cover generation feature")
     
     # AI Configuration Defaults
     default_model_provider: str = Field(default="anthropic", description="Default AI provider: openai or anthropic")

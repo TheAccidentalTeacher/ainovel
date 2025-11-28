@@ -9,14 +9,14 @@ import json
 import logging
 from typing import Dict, Any, List
 
-from backend.models.schemas import (
+from models.schemas import (
     StoryBible,
     Character,
     Setting,
     Premise,
     AIConfig
 )
-from backend.services.ai_service import get_ai_service
+from services.ai_service import get_ai_service
 
 logger = logging.getLogger(__name__)
 

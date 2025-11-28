@@ -9,8 +9,8 @@ import structlog
 from fastapi import APIRouter, status
 from pydantic import BaseModel
 
-from backend.config.settings import get_settings
-from backend.models.database import get_database
+from config.settings import get_settings
+from models.database import get_database
 
 logger = structlog.get_logger()
 router = APIRouter()

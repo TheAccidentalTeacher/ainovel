@@ -1,6 +1,65 @@
 # AI Novel Generator
 
-> **Status (2025-11-22)**: Phase 1 complete. Story Bible extraction, structured outline generation, chapter streaming, and bulk generation all live. Comprehensive narrative consistency system with multi-layer context (Story Bible + recent chapters + summaries) ensures 25-chapter coherence.
+> **Status (2025-11-27)**: 
+> - ✅ **Core Writing System**: Phase 1 complete. Story Bible extraction, structured outline generation, chapter streaming, and bulk generation all live. Comprehensive narrative consistency system with multi-layer context ensures 25-chapter coherence.
+> - ✅ **Book Cover Generator**: Phase 3 complete. End-to-end AI cover design - Story analysis → Claude design brief → DALL-E 3 generation → Typography overlay → Multi-format export (ebook/print/social). Fully operational 5-step wizard.
+
+---
+
+## 📎 DOCX → AI Review Workflow (Pin This In Chats)
+
+### Quick Start (New Chat Session):
+```
+I'm continuing iterative manuscript improvement. Please:
+1. Read docs/MANUSCRIPT_REVIEW_TRACKER.md for context
+2. Review docs/[New Manuscript].txt (latest generation)
+3. Compare against baseline in docs/AI_TELL_ANALYSIS_RESULTS.md
+4. Check if our 10 anti-AI-tell rules are working
+5. Suggest refinements if needed
+```
+
+### Manual Process:
+1. Drop the latest manuscript into `docs/` (example: `docs/Untitled Project.docx`).
+2. Convert it to plain text so Claude Sonnet 4.5 can ingest the full context:
+      ```powershell
+      cd "c:\Users\scoso\WEBSITES\AI Novel Generator"
+      & "backend\venv\Scripts\python.exe" tools\docx_to_text.py "docs\Untitled Project.docx" --out "docs\Untitled Project.txt"
+      ```
+      - Omit `--out ...` to stream the text to stdout for copy/paste.
+3. When starting a new Copilot conversation, reference:
+   - **Workflow instructions** (this section)
+   - **Iteration tracker** (`docs/MANUSCRIPT_REVIEW_TRACKER.md`)
+   - **Baseline analysis** (`docs/AI_TELL_ANALYSIS_RESULTS.md`)
+   - **Current rules** (`config/anti_ai_tell_rules.md`)
+
+### Key Files:
+- **`docs/MANUSCRIPT_REVIEW_TRACKER.md`** - Central hub for tracking iterations, metrics, review history
+- **`docs/AI_TELL_ANALYSIS_RESULTS.md`** - Original analysis of "Untitled Project" baseline
+- **`config/anti_ai_tell_rules.md`** - Master rulebook (10 universal rules)
+- **`config/prompt_templates/default_chapter.yaml`** - Production template with embedded rules
+
+---
+
+## 🎯 Anti-AI-Tell Writing System
+**Location**: `config/anti_ai_tell_rules.md`
+
+**Purpose**: Universal humanization logic that prevents robotic writing patterns across ALL genres (Christian romance to adult fiction to sci-fi thriller).
+
+### 10 Core Rules (Applied to Every Chapter):
+1. **Sentence Opening Variety** - No more than 1 participial phrase per page; track patterns to avoid repetition
+2. **Metaphor Rationing** - Maximum 1 simile/metaphor per 500 words; no elaborate comparisons for mundane actions
+3. **Physical Response Variation** - Banned phrases: "stomach dropped/tightened", "heat crept", "hands trembled"
+4. **Sensory Detail Economy** - Choose ONE dominant sense per scene; max 2 sensory details per paragraph
+5. **Dialogue Tag Simplicity** - Use "said" 80% of time; avoid "whispered/mumbled/managed/observed"
+6. **Chapter Ending Variety** - Rotate types (dialogue/action/decision/image); no philosophical one-liners
+7. **Numerical Specificity Discipline** - Only exact numbers when plot-critical; use "several/many/few" otherwise
+8. **Weather-Emotion Independence** - Weather affects logistics, not just mood; can rain during happy scenes
+9. **Character Tic Restraint** - Show tics 2-3 times total, not every scene; let character growth reduce them
+10. **Elegant Variation Fix** - Repeat key nouns freely; use character names/pronouns, not awkward synonyms
+
+**Implementation**: Rules are embedded in `config/prompt_templates/default_chapter.yaml` system prompt. Claude Sonnet 4.5 self-checks against these patterns before completing each chapter.
+
+**Testing**: After generation, audit for banned phrases, metaphor density, dialogue tag ratios, and chapter ending patterns.
 
 ---
 
@@ -10,13 +69,17 @@
 | `README.md` (this file) | Status, architecture, and operator guidance. |
 | `docs/system-overview.md` | Deep dive into data flow, domain models, AI prompts, and component wiring. |
 | `docs/phase-plan.md` | Five-phase roadmap with acceptance criteria. |
-| `docs/GUIDED_PREMISE_BUILDER.md` | **NEW: Complete spec for 8-step wizard with AI assistance and premium premise generation.** |
+| `docs/GUIDED_PREMISE_BUILDER.md` | Complete spec for 8-step wizard with AI assistance and premium premise generation. |
 | `docs/NARRATIVE_CONSISTENCY_STRATEGY.md` | Multi-layer context system design (Story Bible + chapters + summaries). |
+| **`docs/MANUSCRIPT_REVIEW_TRACKER.md`** | **Central hub for iterative manuscript improvement tracking, review history, metrics.** |
+| **`docs/AI_TELL_ANALYSIS_RESULTS.md`** | **Baseline analysis of AI-generated writing patterns (10 universal tells identified).** |
 | `docs/phase-0-complete.md` | Historical completion report for Phase 0. |
 | `docs/phase-1-progress.md` | Rolling changelog for current work (updated 2025-11-22). |
 | `docs/railway-deployment.md` | Deployment/runbook targeting Railway. |
 | `config/genres.json` | Canonical ordering of 22 genres × 10 subgenres. |
-| `config/prompt_templates/` | YAML prompt packs for outline, chapter, and summary flows. |
+| **`config/anti_ai_tell_rules.md`** | **Master rulebook: 10 universal humanization rules for preventing robotic prose.** |
+| `config/prompt_templates/` | YAML prompt packs for outline, chapter, and summary flows (with anti-AI-tell rules embedded). |
+| `tools/docx_to_text.py` | CLI utility to extract manuscripts from DOCX to plain text for AI review. |
 
 ---
 
@@ -31,6 +94,7 @@
 | Chapter Generation | ✅ | SSE streaming endpoint with real-time word count, stop button, chapter viewer with copy-to-clipboard. |
 | Narrative Consistency | ✅ | Multi-layer context system: Story Bible (always) + recent chapters (full text) + older chapters (summaries). Auto-generated 300-400 word summaries track plot. |
 | Bulk Generation | ✅ | "Generate All Chapters" button with progress modal, sequential orchestration, automatic context assembly, real-time progress tracking. |
+| Book Cover Generator | ✅ Phase 3 Complete | AI-powered cover design: Story analysis → Claude-generated design brief → DALL-E 3 multi-variation generation → Typography overlay → Multi-format export (ebook, print, social). 5-step React wizard UI fully operational. Complete isolation with feature flag. |
 | Workers / Redis | ⏳ Future | Settings placeholders exist; generation currently synchronous (SSE streams for UX). |
 
 ---
@@ -73,8 +137,9 @@ React 19 + Vite + Tailwind (localhost:5173)
 | `chapters.py` | `GET /projects/chapters/{project_id}/{chapter_index}/stream`, `POST /projects/chapters`, `GET /projects/chapters/{project_id}`, `DELETE /projects/chapters/{project_id}/{chapter_id}` | SSE streaming generation, chapter CRUD, automatic context fetching. |
 | `summaries.py` | `POST /summaries/{project_id}/chapters/{chapter_index}`, `POST /summaries/{project_id}/chapters/batch`, `GET /summaries/{project_id}`, `DELETE /summaries/{project_id}/summaries/{summary_id}` | Auto-generate 300-400 word chapter summaries for context. |
 | `bulk_generation.py` | `GET /bulk/{project_id}/generate-all` | Sequential all-chapters generation with SSE progress (chapter_started, chapter_complete, summary_complete, complete events). |
+| **`book_covers/` (NEW)** | `POST /book-covers/analyze-story`, `POST /book-covers/generate-brief`, `POST /book-covers/generate-image`, `GET /book-covers/project/{id}`, `GET /book-covers/{id}`, `DELETE /book-covers/{id}` | **AI-powered book cover design: Story analysis (extract genre/tone/themes) → Claude-generated design brief → DALL-E 3 multi-variation generation. Typography and export endpoints stubbed for Phase 3. Feature-flagged (`BOOK_COVERS_ENABLED`).** |
 
-Collections: `projects`, `premises`, `story_bibles`, `outlines`, `chapters`, `summaries`. Index creation logic lives in `backend/models/database.py`.
+Collections: `projects`, `premises`, `story_bibles`, `outlines`, `chapters`, `summaries`, **`book_covers`, `cover_design_briefs`, `cover_iterations` (NEW)**. Index creation logic lives in `backend/models/database.py`.
 
 ---
 
@@ -85,9 +150,10 @@ Collections: `projects`, `premises`, `story_bibles`, `outlines`, `chapters`, `su
 | `/projects/new` | `pages/NewProjectPage.tsx` | Genre/subgenre selectors, live premise word counter, submits `POST /projects`. |
 | `/projects/:id` | `pages/ProjectDetailPage.tsx` | Premise viewer, Story Bible cards + modal, outline renderer with action buttons. |
 | `/projects/:id/outline` | `pages/OutlineEditorPage.tsx` | Full-form editor for all nine outline fields + target word count. |
+| **`/projects/:id/cover-designer` (NEW)** | **`pages/BookCoverDesigner.tsx`** | **5-step wizard: Story Analysis → Design Brief (AI) → Image Generation (DALL-E 3) → Typography (Phase 3) → Export (Phase 3). Progress indicator, variation selection, error handling, loading states.** |
 | Modal | `components/StoryBibleModal.tsx` | Detailed Story Bible viewer/editor (dark theme, scrollable). |
 
-TanStack Query drives data fetching; keys mirror REST resources (`['project', id]`, etc.) for predictable cache invalidation.
+TanStack Query drives data fetching; keys mirror REST resources (`['project', id]`, etc.) for predictable cache invalidation. Book cover service uses Axios directly (`services/bookCoverService.ts`).
 
 ---
 
