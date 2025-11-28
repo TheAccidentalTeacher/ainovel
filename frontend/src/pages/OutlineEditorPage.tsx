@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../lib/api-client';
+import apiClient from '../lib/api-client';
 import { useState, useEffect } from 'react';
 import type { ChapterOutline } from '../types';
 
@@ -34,7 +34,7 @@ export default function OutlineEditorPage() {
     },
   });
 
-  const updateChapter = (index: number, field: keyof ChapterOutline, value: string | number) => {
+  const updateChapter = (index: number, field: keyof ChapterOutline, value: string | number | string[]) => {
     setChapters(prev => prev.map((ch, i) => 
       i === index ? { ...ch, [field]: value } : ch
     ));
