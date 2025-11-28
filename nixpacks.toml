@@ -1,6 +1,5 @@
-# Railway/Nixpacks configuration for backend service
-# Set the root directory in Railway dashboard to "backend" for the API service
-# Set the root directory to "frontend" for the frontend service
+# Railway Configuration - Deploy Backend Only
+# In Railway: Set Settings > Root Directory = "backend"
 
 [phases.setup]
 nixPkgs = ["python312", "gcc"]
