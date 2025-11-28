@@ -287,20 +287,20 @@ const SUBGENRE_DEFINITIONS: Record<string, string> = {
 //   premium_premise?: any
 // }
 
-interface ProjectStub {
+export interface ProjectStub {
   title: string
   folder?: string
   logline: string
 }
 
-interface GenreProfile {
+export interface GenreProfile {
   primary_genre: string
   secondary_genre?: string
   subgenres: string[]
   audience_rating: string
 }
 
-interface ToneThemeProfile {
+export interface ToneThemeProfile {
   tone_adjectives: string[]
   darkness_level: number
   humor_level: number
@@ -318,13 +318,13 @@ interface CharacterSeed {
   arc_notes?: string
 }
 
-interface CharacterSeeds {
+export interface CharacterSeeds {
   protagonist?: CharacterSeed
   antagonist?: CharacterSeed
   supporting_cast: CharacterSeed[]
 }
 
-interface PlotIntent {
+export interface PlotIntent {
   primary_conflict: string
   conflict_types: string[]
   stakes: string
@@ -349,7 +349,7 @@ interface PlotIntent {
   pacing_notes?: string
 }
 
-interface StructureTargets {
+export interface StructureTargets {
   target_word_count: number
   target_chapter_count?: number
   pov_style: string
@@ -357,7 +357,7 @@ interface StructureTargets {
   pacing_preference: string
 }
 
-interface ConstraintsProfile {
+export interface ConstraintsProfile {
   tropes_to_include?: string[]
   tropes_to_avoid?: string[]
   content_warnings?: string[]
