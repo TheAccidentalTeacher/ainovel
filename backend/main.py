@@ -103,10 +103,17 @@ def create_application() -> FastAPI:
     
     # === Serve Frontend Static Files ===
     # Mount the React app's build output (production only)
-    frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+    # In Docker: /app/frontend/dist, Local dev: ../frontend/dist
+    frontend_dist = Path(__file__).parent / "frontend" / "dist"
+    if not frontend_dist.exists():
+        # Fallback for local development
+        frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+    
     if frontend_dist.exists() and settings.is_production:
         app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
         logger.info("frontend_static_files_mounted", path=str(frontend_dist))
+    else:
+        logger.warning("frontend_dist_not_found", path=str(frontend_dist), exists=frontend_dist.exists(), is_production=settings.is_production)
     
     return app
 
