@@ -1,11 +1,15 @@
-# Railway Configuration - Deploy Backend Only
-# In Railway: Set Settings > Root Directory = "backend"
+# Railway Configuration - Single Service (Backend + Frontend)
+# Do NOT set root directory - deploy from repo root
 
 [phases.setup]
-nixPkgs = ["python312", "gcc"]
+nixPkgs = ["python312", "nodejs_20", "gcc"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt", "python -m spacy download en_core_web_sm"]
+cmds = [
+  "cd backend && pip install -r requirements.txt",
+  "python -m spacy download en_core_web_sm",
+  "cd ../frontend && npm install && npm run build"
+]
 
 [start]
-cmd = "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"
+cmd = "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"

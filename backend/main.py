@@ -7,10 +7,12 @@ configures middleware, and initializes database connections.
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+from pathlib import Path
 
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from config.settings import get_settings
 from models.database import get_database, close_database_connection
@@ -98,6 +100,13 @@ def create_application() -> FastAPI:
     # Requires: BOOK_COVERS_ENABLED=true in .env to use endpoints
     from book_covers.routes import router as book_covers_router
     app.include_router(book_covers_router, prefix="/api/book-covers", tags=["book-covers"])
+    
+    # === Serve Frontend Static Files ===
+    # Mount the React app's build output (production only)
+    frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+    if frontend_dist.exists() and settings.is_production:
+        app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
+        logger.info("frontend_static_files_mounted", path=str(frontend_dist))
     
     return app
 
