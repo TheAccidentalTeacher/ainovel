@@ -472,13 +472,28 @@ export default function PremiseBuilderWizard() {
     }
   })
 
+  const availableGenres: any[] = Array.isArray(genresData)
+    ? genresData
+    : (Array.isArray((genresData as any)?.genres) ? (genresData as any).genres : [])
+  const totalGenres = availableGenres.length
+
   // Debug: log genres data
   useEffect(() => {
     if (genresData) {
       console.log('Genres loaded:', genresData)
       console.log('Is array:', Array.isArray(genresData))
-      console.log('Length:', genresData.length)
-      console.log('First genre:', genresData[0])
+      const debugLength = Array.isArray(genresData)
+        ? genresData.length
+        : Array.isArray((genresData as any)?.genres)
+          ? (genresData as any).genres.length
+          : 0
+      console.log('Length:', debugLength)
+      const debugFirst = Array.isArray(genresData)
+        ? genresData[0]
+        : Array.isArray((genresData as any)?.genres)
+          ? (genresData as any).genres[0]
+          : undefined
+      console.log('First genre:', debugFirst)
     }
     if (genresError) {
       console.error('Genres error:', genresError)
@@ -1026,12 +1041,12 @@ export default function PremiseBuilderWizard() {
               className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
             >
               <option value="">{genresLoading ? 'Loading genres...' : 'Select your main genre...'}</option>
-              {genresData?.map((g: any) => (
+              {availableGenres.map((g: any) => (
                 <option key={g.name} value={g.name}>{g.name}</option>
               ))}
             </select>
-            {genresLoading && <p className="text-sm text-gray-500 mt-1">Loading {Array.isArray(genresData) ? genresData.length : 0} genres...</p>}
-            {!genresLoading && genresData && Array.isArray(genresData) && <p className="text-xs text-gray-500 mt-1">{genresData.length} genres available</p>}
+            {genresLoading && <p className="text-sm text-gray-500 mt-1">Loading {totalGenres} genres...</p>}
+            {!genresLoading && totalGenres > 0 && <p className="text-xs text-gray-500 mt-1">{totalGenres} genres available</p>}
           </div>
 
           <div>
@@ -1045,14 +1060,14 @@ export default function PremiseBuilderWizard() {
               className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
             >
               <option value="">None (single genre)</option>
-              {genresData?.filter((g: any) => g.name !== primaryGenre).map((g: any) => (
+              {availableGenres.filter((g: any) => g.name !== primaryGenre).map((g: any) => (
                 <option key={g.name} value={g.name}>{g.name}</option>
               ))}
             </select>
           </div>
         </div>
 
-        {primaryGenre && genresData && (
+        {primaryGenre && totalGenres > 0 && (
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Subgenres (Optional)
@@ -1061,7 +1076,7 @@ export default function PremiseBuilderWizard() {
               Hover over any subgenre for its definition
             </p>
             <div className="flex flex-wrap gap-2">
-              {genresData
+              {availableGenres
                 .find((g: any) => g.name === primaryGenre)
                 ?.subgenres?.map((sub: string) => {
                   const definition = SUBGENRE_DEFINITIONS[sub] || 'No definition available'
@@ -1478,7 +1493,7 @@ export default function PremiseBuilderWizard() {
             className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">Select genre...</option>
-            {genresData?.genres?.map((g: any) => (
+            {availableGenres.map((g: any) => (
               <option key={g.name} value={g.name}>{g.name}</option>
             ))}
           </select>
@@ -1494,7 +1509,7 @@ export default function PremiseBuilderWizard() {
             className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">None</option>
-            {genresData?.genres?.map((g: any) => (
+            {availableGenres.map((g: any) => (
               <option key={g.name} value={g.name}>{g.name}</option>
             ))}
           </select>
