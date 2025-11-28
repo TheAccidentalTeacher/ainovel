@@ -31,7 +31,7 @@ export default function PremiseBuilderPage() {
     const createSession = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch('http://127.0.0.1:8000/api/premise-builder/sessions', {
+        const response = await fetch('/api/premise-builder/sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ current_step: 0 })
@@ -86,7 +86,7 @@ export default function PremiseBuilderPage() {
       setIsLoading(true)
       setError(null)
       
-      const response = await fetch(`http://127.0.0.1:8000/api/premise-builder/sessions/${sessionId}`, {
+      const response = await fetch(`/api/premise-builder/sessions/${sessionId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -373,7 +373,7 @@ interface AIAssistResponse {
   tokens_used: number
 }
 
-const API_BASE = 'http://127.0.0.1:8000/api'
+const API_BASE = '/api'
 
 interface SaveStepOptions {
   suppressAdvance?: boolean
