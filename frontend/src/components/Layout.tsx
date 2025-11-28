@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { BookOpenIcon, PlusIcon, HomeIcon } from '@heroicons/react/24/outline'
 

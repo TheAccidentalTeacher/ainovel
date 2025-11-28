@@ -63,7 +63,7 @@ export default function OutlineEditorPage() {
     );
   }
 
-  const { project, outline } = data;
+  const { project } = data;
 
   return (
     <div className="p-8 max-w-6xl mx-auto">

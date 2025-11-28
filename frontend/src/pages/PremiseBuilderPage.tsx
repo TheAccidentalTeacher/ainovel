@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-interface ProjectStub {
-  title: string
-  logline: string
-}
-
 export default function PremiseBuilderPage() {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)

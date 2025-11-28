@@ -35,7 +35,7 @@ export default function NewProjectPage() {
   // Create project mutation
   const createMutation = useMutation({
     mutationFn: (data: Parameters<typeof apiClient.createProject>[0]) => apiClient.createProject(data),
-    onSuccess: (response) => {
+    onSuccess: (response: { project: { id: string } }) => {
       navigate(`/projects/${response.project.id}`)
     },
   })

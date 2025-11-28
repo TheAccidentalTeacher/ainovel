@@ -272,20 +272,20 @@ const SUBGENRE_DEFINITIONS: Record<string, string> = {
 
 // ==================== TYPE DEFINITIONS ====================
 
-interface PremiseSession {
-  session_id: string
-  current_step: number
-  status: string
-  project_stub?: ProjectStub
-  genre_profile?: GenreProfile
-  tone_theme_profile?: ToneThemeProfile
-  character_seeds?: CharacterSeeds
-  plot_intent?: PlotIntent
-  structure_targets?: StructureTargets
-  constraints_profile?: ConstraintsProfile
-  baseline_premise?: any
-  premium_premise?: any
-}
+// interface PremiseSession {
+//   session_id: string
+//   current_step: number
+//   status: string
+//   project_stub?: ProjectStub
+//   genre_profile?: GenreProfile
+//   tone_theme_profile?: ToneThemeProfile
+//   character_seeds?: CharacterSeeds
+//   plot_intent?: PlotIntent
+//   structure_targets?: StructureTargets
+//   constraints_profile?: ConstraintsProfile
+//   baseline_premise?: any
+//   premium_premise?: any
+// }
 
 interface ProjectStub {
   title: string
@@ -412,7 +412,7 @@ export default function PremiseBuilderWizard() {
   const [coreValues, setCoreValues] = useState<string[]>([])
   const [centralQuestion, setCentralQuestion] = useState('')
   const [atmosphericElements, setAtmosphericElements] = useState<string[]>([])
-  const [heatLevel, setHeatLevel] = useState('')
+  const [heatLevel] = useState('')
   
   const [protagonist, setProtagonist] = useState<CharacterSeed | null>(null)
   const [antagonist, setAntagonist] = useState<CharacterSeed | null>(null)
@@ -749,13 +749,13 @@ export default function PremiseBuilderWizard() {
   }
   
   // Helper to clean single-value suggestions
-  const cleanSuggestion = (text: string): string => {
-    // Remove quotes, numbered markers, and extra whitespace
-    return text
-      .replace(/^\d+\.\s*/, '')
-      .replace(/^["']|["']$/g, '')
-      .trim()
-  }
+  // const cleanSuggestion = (text: string): string => {
+  //   // Remove quotes, numbered markers, and extra whitespace
+  //   return text
+  //     .replace(/^\d+\.\s*/, '')
+  //     .replace(/^["']|["']$/g, '')
+  //     .trim()
+  // }
 
   // AI Assistant function
   const requestAIAssist = async (assistType: string, context: Record<string, any>) => {
@@ -1146,7 +1146,7 @@ export default function PremiseBuilderWizard() {
                     <div className="border-t border-gray-700 pt-2">
                       <div className="text-gray-400 text-xs font-semibold mb-1">AI will use examples like:</div>
                       <ul className="text-gray-400 text-xs space-y-1">
-                        {info.examples.map((example, idx) => (
+                        {info.examples.map((example: string, idx: number) => (
                           <li key={idx} className="flex items-start">
                             <span className="text-orange-500 mr-1">•</span>
                             <span>{example}</span>
@@ -1167,7 +1167,7 @@ export default function PremiseBuilderWizard() {
                 Selected Comedy Styles ({comedyElements.length}/3):
               </div>
               <div className="space-y-3">
-                {comedyElements.map(element => {
+                {comedyElements.map((element: string) => {
                   const info = COMEDY_ELEMENTS[element as keyof typeof COMEDY_ELEMENTS]
                   return (
                     <div key={element} className="text-xs">
@@ -2160,14 +2160,14 @@ export default function PremiseBuilderWizard() {
         }
         else if (header.includes('CONFLICT TYPES')) {
           // Parse bullet points or comma-separated list
-          const types = content.split(/\n|,/).map(s => s.replace(/^[-*•]\s*/, '').trim()).filter(Boolean)
+          const types = content.split(/\n|,/).map((s: string) => s.replace(/^[-*•]\s*/, '').trim()).filter(Boolean)
           setConflictTypes(types)
         }
         else if (header.includes('STAKES') && !header.includes('LAYERS')) {
           setStakes(content)
         }
         else if (header.includes('STAKES LAYERS')) {
-          const layers = content.split(/\n|,/).map(s => s.replace(/^[-*•]\s*/, '').trim()).filter(Boolean)
+          const layers = content.split(/\n|,/).map((s: string) => s.replace(/^[-*•]\s*/, '').trim()).filter(Boolean)
           setStakesLayers(layers)
         }
         else if (header.includes('INCITING INCIDENT')) {
@@ -2189,11 +2189,11 @@ export default function PremiseBuilderWizard() {
           setResolution(content)
         }
         else if (header.includes('KEY STORY BEATS')) {
-          const beats = content.split('\n').filter(l => l.trim()).map(l => l.replace(/^[-*•]\s*/, '').trim())
+          const beats = content.split('\n').filter((l: string) => l.trim()).map((l: string) => l.replace(/^[-*•]\s*/, '').trim())
           setKeyStoryBeats(beats)
         }
         else if (header.includes('EMOTIONAL BEATS')) {
-          const beats = content.split('\n').filter(l => l.trim()).map(l => l.replace(/^[-*•]\s*/, '').trim())
+          const beats = content.split('\n').filter((l: string) => l.trim()).map((l: string) => l.replace(/^[-*•]\s*/, '').trim())
           setEmotionalBeats(beats)
         }
         else if (header.includes('ROMANTIC SUBPLOT')) {
@@ -2206,15 +2206,15 @@ export default function PremiseBuilderWizard() {
           setThematicSubplot(content)
         }
         else if (header.includes('ADDITIONAL SUBPLOTS')) {
-          const subplots = content.split('\n').filter(l => l.trim()).map(l => l.replace(/^[-*•]\s*/, '').trim())
+          const subplots = content.split('\n').filter((l: string) => l.trim()).map((l: string) => l.replace(/^[-*•]\s*/, '').trim())
           setAdditionalSubplots(subplots)
         }
         else if (header.includes('TWISTS') || header.includes('TWIST')) {
-          const twists = content.split('\n').filter(l => l.trim()).map(l => l.replace(/^[-*•]\s*/, '').trim())
+          const twists = content.split('\n').filter((l: string) => l.trim()).map((l: string) => l.replace(/^[-*•]\s*/, '').trim())
           setMajorTwists(twists)
         }
         else if (header.includes('RED HERRINGS')) {
-          const herrings = content.split('\n').filter(l => l.trim()).map(l => l.replace(/^[-*•]\s*/, '').trim())
+          const herrings = content.split('\n').filter((l: string) => l.trim()).map((l: string) => l.replace(/^[-*•]\s*/, '').trim())
           setRedHerrings(herrings)
         }
         else if (header.includes('ENDING VIBE')) {

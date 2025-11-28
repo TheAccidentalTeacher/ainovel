@@ -98,10 +98,10 @@ export default function StandaloneBookCoverDesigner() {
   const [generatingImages, setGeneratingImages] = useState(false)
   
   // Typography state
-  const [titleText, setTitleText] = useState('')
-  const [authorText, setAuthorText] = useState('')
-  const [titleFont, setTitleFont] = useState('Cinzel')
-  const [authorFont, setAuthorFont] = useState('Open Sans')
+  const [titleText] = useState('')
+  const [authorText] = useState('')
+  const [titleFont] = useState('Cinzel')
+  const [authorFont] = useState('Open Sans')
   
   // Final cover state
   const [finalCover, setFinalCover] = useState<string | null>(null)

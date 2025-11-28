@@ -4,7 +4,6 @@ import type {
   DesignBrief,
   ImageGenerationRequest,
   ImageGenerationResponse,
-  BookCover,
   BookCoverListResponse,
   BookCoverDetailResponse
 } from '../types/bookCover'

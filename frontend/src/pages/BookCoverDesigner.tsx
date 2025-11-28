@@ -310,7 +310,7 @@ export default function BookCoverDesigner() {
       })
       
       setCoverIterations(result.iterations)
-      setBookCover(result)
+      setBookCover(result as any)
       if (result.iterations.length > 0) {
         setSelectedIteration(result.iterations[0])
       }
