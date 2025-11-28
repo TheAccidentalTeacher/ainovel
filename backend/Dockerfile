@@ -1,5 +1,11 @@
-FROM python:3.12-slim
+FROM node:20-alpine AS frontend-builder
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
 
+FROM python:3.12-slim
 WORKDIR /app
 
 # Install system dependencies
@@ -8,14 +14,20 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download spaCy language model
 RUN python -m spacy download en_core_web_sm
 
-# Copy application code
-COPY . .
+# Copy backend application code
+COPY backend/ .
+
+# Copy built frontend from first stage
+COPY --from=frontend-builder /frontend/dist /app/frontend/dist
+
+# Copy config directory
+COPY config/ /app/config/
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
