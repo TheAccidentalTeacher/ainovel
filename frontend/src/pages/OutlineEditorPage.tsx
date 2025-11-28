@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '../lib/api-client';
+import apiClient from '../lib/apiClient';
 import { useState, useEffect } from 'react';
 import type { ChapterOutline } from '../types';
 

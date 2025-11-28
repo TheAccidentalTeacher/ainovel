@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PlusIcon, TrashIcon, FolderIcon } from '@heroicons/react/24/outline'
 import { useState, useEffect } from 'react'
-import apiClient from '../lib/api-client'
+import apiClient from '../lib/apiClient'
 import type { Project } from '../types'
 
 export default function HomePage() {

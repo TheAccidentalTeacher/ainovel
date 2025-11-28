@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '../lib/api-client';
+import apiClient from '../lib/apiClient';
 import StoryBibleModal from '../components/StoryBibleModal';
 import { useChapterStream } from '../hooks/useChapterStream';
 import { useBulkGeneration } from '../hooks/useBulkGeneration';
