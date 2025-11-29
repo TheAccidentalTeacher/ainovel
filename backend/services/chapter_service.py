@@ -187,6 +187,59 @@ These theological underpinnings should naturally inform character worldviews, mo
 - **Opening with weather/light descriptions** - vary how chapters start (dialogue, action, internal thought, mid-scene)
 - **Poetic scene descriptions at chapter openings** - be direct and simple in first paragraph, save lyricism for later
 
+**CRITICAL SELF-CHECKS (Post-Generation Protocol):**
+
+**RULE 11 - ELLIPSES DISCIPLINE:**
+- **ABSOLUTE MAXIMUM: 3 ellipses per chapter**
+- Ellipses signal hesitation/trailing off - overuse makes characters sound perpetually unsure
+- Replace most ellipses with confident periods: "He turned away." NOT "He turned away..."
+- Reserve ellipses ONLY for:
+  1. Actual interrupted speech mid-sentence (once per chapter max)
+  2. Character genuinely unable to finish a difficult thought (twice per chapter max)
+- ❌ BAD: "I just... I don't know what to think..." (weak, trailing)
+- ✅ GOOD: "I don't know what to think." (confident, complete)
+- **Self-check**: Count ellipses before finalizing. If >3, convert to periods.
+
+**RULE 13 - "COMPLETELY" SURGICAL REMOVAL:**
+- **TARGET: 4-5 uses per ENTIRE MANUSCRIPT (not per chapter)**
+- **ZERO uses for emotional states** - NEVER "completely overwhelmed/certain/lost/devastated"
+- "Completely" weakens prose by overstating - trust your writing without intensifiers
+- Only allow for literal physical completion:
+  ✅ "The structure completely collapsed"
+  ✅ "The room fell completely silent"
+  ❌ "She was completely exhausted" → "She was exhausted"
+  ❌ "He completely understood" → "He understood"
+- **Self-check**: Search for "completely" before finalizing. Delete all emotional uses. Keep ≤1 physical use per chapter.
+
+**RULE 3 - PHYSICAL CUE BLACKLIST:**
+- **BANNED PHRASES (0 tolerance):**
+  - "heat crept/crawled up [neck/cheeks/face]"
+  - "butterflies in [stomach/chest/gut]"
+  - "breath caught/hitched in throat"
+  - "stomach dropped/fell/clenched/twisted/tightened"
+  - "something warm/cold unfurled/bloomed in chest"
+  - "heart did something [peculiar/strange/funny]"
+  - "chest tightened/constricted/squeezed"
+  - "[hands/fingers] trembled/shook with emotion"
+  - "heat/warmth flooded through [body part]"
+- **ALLOWED ONCE PER CHAPTER (if essential):**
+  - "heart hammered/pounded/raced" (physical exertion context only)
+  - "breath quickened" (exertion context only)
+- **REPLACEMENT STRATEGY**: Show external behavior instead of internal sensation
+  - ❌ "Her stomach dropped" → ✅ "She gripped the chair"
+  - ❌ "Heat crept up his neck" → ✅ "He looked away"
+  - ❌ "Butterflies in her chest" → ✅ "She couldn't keep still"
+- **Self-check**: Search for banned phrases before finalizing. Replace all instances with external actions.
+
+**RULE 12 - INTENSIFIER ECONOMY:**
+- **Minimize**: absolutely, utterly, truly, perfectly, entirely, deeply, profoundly
+- Trust your verbs and nouns - they don't need boosting
+- ❌ "absolutely certain" → ✅ "certain"
+- ❌ "utterly exhausted" → ✅ "exhausted"
+- ❌ "deeply troubled" → ✅ "troubled"
+- **Target**: <5 intensifiers per chapter
+- **Self-check**: Scan for intensifiers. Delete 80% of them. Prose will be stronger.
+
 **Format:**
 Return ONLY the chapter prose as plain text. No JSON, no metadata, no chapter title - just the narrative text from first word to last.
 
