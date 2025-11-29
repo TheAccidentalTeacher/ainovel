@@ -149,6 +149,10 @@ export interface Project {
   total_chapters: number;
   completed_chapters: number;
   total_word_count: number;
+  target_word_count?: number;
+  current_word_count?: number;
+  target_chapter_count?: number;
+  current_chapter_count?: number;
   ai_config: AIConfig;
   created_at: string;
   updated_at: string;

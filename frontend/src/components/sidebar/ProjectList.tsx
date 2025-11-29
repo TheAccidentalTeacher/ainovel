@@ -96,8 +96,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                     </p>
                     {isLinked && (
                       <Link2Off 
-                        className="h-4 w-4 text-violet-600 ml-2 flex-shrink-0" 
-                        title="Linked to chat"
+                        className="h-4 w-4 text-violet-600 ml-2 flex-shrink-0"
                       />
                     )}
                   </div>
@@ -106,8 +105,8 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                     <span className="text-xs text-gray-400">•</span>
                     <span className={`
                       text-xs px-1.5 py-0.5 rounded
-                      ${project.status === 'complete' ? 'bg-green-100 text-green-700' :
-                        project.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                      ${project.status === 'completed' ? 'bg-green-100 text-green-700' :
+                        project.status === 'generating' ? 'bg-blue-100 text-blue-700' :
                         'bg-gray-100 text-gray-600'}
                     `}>
                       {project.status.replace('_', ' ')}

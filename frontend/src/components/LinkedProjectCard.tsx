@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ExternalLink, FileText, Users, Target } from 'lucide-react';
+import { X, ExternalLink, FileText, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Project } from '../types';
 
@@ -12,8 +12,8 @@ export const LinkedProjectCard: React.FC<LinkedProjectCardProps> = ({ project, o
   const navigate = useNavigate();
 
   // Calculate progress
-  const progressPercentage = project.target_word_count > 0
-    ? Math.round((project.current_word_count / project.target_word_count) * 100)
+  const progressPercentage = (project.target_word_count ?? 0) > 0
+    ? Math.round(((project.current_word_count ?? 0) / (project.target_word_count ?? 1)) * 100)
     : 0;
 
   return (
@@ -50,8 +50,8 @@ export const LinkedProjectCard: React.FC<LinkedProjectCardProps> = ({ project, o
           />
         </div>
         <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
-          <span>{project.current_word_count.toLocaleString()} words</span>
-          <span>{project.target_word_count.toLocaleString()} target</span>
+          <span>{(project.current_word_count ?? 0).toLocaleString()} words</span>
+          <span>{(project.target_word_count ?? 0).toLocaleString()} target</span>
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export const LinkedProjectCard: React.FC<LinkedProjectCardProps> = ({ project, o
             <span>Chapters</span>
           </div>
           <p className="text-sm font-semibold text-gray-900">
-            {project.current_chapter_count} / {project.target_chapter_count}
+            {project.current_chapter_count ?? 0} / {project.target_chapter_count ?? 0}
           </p>
         </div>
         <div className="bg-white rounded-md p-2">
@@ -72,8 +72,8 @@ export const LinkedProjectCard: React.FC<LinkedProjectCardProps> = ({ project, o
             <span>Status</span>
           </div>
           <p className={`text-sm font-semibold ${
-            project.status === 'complete' ? 'text-green-600' :
-            project.status === 'in_progress' ? 'text-blue-600' :
+            project.status === 'completed' ? 'text-green-600' :
+            project.status === 'generating' ? 'text-blue-600' :
             'text-gray-600'
           }`}>
             {project.status.replace('_', ' ')}

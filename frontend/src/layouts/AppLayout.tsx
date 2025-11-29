@@ -17,7 +17,7 @@ import {
 import { useLinkedProject } from '../hooks/useLinkedProject';
 import { useCollapsedSections } from '../hooks/useCollapsedSections';
 import apiClient from '../lib/api-client';
-import type { Context, Project } from '../types';
+import type { Context } from '../types';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -33,7 +33,8 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
   const { contexts: contextsCollapsed, projects: projectsCollapsed, conversations: conversationsCollapsed, toggleSection } = useCollapsedSections();
 
   // Queries and mutations
-  const { data: contexts = [], isLoading: isLoadingContexts, error: contextsError } = useContexts();
+  const { data: contextsData, isLoading: isLoadingContexts, error: contextsError } = useContexts();
+  const contexts: Context[] = contextsData || [];
   const createContext = useCreateContext();
   const updateContext = useUpdateContext();
   const toggleContext = useToggleContext();
@@ -84,7 +85,7 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
       // Update existing context
       await updateContext.mutateAsync({
         contextId: editingContext._id,
-        data,
+        data: data as { name?: string; icon?: string; color?: string; description?: string },
       });
     } else {
       // Create new context

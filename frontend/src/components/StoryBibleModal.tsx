@@ -10,7 +10,7 @@ interface StoryBibleModalProps {
 
 type TabType = 'characters' | 'settings' | 'themes' | 'plot';
 
-export default function StoryBibleModal({ isOpen, onClose, storyBible, onSave }: StoryBibleModalProps) {
+export default function StoryBibleModal({ isOpen, onClose, storyBible }: StoryBibleModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('characters');
   const [expandedCharacter, setExpandedCharacter] = useState<number | null>(null);
   const [expandedSetting, setExpandedSetting] = useState<number | null>(null);

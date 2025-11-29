@@ -13,9 +13,6 @@ export const useContexts = () => {
     queryFn: () => apiClient.getContexts(),
     staleTime: 30000, // Consider fresh for 30 seconds
     retry: 1, // Only retry once
-    onError: (error) => {
-      console.error('Failed to fetch contexts:', error);
-    },
   });
 };
 
@@ -82,5 +79,5 @@ export const useDeleteContext = () => {
  */
 export const useActiveContext = () => {
   const { data: contexts } = useContexts();
-  return contexts?.find(ctx => ctx.is_active) || null;
+  return contexts?.find((ctx: Context) => ctx.is_active) || null;
 };

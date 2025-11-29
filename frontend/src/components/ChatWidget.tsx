@@ -14,15 +14,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { chatApi } from '../services/chatService';
+import { chatApi, type Message as ChatMessage, type ConversationResponse } from '../services/chatService';
 import { SearchFeatureTour } from './SearchFeatureTour';
 import { useConversation } from '../hooks/useConversation';
 
-interface Message {
-  id: string;
+interface Message extends Omit<ChatMessage, 'role'> {
   role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
   search_type?: string;
 }
 
@@ -85,9 +82,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   // Create conversation on open if none exists
   const createConversationMutation = useMutation({
     mutationFn: () => chatApi.createConversation({ user_id: userId, project_id: projectId }),
-    onSuccess: (data: { conversation: { id: string }; messages: Message[] }) => {
+    onSuccess: (data: ConversationResponse) => {
       setConversationId(data.conversation.id);
-      setMessages(data.messages);
+      setMessages(data.messages as Message[]);
     },
   });
 
@@ -103,7 +100,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   // Update messages when conversation loads
   useEffect(() => {
     if (conversationData) {
-      setMessages(conversationData.messages);
+      setMessages(conversationData.messages as Message[]);
     }
   }, [conversationData]);
 
@@ -363,9 +360,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
               </select>
               
               {/* Model Description */}
-              {modelsData?.models.find((m: { id: string; description?: string }) => m.id === selectedModel)?.description && (
+              {modelsData?.models.find((m: any) => m.id === selectedModel && m.description)?.description && (
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {modelsData.models.find((m: { id: string; description?: string }) => m.id === selectedModel)?.description}
+                  {modelsData.models.find((m: any) => m.id === selectedModel)?.description}
                 </p>
               )}
               
