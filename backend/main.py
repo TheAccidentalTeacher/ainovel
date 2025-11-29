@@ -112,8 +112,26 @@ def create_application() -> FastAPI:
         frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
     
     if frontend_dist.exists() and settings.is_production:
-        app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
-        logger.info("frontend_static_files_mounted", path=str(frontend_dist))
+        # Mount static files at root, but API routes take precedence (registered first)
+        # Use a catch-all route for SPA routing
+        from fastapi.responses import FileResponse
+        
+        @app.get("/{full_path:path}")
+        async def serve_spa(full_path: str):
+            """Serve React SPA, but let API routes take precedence."""
+            # Don't intercept API routes - they're already registered
+            if full_path.startswith("api/"):
+                raise HTTPException(status_code=404, detail="Not found")
+            
+            # Try to serve the requested file
+            file_path = frontend_dist / full_path
+            if file_path.is_file():
+                return FileResponse(file_path)
+            
+            # Fallback to index.html for client-side routing
+            return FileResponse(frontend_dist / "index.html")
+        
+        logger.info("frontend_spa_serving_configured", path=str(frontend_dist))
     else:
         logger.warning("frontend_dist_not_found", path=str(frontend_dist), exists=frontend_dist.exists(), is_production=settings.is_production)
     
