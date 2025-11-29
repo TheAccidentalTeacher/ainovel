@@ -31,7 +31,10 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     );
   }
 
-  if (projects.length === 0) {
+  // Ensure projects is an array
+  const projectsArray = Array.isArray(projects) ? projects : [];
+
+  if (projectsArray.length === 0) {
     return (
       <div className="text-center py-6">
         <p className="text-sm text-gray-500 mb-3">No projects yet</p>
@@ -49,7 +52,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     );
   }
 
-  const recentProjects = projects.slice(0, 5);
+  const recentProjects = projectsArray.slice(0, 5);
 
   return (
     <div className="space-y-1">
@@ -171,12 +174,12 @@ export const ProjectList: React.FC<ProjectListProps> = ({
         );
       })}
 
-      {projects.length > 5 && (
+      {projectsArray.length > 5 && (
         <button
           onClick={() => navigate('/studio')}
           className="w-full text-xs text-violet-600 hover:text-violet-700 py-2 text-center"
         >
-          View all {projects.length} projects →
+          View all {projectsArray.length} projects →
         </button>
       )}
     </div>

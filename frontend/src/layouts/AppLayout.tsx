@@ -25,19 +25,27 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
   const [editingContext, setEditingContext] = useState<Context | null>(null);
 
   // Queries and mutations
-  const { data: contexts = [], isLoading: isLoadingContexts } = useContexts();
+  const { data: contexts = [], isLoading: isLoadingContexts, error: contextsError } = useContexts();
   const createContext = useCreateContext();
   const updateContext = useUpdateContext();
   const toggleContext = useToggleContext();
   const deleteContext = useDeleteContext();
+  
+  // Log context errors for debugging
+  if (contextsError) {
+    console.error('Failed to load contexts:', contextsError);
+  }
 
   // Project linking state
   const { linkedProjectId, linkProject, unlinkProject } = useLinkedProject();
-  const { data: projects = [], isLoading: isLoadingProjects } = useQuery<Project[]>({
+  const { data: projectsData, isLoading: isLoadingProjects } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiClient.listProjects(),
     staleTime: 60000, // 1 minute
   });
+  
+  // Extract projects array from response
+  const projects = (projectsData as any)?.projects || [];
 
   // Handlers
   const handleCreateContext = () => {

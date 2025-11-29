@@ -6,8 +6,11 @@
 
 ## Latest Session (Nov 29): Phase 1.5 - WriteMind Studios Layout 🎨
 
-### Phase 1.5 Step 1: COMPLETE ✅
-**Goal**: Transform floating chat widget into full-screen application with consistent navigation
+### Phase 1.5 Steps 1 & 2: COMPLETE ✅
+**Goal**: Transform floating chat widget into full-screen application with context/project management
+
+### Phase 1.5 Step 1: Navigation & Layout ✅
+**Goal**: Full-screen chat with consistent WriteMind Studios navigation
 
 **Brand Identity**: WriteMind Studios
 - Tagline: "Extend Your Creative Mind"
@@ -83,7 +86,37 @@
 - Dark theme preserved in Novel Studio
 - User can navigate back to Chat from any page via header
 
-**Next**: Phase 1.5 Step 2 - Build real sidebar functionality (Context CRUD, Project linking, Conversation list)
+### Phase 1.5 Step 2: Sidebar Functionality ✅
+**Goal**: Real Context Management & Project Linking
+
+**Step 2.1: Context Management System** ✅
+- ✅ Backend: `backend/models/context.py` - Context model (name, icon, color, description, active state)
+- ✅ Backend: `backend/api/contexts.py` - CRUD endpoints + toggle activation
+- ✅ Frontend: `ContextList` component - Display contexts with icons/colors, hover actions
+- ✅ Frontend: `ContextManager` modal - Create/edit with icon picker, color picker
+- ✅ Frontend: `useContexts` hook - React Query with cache invalidation
+- ✅ Integrated into AppLayout sidebar with empty states and loading UI
+
+**Step 2.2: Project Linking to Chat** ✅
+- ✅ Frontend: `ProjectList` component - Recent 5 projects with quick actions menu
+- ✅ Frontend: `LinkedProjectCard` - Beautiful gradient card showing project progress
+- ✅ Frontend: `useLinkedProject` hook - Zustand store with localStorage persistence
+- ✅ Backend: Chat service injects project context into AI system prompt
+- ✅ AI has full context: title, genre, characters, outline, themes
+
+**What Works**:
+- Create/edit/delete/activate contexts with custom icons and colors
+- Link projects to chat - AI gets full novel context
+- Quick actions: Open in Studio, Link/Unlink, View Outline
+- Progress tracking on LinkedProjectCard (words/chapters)
+- Empty states guide users to create contexts or projects
+
+**Bug Fixes** (Nov 29):
+- Fixed TypeError: projects.slice is not a function (API returns object, not array)
+- Added fallback handling for failed API calls (no crash)
+- Improved error handling in useContexts hook
+
+**Next**: Phase 1.5 Step 3 - Move conversation list to sidebar
 
 ---
 
