@@ -2128,6 +2128,38 @@ export default function PremiseBuilderWizard() {
       setIsGeneratingPlot(true)
       setError(null)
       
+      // 🔥 CRITICAL FIX: Save any existing plot edits to session FIRST
+      // This ensures AI pulls Alana's manual edits when generating
+      console.log('💾 [PLOT] Auto-saving current plot state before generation...')
+      const currentPlotData = {
+        primary_conflict: primaryConflict || undefined,
+        conflict_types: conflictTypes,
+        stakes: stakes || undefined,
+        stakes_layers: stakesLayers,
+        inciting_incident: incitingIncident || undefined,
+        first_plot_point: firstPlotPoint || undefined,
+        midpoint_shift: midpointShift || undefined,
+        second_plot_point: secondPlotPoint || undefined,
+        climax_confrontation: climaxConfrontation || undefined,
+        resolution: resolution || undefined,
+        key_story_beats: keyStoryBeats,
+        emotional_beats: emotionalBeats,
+        ending_vibe: endingVibe || undefined,
+        final_image: finalImage || undefined,
+        romantic_subplot: romanticSubplot || undefined,
+        secondary_subplot: secondarySubplot || undefined,
+        thematic_subplot: thematicSubplot || undefined,
+        additional_subplots: additionalSubplots,
+        major_twists: majorTwists,
+        red_herrings: redHerrings,
+        tension_escalation: tensionEscalation || undefined,
+        pacing_notes: pacingNotes || undefined
+      }
+      
+      // Save current state without advancing step
+      await saveStep(4, currentPlotData, { suppressAdvance: true })
+      console.log('✅ [PLOT] Current edits saved to session')
+      
       const response = await fetch(`${API_BASE}/premise-builder/sessions/${sessionId}/ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2301,9 +2333,12 @@ export default function PremiseBuilderWizard() {
           <div className="flex items-start gap-4">
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-white mb-2">🤖 AI Plot Generator</h3>
-              <p className="text-gray-400 text-sm mb-4">
+              <p className="text-gray-400 text-sm mb-2">
                 Let AI generate a complete plot structure based on your genre, themes, and characters. 
                 You can then refine, expand, or modify any element.
+              </p>
+              <p className="text-blue-300 text-xs mb-4">
+                💾 Your current edits will be saved automatically before generation
               </p>
               <button
                 onClick={generateFullPlot}
@@ -2311,7 +2346,7 @@ export default function PremiseBuilderWizard() {
                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-all font-medium flex items-center gap-2"
               >
                 <span className="text-xl">✨</span>
-                {isGeneratingPlot ? 'Generating Complete Plot...' : 'Generate Complete Plot Structure'}
+                {isGeneratingPlot ? 'Saving & Generating Plot...' : 'Generate Complete Plot Structure'}
               </button>
             </div>
           </div>
