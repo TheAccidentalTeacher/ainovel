@@ -98,6 +98,12 @@ I'm continuing iterative manuscript improvement. Please:
 | `config/prompt_templates/` | YAML prompt packs for outline, chapter, and summary flows (with anti-AI-tell rules embedded). |
 | `backend/services/chapter_service.py` | **Production chapter generation system prompt (lines 58-266) with V3 universal rules.** |
 | `tools/docx_to_text.py` | CLI utility to extract manuscripts from DOCX to plain text for AI review. |
+| **`docs/CHATBOT_FEATURE_PLAN.md`** | **Persistent chatbot/agent UX + technical specification with phase blueprint and milestone checklist.** |
+| **`docs/ALANA_CHATBOT_MASTER_PLAN.md`** | **🎭 Alana's personalized AI writing companion master plan - chunked implementation strategy (25 days, 13 micro-phases).** |
+| **`docs/CHATBOT_BUILD_PLAN_V2.md`** | **🤖 ACTIVE BUILD PLAN - Phase 1 (Days 1-8): Core chatbot with long context. Phase 2 (Days 9-15): Bot framework (Alana builds her own).** |
+| **`docs/CHATBOT_PHASE1_COMPLETE.md`** | **✅ PHASE 1 COMPLETION SUMMARY - Implementation details, testing guide, success metrics (Claude Sonnet 4.5 streaming chatbot + Tavily web search LIVE).** |
+| **`docs/TAVILY_ADVANCED_GUIDE.md`** | **✅ COMPLETE WEB SEARCH GUIDE - Full Tavily integration (5 search methods, parameters, use cases, workflows, 400+ lines).** |
+| **`docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md`** | **Strategic analysis of custom vs. framework agent systems, licensing path, and marketplace concept.** |
 
 ---
 
@@ -116,6 +122,13 @@ I'm continuing iterative manuscript improvement. Please:
 | Workers / Redis | ⏳ Future | Settings placeholders exist; generation currently synchronous (SSE streams for UX). |
 
 ---
+
+## 🧠 Agentic Chatbot Initiative (Phase 4B)
+- **Goal:** Persistent desktop-first chatbot that spans every page, supports unlimited custom bots, and powers Alana's "Board of Directors" workflows.
+- **Key Docs:** `docs/CHATBOT_FEATURE_PLAN.md` (execution plan) + `docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md` (architecture & licensing strategy).
+- **Phase Blueprint:** Phase 0 research → Phase 1 data/service foundation → Phase 2 core chat → Phase 3 bot creation/brains → Phase 4 context mastery → Phase 5 board orchestration → Phase 6 production hardening.
+- **Status:** Requirements captured, plan indexed, implementation to begin after outstanding clarifications in the chatbot plan's "Immediate Clarifications" section are resolved.
+- **Operators:** Scott (architecture/backend) + Alana (UX validation, bot template curation).
 
 ## Narrative Pipeline Overview
 1. **Guided Premise Builder (NEW)** – `POST /api/premise-builder/sessions` starts 8-step wizard collecting genre, tone, characters, plot, structure, constraints with AI assists at each step. Step 7 generates baseline premise (GPT-4o), Step 8 generates premium long-form premise (Claude Sonnet 4.5). Session completion persists final premise to project.
@@ -211,6 +224,60 @@ npm run dev -- --host 127.0.0.1 --port 5173
 ## Observability & Logging
 - **Backend**: structlog emits JSON with `event` fields (`outline_generation_started`, `story_bible_generation_failed`, etc.). Monitor Uvicorn console locally or Railway log drains in prod.
 - **Frontend**: `[APIClient]` console logs trace Axios lifecycle; TanStack Query surfaces errors in UI banners.
+
+---
+
+## 🧠 Agentic Chatbot Initiative (Phase 4B) - **PHASE 1 COMPLETE! 🎉**
+
+**Strategy**: Build the system first, let Alana customize it herself through actual use.
+
+**Key Documents**:
+- **`docs/CHATBOT_PHASE1_COMPLETE.md`** - **✅ PHASE 1 COMPLETION SUMMARY** (Implementation details, testing guide)
+- **`docs/CHATBOT_BUILD_PLAN_V2.md`** - Build plan (Phase 1: Core chatbot, Phase 2: Bot framework)
+- **`docs/TAVILY_ADVANCED_GUIDE.md`** - **✅ COMPLETE WEB SEARCH DOCUMENTATION** (Full Tavily integration guide)
+- `docs/ALANA_CHATBOT_MASTER_PLAN.md` - Original master plan (superseded by V2)
+- `docs/CHATBOT_FEATURE_PLAN.md` - General technical specification
+- `docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md` - Framework analysis & commercial licensing path
+
+**Phase 1: Core Chatbot + Web Search** ✅ **COMPLETE (Nov 29, 2025)**:
+- **Goal**: Alana can chat + research without leaving the app
+- ✅ Database schemas (conversations, messages, summaries)
+- ✅ Chat API endpoints (CRUD + SSE streaming)
+- ✅ Chat service (Claude Sonnet 4.5, auto-summarization, 200k token context)
+- ✅ React chat widget (floating button, expandable panel, real-time streaming)
+- ✅ Auto-save every message, persistent history
+- ✅ Project context awareness (links to premise, story bible, characters)
+- ✅ Long context management (auto-summarization at 150k tokens)
+- ✅ **Full Tavily web search integration** (5 specialized search types)
+- ✅ **Intelligent search routing** (auto-detects news/images/research queries)
+- ✅ **Educational UI** (help popups, examples, welcome tour for new users)
+- ✅ **Search results display** (Quick Answer + collapsible sources with links)
+- **Exit Criteria**: ✅ Alana uses in-app chat + research instead of external AI sites
+
+**What Works Right Now**:
+- Floating chat button on all pages (bottom-right)
+- Real-time AI conversations with Claude Sonnet 4.5
+- **Web search with 5 modes**: Standard, News (time-filtered), Images (with descriptions), Deep Research (raw content), Domain-Specific (trusted sources)
+- **Automatic intelligence**: Detects "recent" → news search, "photos" → image search, "detailed" → deep research
+- **Educational UI**: Help popup, examples popup, welcome tour modal (shows once)
+- **Search results**: Quick Answer box + collapsible sources with clickable links
+- Unlimited conversation length (auto-summarization)
+- Full message history saved to MongoDB
+- Works across all pages (persistent state)
+
+**Phase 2: Bot Framework** (Days 9-15) - **NOT STARTED**:
+- **Goal**: Alana builds her own custom bots in-app (personalities, knowledge, Board of Directors)
+- Day 9: Bot schemas (bots, bot_brains)
+- Day 10: Bot CRUD API
+- Day 11: Bot creation wizard (Alana designs bots herself)
+- Day 12: Bot switcher in chat
+- Day 13: Bot brain upload (manuscripts, character sheets)
+- Day 14-15: Board of Directors (multi-bot consultation)
+- **Exit Criteria**: ✅ Alana creates 3+ custom bots, uses Board 3+ times for real writing problems
+
+**Status**: 🚀 Phase 1 LIVE. **NEXT**: Alana testing, then Phase 2 kickoff.
+
+**Operators**: Scott (build framework) + Alana (test & customize through use)
 
 ---
 

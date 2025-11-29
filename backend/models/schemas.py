@@ -396,3 +396,195 @@ class UpdateStoryBibleRequest(BaseModel):
 class StoryBibleResponse(BaseModel):
     """Story Bible response."""
     story_bible: StoryBible
+
+
+# ==================== Chat & Bot Models (Phase 1 & 2) ====================
+
+class Conversation(BaseModel):
+    """
+    Chat conversation with message history.
+    
+    Linked to user and optionally to a project for context-aware conversations.
+    """
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Conversation ID")
+    user_id: str = Field(..., description="Owner user ID (alana, scott, etc.)")
+    project_id: Optional[str] = Field(None, description="Optional project context")
+    bot_id: Optional[str] = Field(None, description="Bot used in this conversation (Phase 2)")
+    title: str = Field(default="New Chat", description="Conversation title (auto-generated or user-renamed)")
+    message_count: int = Field(default=0, description="Total messages in conversation")
+    total_tokens: int = Field(default=0, description="Cumulative token count")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    last_message_at: Optional[datetime] = Field(None, description="Timestamp of most recent message")
+
+
+class Message(BaseModel):
+    """
+    Single message in a conversation.
+    
+    Can be user input or assistant response. Saved immediately on creation.
+    """
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Message ID")
+    conversation_id: str = Field(..., description="Parent conversation ID")
+    role: str = Field(..., description="Message role: 'user' or 'assistant'")
+    content: str = Field(..., description="Message text content")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    token_count: int = Field(default=0, description="Tokens in this message")
+    model: Optional[str] = Field(None, description="Model used for assistant responses")
+    
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        """Validate role is either user or assistant."""
+        if v not in ["user", "assistant", "system"]:
+            raise ValueError(f"Role must be 'user', 'assistant', or 'system', got '{v}'")
+        return v
+
+
+class ConversationSummary(BaseModel):
+    """
+    Condensed summary of conversation history for context management.
+    
+    Generated when conversation exceeds token threshold (150k tokens).
+    Allows infinite conversation length via chained summaries.
+    """
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Summary ID")
+    conversation_id: str = Field(..., description="Parent conversation ID")
+    message_range: str = Field(..., description="Range of messages summarized (e.g., '1-50')")
+    summary: str = Field(..., description="Condensed summary text")
+    token_count: int = Field(default=0, description="Tokens in summary")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Bot(BaseModel):
+    """
+    Custom bot with personality, expertise, and knowledge base.
+    
+    Phase 2: Users create their own bots with custom personalities and uploaded documents.
+    """
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Bot ID")
+    user_id: str = Field(..., description="Owner user ID")
+    name: str = Field(..., min_length=1, max_length=100, description="Bot name (e.g., 'Dialogue Coach')")
+    personality: str = Field(default="", description="Personality description for system prompt")
+    system_prompt: str = Field(default="", description="Full system prompt for AI")
+    expertise: List[str] = Field(default_factory=list, description="Tags: dialogue, plot, character, romance, etc.")
+    avatar_url: Optional[str] = Field(None, description="Bot avatar image (Phase 3)")
+    is_default: bool = Field(default=False, description="Default bot for new chats")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class BotBrain(BaseModel):
+    """
+    Knowledge base document for a bot.
+    
+    Phase 2: Uploaded manuscripts, character sheets, research docs that bot can reference.
+    """
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Brain document ID")
+    bot_id: str = Field(..., description="Parent bot ID")
+    content_type: str = Field(..., description="Type: manuscript, character_sheet, research, world_building")
+    filename: str = Field(..., description="Original filename")
+    text_content: str = Field(..., description="Extracted text from uploaded file")
+    token_count: int = Field(default=0, description="Tokens in document")
+    uploaded_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class BoardConsultation(BaseModel):
+    """
+    Board of Directors multi-bot consultation session.
+    
+    Phase 2: User asks one question, gets responses from multiple specialist bots.
+    """
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Consultation ID")
+    conversation_id: str = Field(..., description="Parent conversation ID")
+    user_id: str = Field(..., description="User who requested consultation")
+    question: str = Field(..., description="Question asked to the board")
+    bot_ids: List[str] = Field(..., description="Bots consulted (2-5 specialists)")
+    mode: str = Field(default="parallel", description="Consultation mode: parallel, sequential, debate")
+    responses: Dict[str, str] = Field(default_factory=dict, description="Bot ID -> response mapping")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ==================== Chat API Request/Response Models ====================
+
+class CreateConversationRequest(BaseModel):
+    """Request to create a new conversation."""
+    user_id: str = Field(..., description="User ID (alana, scott, etc.)")
+    project_id: Optional[str] = Field(None, description="Optional project context")
+    bot_id: Optional[str] = Field(None, description="Optional bot to use")
+    title: Optional[str] = Field(None, description="Optional custom title")
+
+
+class SendMessageRequest(BaseModel):
+    """Request to send a message in a conversation."""
+    content: str = Field(..., min_length=1, description="Message text")
+
+
+class RenameConversationRequest(BaseModel):
+    """Request to rename a conversation."""
+    title: str = Field(..., min_length=1, max_length=200, description="New conversation title")
+
+
+class ConversationResponse(BaseModel):
+    """Conversation with full message history."""
+    conversation: Conversation
+    messages: List[Message]
+
+
+class ConversationListResponse(BaseModel):
+    """List of conversations."""
+    conversations: List[Conversation]
+    total: int
+
+
+class CreateBotRequest(BaseModel):
+    """Request to create a custom bot (Phase 2)."""
+    user_id: str = Field(..., description="Owner user ID")
+    name: str = Field(..., min_length=1, max_length=100, description="Bot name")
+    personality: str = Field(default="", description="Personality description")
+    system_prompt: Optional[str] = Field(None, description="Custom system prompt")
+    expertise: List[str] = Field(default_factory=list, description="Expertise tags")
+
+
+class UpdateBotRequest(BaseModel):
+    """Request to update a bot (Phase 2)."""
+    name: Optional[str] = Field(None, description="New bot name")
+    personality: Optional[str] = Field(None, description="New personality")
+    system_prompt: Optional[str] = Field(None, description="New system prompt")
+    expertise: Optional[List[str]] = Field(None, description="New expertise tags")
+
+
+class BotResponse(BaseModel):
+    """Single bot response."""
+    bot: Bot
+
+
+class BotListResponse(BaseModel):
+    """List of bots."""
+    bots: List[Bot]
+
+
+class UploadBotBrainRequest(BaseModel):
+    """Request to upload knowledge document to bot brain (Phase 2)."""
+    bot_id: str = Field(..., description="Target bot ID")
+    content_type: str = Field(..., description="Type: manuscript, character_sheet, research, world_building")
+    filename: str = Field(..., description="Original filename")
+    text_content: str = Field(..., description="Extracted text content")
+
+
+class BotBrainResponse(BaseModel):
+    """Bot brain documents."""
+    documents: List[BotBrain]
+
+
+class BoardConsultRequest(BaseModel):
+    """Request Board of Directors consultation (Phase 2)."""
+    conversation_id: str = Field(..., description="Conversation ID")
+    bot_ids: List[str] = Field(..., min_items=2, max_items=5, description="2-5 specialist bots")
+    question: str = Field(..., min_length=1, description="Question for the board")
+    mode: str = Field(default="parallel", description="Consultation mode")
+
+
+class BoardConsultResponse(BaseModel):
+    """Board consultation response with all bot responses."""
+    consultation: BoardConsultation

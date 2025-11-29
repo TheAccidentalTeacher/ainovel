@@ -63,6 +63,9 @@ class Settings(BaseSettings):
     default_temperature: float = Field(default=0.8, ge=0.0, le=2.0, description="Default temperature")
     default_max_tokens: int = Field(default=4096, ge=1, le=200000, description="Default max tokens per request")
     
+    # Web Search API Keys
+    tavily_api_key: str = Field(default="", description="Tavily API key for web search")
+    
     # Generation Limits
     max_premise_words: int = Field(default=5000, description="Maximum words in premise")
     max_chapter_count: int = Field(default=100, description="Maximum chapters per book")

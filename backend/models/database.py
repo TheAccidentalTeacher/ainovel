@@ -108,6 +108,16 @@ async def _create_indexes(db: AsyncIOMotorDatabase) -> None:
     await db.cover_design_briefs.create_index("project_id")
     await db.cover_iterations.create_index("book_cover_id")
     
+    # Chat & Bot collection indexes (Phase 1 & 2)
+    await db.conversations.create_index([("user_id", 1), ("updated_at", -1)])
+    await db.conversations.create_index("project_id")
+    await db.conversations.create_index("bot_id")
+    await db.messages.create_index([("conversation_id", 1), ("timestamp", 1)])
+    await db.conversation_summaries.create_index("conversation_id")
+    await db.bots.create_index([("user_id", 1), ("created_at", -1)])
+    await db.bot_brains.create_index("bot_id")
+    await db.board_consultations.create_index([("conversation_id", 1), ("created_at", -1)])
+    
     logger.info("database_indexes_created")
 
 
