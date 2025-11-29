@@ -64,9 +64,26 @@ async def generate_story_bible(
     
     logger.info(f"Using model: {ai_config.model_name}")
     
+    # Try to get constraints from premise builder session if this project came from wizard
+    content_restrictions = []
+    tropes_to_avoid = []
+    
+    # Check if there's a premise builder session linked to this project
+    builder_session = await db.premise_builder_sessions.find_one({"project_id": project_id})
+    if builder_session and builder_session.get("constraints_profile"):
+        constraints = builder_session["constraints_profile"]
+        content_restrictions = constraints.get("content_restrictions", [])
+        tropes_to_avoid = constraints.get("tropes_to_avoid", [])
+        logger.info(f"Found builder constraints: restrictions={content_restrictions}, tropes={tropes_to_avoid}")
+    
     try:
-        # Generate Story Bible
-        story_bible = await generate_story_bible_from_premise(premise, ai_config)
+        # Generate Story Bible with constraints
+        story_bible = await generate_story_bible_from_premise(
+            premise, 
+            ai_config,
+            content_restrictions=content_restrictions,
+            tropes_to_avoid=tropes_to_avoid
+        )
         
         # Save to database
         story_bible_dict = story_bible.model_dump()

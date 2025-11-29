@@ -46,15 +46,25 @@ Parse the premise and extract:
 **Response must be valid JSON only, no explanatory text.**"""
 
 
-def create_story_bible_prompt(premise: Premise) -> str:
-    """Create the story bible generation prompt."""
+def create_story_bible_prompt(premise: Premise, content_restrictions: list[str] = None, tropes_to_avoid: list[str] = None) -> str:
+    """Create the story bible generation prompt with constraints."""
+    
+    constraints_section = ""
+    if content_restrictions or tropes_to_avoid:
+        constraints_section = "\n\n**CRITICAL CONSTRAINTS - MUST RESPECT:**\n"
+        if content_restrictions:
+            constraints_section += f"**Content to AVOID:** {', '.join(content_restrictions)}\n"
+            constraints_section += "Do NOT add language suggesting these avoided topics should be 'handled tastefully' or 'addressed sensitively' - if the author wants to AVOID it, OMIT it entirely from the Story Bible.\n"
+        if tropes_to_avoid:
+            constraints_section += f"**Tropes to EXCLUDE:** {', '.join(tropes_to_avoid)}\n"
+    
     return f"""Generate a comprehensive Story Bible from this novel premise:
 
 **Genre:** {premise.genre}
 **Subgenre:** {premise.subgenre or 'None'}
 **Target Word Count:** {premise.target_word_count:,} words
 **Target Chapters:** {premise.target_chapter_count}
-
+{constraints_section}
 **Premise:**
 {premise.content}
 
@@ -106,7 +116,9 @@ Be thorough and detailed. This Story Bible will maintain consistency across the 
 
 async def generate_story_bible_from_premise(
     premise: Premise,
-    ai_config: AIConfig
+    ai_config: AIConfig,
+    content_restrictions: list[str] = None,
+    tropes_to_avoid: list[str] = None
 ) -> StoryBible:
     """
     Generate a Story Bible by analyzing the premise with AI.
@@ -114,6 +126,8 @@ async def generate_story_bible_from_premise(
     Args:
         premise: The novel premise to analyze
         ai_config: AI configuration for generation
+        content_restrictions: Content the author wants to avoid (e.g., "sexual content", "violence")
+        tropes_to_avoid: Story tropes to exclude
         
     Returns:
         StoryBible with extracted characters, settings, themes, plot structure
@@ -124,7 +138,8 @@ async def generate_story_bible_from_premise(
     """
     logger.info(
         f"Generating Story Bible for premise_id={premise.id}, "
-        f"model={ai_config.model_name}"
+        f"model={ai_config.model_name}, "
+        f"restrictions={content_restrictions}, tropes_to_avoid={tropes_to_avoid}"
     )
     
     # Claude Sonnet 4.5 supports up to 64K output tokens
@@ -136,7 +151,7 @@ async def generate_story_bible_from_premise(
     
     # Build prompt
     system_prompt = STORY_BIBLE_SYSTEM_PROMPT
-    user_prompt = create_story_bible_prompt(premise)
+    user_prompt = create_story_bible_prompt(premise, content_restrictions, tropes_to_avoid)
     
     logger.debug(f"System prompt length: {len(system_prompt)} chars")
     logger.debug(f"User prompt length: {len(user_prompt)} chars")
