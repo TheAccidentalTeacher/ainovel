@@ -6,7 +6,7 @@
 
 ## Latest Session (Nov 29): Phase 1.5 - WriteMind Studios Layout 🎨
 
-### Phase 1.5 Steps 1 & 2: COMPLETE ✅
+### Phase 1.5 Status: ✅ **STEPS 1-4 COMPLETE** (Mobile-Ready!)
 **Goal**: Transform floating chat widget into full-screen application with context/project management
 
 ### Phase 1.5 Step 1: Navigation & Layout ✅
@@ -116,7 +116,172 @@
 - Added fallback handling for failed API calls (no crash)
 - Improved error handling in useContexts hook
 
-**Next**: Phase 1.5 Step 3 - Move conversation list to sidebar
+### Phase 1.5 Step 2.3: Conversation List in Sidebar ✅
+**Goal**: Move chat history from dropdown to dedicated sidebar section
+
+**New Components**:
+- ✅ **ConversationList** (`frontend/src/components/sidebar/ConversationList.tsx`)
+  - Date-grouped conversations: Today, Yesterday, Last 7 Days, Older
+  - Active conversation highlighted with violet accent
+  - Inline rename with Enter/Escape keyboard shortcuts
+  - Delete with confirmation dialog
+  - New Chat button clears conversation
+  - Message count and last activity timestamp
+  - Empty state with pro tips (amber tip box)
+
+- ✅ **useConversation** hook (`frontend/src/hooks/useConversation.ts`)
+  - Global conversation state with Zustand
+  - LocalStorage persistence: 'writemind-conversation'
+  - Methods: setConversationId, clearConversation
+  - Replaces local ChatWidget state
+
+**ChatWidget Refactoring**:
+- ✅ Removed 90+ lines of conversation list dropdown UI
+- ✅ Removed local conversationId state (now uses global hook)
+- ✅ Removed List button from header
+- ✅ Simplified conversation management
+- ✅ New Chat button calls clearConversation()
+
+**What Works**:
+- Conversations auto-save and persist across refreshes
+- Click any conversation to continue it
+- Rename conversations for better organization
+- Delete conversations with confirmation
+- Active state shows which chat is open
+- Date grouping helps find recent work
+
+### Phase 1.5 Step 2.4: Collapsible Sidebar Sections ✅
+**Goal**: Allow users to collapse sidebar sections to save space
+
+**New Hook**:
+- ✅ **useCollapsedSections** (`frontend/src/hooks/useCollapsedSections.ts`)
+  - Zustand hook with persist middleware
+  - LocalStorage: 'writemind-collapsed-sections'
+  - State: contexts, projects, conversations (boolean)
+  - Function: toggleSection(section)
+
+**AppLayout Enhancements**:
+- ✅ Chevron icons (ChevronDown/ChevronUp) from lucide-react
+- ✅ Click section header to toggle collapse/expand
+- ✅ Smooth transition animations (200ms ease-in-out)
+- ✅ Help (?) icons use stopPropagation to stay functional
+- ✅ All three sections work independently
+- ✅ State persists across page refreshes
+- ✅ Hover effects on section headers (gray-50 background)
+
+**What Works**:
+- Collapse any section to reduce clutter
+- Expand sections when needed
+- Preferences saved automatically
+- Smooth animations feel polished
+- Help icons still work when collapsed
+
+### Phase 1.5 Step 3: Info Panel (Resizable Right Panel) ✅
+**Goal**: Display project details when a project is linked to chat
+
+**New Components**:
+- ✅ **InfoPanel** (`frontend/src/components/info-panel/InfoPanel.tsx`)
+  - Project title, genre, subgenre badges
+  - Progress bar showing chapter completion percentage
+  - Word count and status indicator (color-coded)
+  - Character roster with names, roles, ages (first 5 shown)
+  - Settings/locations with descriptions (first 4 shown)
+  - Themes displayed as violet tags
+  - Outline summary (chapter count, target words)
+  - Empty state when no story bible exists
+  - Beautiful card-based layout with icons
+
+- ✅ **useInfoPanel** hook (`frontend/src/hooks/useInfoPanel.ts`)
+  - Zustand hook with persist middleware
+  - Stores panel width (default: 380px)
+  - LocalStorage: 'writemind-info-panel'
+
+**Resizable Functionality**:
+- ✅ Drag handle on left edge (GripVertical icon)
+- ✅ Resizable from 300px to 600px width
+- ✅ Smooth drag experience with cursor change
+- ✅ Width persists via localStorage
+- ✅ Hover effect on drag handle (violet-400)
+- ✅ Mouse event listeners for resize
+- ✅ Prevents text selection during drag
+
+**AppLayout Integration**:
+- ✅ Fetches project details via useQuery when project linked
+- ✅ Passes project, storyBible, outline data as props
+- ✅ Toggles visibility based on linkedProjectId
+- ✅ Slides in/out with transition-all duration-300
+- ✅ Only shows when showSidebar=true
+
+**What Works**:
+- Panel appears when you link a project
+- Drag left edge to resize panel width
+- All project info visible at a glance
+- Characters, settings, themes beautifully displayed
+- Progress tracking shows completion status
+- Width preference saved across sessions
+
+### Phase 1.5 Step 4: Mobile Responsive Design ✅
+**Goal**: Ensure application works on mobile, tablet, and desktop
+
+**Mobile Sidebar (< 768px)**:
+- ✅ Hidden by default on mobile
+- ✅ Floating hamburger menu button (bottom-left, violet-600)
+- ✅ Menu/X icon toggle from lucide-react
+- ✅ Slides over content as overlay with dark backdrop
+- ✅ Smooth transform transitions (300ms ease-in-out)
+- ✅ Click backdrop to close sidebar
+- ✅ Fixed positioning with z-index stacking
+- ✅ Desktop behavior unchanged (always visible)
+
+**InfoPanel Responsive**:
+- ✅ Hidden on tablets and mobile (< 1024px) using `hidden lg:block`
+- ✅ Only visible on desktop screens
+- ✅ Saves valuable screen space on smaller devices
+- ✅ Wrapped in responsive container div
+
+**ChatWidget Mobile Optimizations**:
+- ✅ Message bubbles: responsive max-width
+  - Mobile: 80%, Tablet: 70%, Desktop: 60%
+- ✅ Reduced padding on mobile (px-3 vs px-4)
+- ✅ Input area: smaller text on mobile (text-sm)
+- ✅ Textarea: shorter min-height on mobile (60px vs 80px)
+- ✅ Send button: touch-friendly minimum size (44px × 44px)
+- ✅ Better spacing and tap targets for mobile
+
+**NavigationHeader Mobile**:
+- ✅ Reduced horizontal padding (px-3 vs px-6 on mobile)
+- ✅ Logo text responsive (text-base → text-lg)
+- ✅ Tagline hidden on mobile (hidden sm:block)
+- ✅ Navigation labels: icons-only on mobile, progressive text
+  - Chat: icon only → "Chat" on sm+
+  - Novel Studio: icon only → "Studio" on sm → "Novel Studio" on md+
+  - Covers: icon only → "Covers" on sm+
+  - Bots: icon only → hidden until lg+
+- ✅ User name hidden on mobile (avatar only)
+- ✅ Tighter gaps between elements (gap-1 on mobile, gap-2 on md+)
+
+**Breakpoints Used**:
+- 📱 Mobile: < 640px (sm)
+- 📱 Small Tablet: 640px - 768px (md)
+- 💻 Tablet: 768px - 1024px (lg)
+- 🖥️ Desktop: 1024px+ (lg+)
+
+**What Works**:
+- Hamburger menu appears automatically on mobile
+- Sidebar slides smoothly over content
+- InfoPanel hides to maximize chat space
+- All buttons are touch-friendly (44px min)
+- Navigation adapts gracefully to screen size
+- Text scales appropriately for readability
+- No horizontal scrolling on any device
+
+**Git Status**:
+- Branch: phase-1.5-development
+- Commits: 7 total (Steps 1, 2.1, 2.2, Bug fixes, 2.3, 2.4, 3, 4)
+- All pushed to GitHub ✅
+
+**Phase 1.5 Remaining**:
+- ❌ Step 5: Onboarding Tour (Optional - can be done anytime)
 
 ---
 
@@ -322,11 +487,32 @@ OpenAI / Anthropic APIs
 - ✅ Long context management (200k tokens, auto-summarization)
 - ✅ Model selection (GPT-4o, Claude Sonnet 3.5/4, etc.)
 - ✅ **Web search with Tavily** (5 search types, intelligent routing)
-- ✅ Floating chat widget on all pages
-- ✅ Conversation list/switching
+- ✅ Full-screen chat interface (not floating widget)
+- ✅ Conversation list in sidebar with date grouping
 - ✅ Real-time streaming responses
 - ✅ Search results display with sources
 - ✅ Educational UI for new users
+
+## Phase 1.5: 95% COMPLETE ✅ (Mobile-Ready!)
+
+### WriteMind Studios Layout Features (All Implemented)
+- ✅ **Navigation**: WriteMind Studios header on all pages
+- ✅ **Context Management**: CRUD for mental modes (icons, colors, descriptions)
+- ✅ **Project Linking**: Link projects to chat for full AI context
+- ✅ **Conversation Management**: Sidebar list with date grouping, rename, delete
+- ✅ **Collapsible Sections**: All sidebar sections collapse independently
+- ✅ **Info Panel**: Resizable right panel showing project details (300-600px)
+- ✅ **Mobile Responsive**: Hamburger menu, touch-friendly, responsive breakpoints
+- ✅ **Help System**: Comprehensive tooltips and examples throughout UI
+- ❌ **Onboarding Tour**: Optional first-time user walkthrough (can be added anytime)
+
+### Key Improvements Over Phase 1
+- Full-screen chat replaces floating widget
+- Sidebar with 3 management sections (Contexts, Projects, Conversations)
+- AI gets full project context (characters, plot, themes, outline)
+- Mobile-first responsive design
+- Resizable info panel for project details
+- User education via help icons and examples
 
 ## Next: Phase 2 - Bot Framework (NOT STARTED)
 
