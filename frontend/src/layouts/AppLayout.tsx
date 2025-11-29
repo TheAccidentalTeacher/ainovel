@@ -82,13 +82,19 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
 
   const handleSaveContext = async (data: { name: string; icon?: string; color?: string; description?: string }) => {
     if (editingContext) {
-      // Update existing context
+      // Update existing context - all fields optional for update
+      const updateData: { name?: string; icon?: string; color?: string; description?: string } = {
+        name: data.name,
+        icon: data.icon,
+        color: data.color,
+        description: data.description,
+      };
       await updateContext.mutateAsync({
         contextId: editingContext._id,
-        data: data as { name?: string; icon?: string; color?: string; description?: string },
+        data: updateData,
       });
     } else {
-      // Create new context
+      // Create new context - name is required
       await createContext.mutateAsync(data);
     }
   };

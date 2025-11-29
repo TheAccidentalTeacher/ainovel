@@ -18,8 +18,14 @@ import { chatApi, type Message as ChatMessage, type ConversationResponse } from 
 import { SearchFeatureTour } from './SearchFeatureTour';
 import { useConversation } from '../hooks/useConversation';
 
-interface Message extends Omit<ChatMessage, 'role'> {
+interface Message {
+  id: string;
+  conversation_id?: string;
   role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  token_count?: number;
+  model?: string;
   search_type?: string;
 }
 
@@ -166,9 +172,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
     // Add user message optimistically
     const tempUserMessage: Message = {
       id: `temp-${Date.now()}`,
+      conversation_id: conversationId || undefined,
       role: 'user',
       content: userMessage,
       timestamp: new Date().toISOString(),
+      token_count: 0,
     };
     setMessages(prev => [...prev, tempUserMessage]);
 
@@ -238,9 +246,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 // Add complete assistant message
                 const assistantMessage: Message = {
                   id: `assistant-${Date.now()}`,
+                  conversation_id: conversationId || undefined,
                   role: 'assistant',
                   content: fullResponse,
                   timestamp: new Date().toISOString(),
+                  token_count: 0,
                   search_type: searchType || undefined,
                 };
                 setMessages(prev => [...prev, assistantMessage]);
@@ -262,10 +272,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
     } catch (error) {
       console.error('Error in message stream:', error);
       setMessages(prev => [...prev, { 
-        id: Date.now().toString(), 
+        id: Date.now().toString(),
+        conversation_id: conversationId || undefined,
         role: 'assistant', 
         content: 'Sorry, there was an error processing your message.',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        token_count: 0,
       }]);
     }
   };
