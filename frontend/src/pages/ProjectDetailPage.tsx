@@ -436,7 +436,7 @@ export default function ProjectDetailPage() {
                 <>
                   <button
                     onClick={() => {
-                      const url = `http://127.0.0.1:8000/api/projects/export/${id}/manuscript.docx`;
+                      const url = `/api/projects/export/${id}/manuscript.docx`;
                       window.open(url, '_blank');
                     }}
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
@@ -445,7 +445,7 @@ export default function ProjectDetailPage() {
                   </button>
                   <button
                     onClick={() => {
-                      const url = `http://127.0.0.1:8000/api/projects/export/${id}/manuscript.md`;
+                      const url = `/api/projects/export/${id}/manuscript.md`;
                       window.open(url, '_blank');
                     }}
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
@@ -455,7 +455,7 @@ export default function ProjectDetailPage() {
                   <button
                     onClick={async () => {
                       try {
-                        const response = await fetch(`http://127.0.0.1:8000/api/projects/export/${id}/manuscript-text`);
+                        const response = await fetch(`/api/projects/export/${id}/manuscript-text`);
                         if (!response.ok) throw new Error('Failed to fetch manuscript');
                         const data = await response.json();
                         navigate('/cover-designer', { 

@@ -93,7 +93,7 @@ export default function BookCoverDesigner() {
     console.log('🎨 BOOK COVER DESIGNER - Component Mounted')
     console.log('═══════════════════════════════════════════════════════')
     console.log('📋 Environment:', {
-      apiUrl: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000',
+      apiUrl: import.meta.env.VITE_API_URL || '',
       mode: import.meta.env.MODE,
       dev: import.meta.env.DEV,
       prod: import.meta.env.PROD

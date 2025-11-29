@@ -61,7 +61,7 @@ export function useBulkGeneration() {
     console.log('[BulkGeneration] 🔄 Resetting state to:', initialState);
     setState(initialState);
 
-    const url = `http://127.0.0.1:8000/api/projects/bulk/${projectId}/generate-all`;
+    const url = `/api/projects/bulk/${projectId}/generate-all`;
     console.log('[BulkGeneration] 🌐 Opening SSE connection to:', url);
     const eventSource = new EventSource(url);
     eventSourceRef.current = eventSource;

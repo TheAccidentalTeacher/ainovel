@@ -3442,7 +3442,7 @@ export default function PremiseBuilderWizard() {
                   <>
                     <button
                       onClick={() => {
-                        const previewUrl = `http://127.0.0.1:8000/api/premise-builder/sessions/${sessionId}/preview`
+                        const previewUrl = `/api/premise-builder/sessions/${sessionId}/preview`
                         window.open(previewUrl, '_blank', 'width=1000,height=800')
                       }}
                       className="px-4 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center gap-2"

@@ -29,7 +29,7 @@ export function useChapterStream() {
       chapterId: null,
     });
 
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
     const url = `${API_BASE_URL}/projects/${projectId}/chapters/${chapterIndex}/generate-stream`;
 
     console.log('[ChapterStream] Starting stream:', url);
