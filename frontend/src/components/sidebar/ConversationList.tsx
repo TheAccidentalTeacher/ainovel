@@ -126,7 +126,18 @@ export const ConversationList: React.FC<ConversationListProps> = ({ userId, proj
     return (
       <div className="text-center py-6">
         <MessageCircle size={32} className="mx-auto text-gray-400 mb-2" />
-        <p className="text-sm text-gray-500 mb-3">No conversations yet</p>
+        <p className="text-sm font-semibold text-gray-700 mb-2">No conversations yet</p>
+        <p className="text-xs text-gray-600 mb-3 px-2">
+          Start chatting and your conversations will appear here, organized by date
+        </p>
+        <div className="bg-amber-50 rounded-lg p-3 mb-3 mx-2 text-left">
+          <p className="text-xs font-semibold text-amber-900 mb-2">
+            💬 Pro Tip:
+          </p>
+          <p className="text-xs text-gray-700">
+            Name conversations like \"Chapter 5 Edit\" or \"Character Brainstorm\" to find them easily later!
+          </p>
+        </div>
         <button
           onClick={handleNewConversation}
           className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors"

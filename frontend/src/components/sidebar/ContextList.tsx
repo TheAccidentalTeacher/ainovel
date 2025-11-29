@@ -102,18 +102,18 @@ export const ContextList: React.FC<ContextListProps> = ({
                 <button
                   onClick={() => onEdit(context)}
                   className="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all"
-                  title="Edit context"
+                  title="Edit context name, icon, color, or description"
                 >
                   <Edit2 className="h-3.5 w-3.5 text-gray-600" />
                 </button>
                 <button
                   onClick={() => {
-                    if (confirm(`Delete "${context.name}"? This will also delete all conversations in this context.`)) {
+                    if (confirm(`Delete "${context.name}"?\n\nThis will remove the context but your conversations will be preserved.`)) {
                       onDelete(context._id);
                     }
                   }}
                   className="p-1.5 rounded-md hover:bg-red-50 hover:shadow-sm transition-all"
-                  title="Delete context"
+                  title="Delete this context (conversations stay safe)"
                 >
                   <Trash2 className="h-3.5 w-3.5 text-red-600" />
                 </button>
@@ -127,6 +127,7 @@ export const ContextList: React.FC<ContextListProps> = ({
       <button
         onClick={onCreate}
         className="w-full flex items-center justify-center p-2 mt-2 text-sm font-medium text-violet-600 hover:bg-violet-50 rounded-lg transition-colors border-2 border-dashed border-violet-200 hover:border-violet-300"
+        title="Create a new mental mode for your AI - like Romance, Sci-Fi, Mystery, etc."
       >
         <Plus className="h-4 w-4 mr-2" />
         New Context

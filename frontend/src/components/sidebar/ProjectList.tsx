@@ -37,10 +37,22 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   if (projectsArray.length === 0) {
     return (
       <div className="text-center py-6">
-        <p className="text-sm text-gray-500 mb-3">No projects yet</p>
-        <p className="text-xs text-gray-400 mb-4 px-4">
-          Create a project in Novel Studio
+        <div className="text-4xl mb-2">📚</div>
+        <p className="text-sm font-semibold text-gray-700 mb-2">No projects yet</p>
+        <p className="text-xs text-gray-600 mb-3 px-2">
+          Link a project to give the AI full context about your story
         </p>
+        <div className="bg-blue-50 rounded-lg p-3 mb-4 mx-2 text-left">
+          <p className="text-xs font-semibold text-blue-900 mb-2">
+            🔗 When linked, AI knows:
+          </p>
+          <div className="space-y-1 text-xs text-gray-700">
+            <div>✓ All your characters</div>
+            <div>✓ Complete plot outline</div>
+            <div>✓ World-building details</div>
+            <div>✓ Current progress</div>
+          </div>
+        </div>
         <button
           onClick={() => navigate('/studio/new')}
           className="inline-flex items-center px-4 py-2 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors"
@@ -127,6 +139,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                     setExpandedProjectId(null);
                   }}
                   className="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                  title="Go to Novel Studio to edit this project"
                 >
                   <ExternalLink className="h-4 w-4 mr-2 text-gray-400" />
                   Open in Studio
@@ -139,6 +152,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                       setExpandedProjectId(null);
                     }}
                     className="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    title="Remove project context from AI - use for general writing chat"
                   >
                     <Link2Off className="h-4 w-4 mr-2" />
                     Unlink from Chat
@@ -150,6 +164,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                       setExpandedProjectId(null);
                     }}
                     className="w-full flex items-center px-3 py-2 text-sm text-violet-600 hover:bg-violet-50 rounded-md transition-colors"
+                    title="Give AI full context: characters, plot, themes, progress - AI becomes your smart co-author!"
                   >
                     <LinkIcon className="h-4 w-4 mr-2" />
                     Link to Chat
@@ -163,6 +178,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                       setExpandedProjectId(null);
                     }}
                     className="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                    title="View and edit your story structure and chapter breakdown"
                   >
                     <FileText className="h-4 w-4 mr-2 text-gray-400" />
                     View Outline

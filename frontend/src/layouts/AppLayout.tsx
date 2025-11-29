@@ -93,8 +93,35 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
             <div className="p-4">
               {/* CONTEXTS Section */}
               <div className="mb-6">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Contexts
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Contexts
+                  </div>
+                  <button
+                    className="text-gray-400 hover:text-violet-600 transition-colors"
+                    title="What are Contexts?"
+                    onClick={() => {
+                      alert(
+                        '🎯 CONTEXTS: Organize Your AI Conversations\n\n' +
+                        'Think of contexts as "mental modes" for your AI assistant.\n\n' +
+                        '✨ Real-Life Examples:\n' +
+                        '• 📖 Romance Writing - AI focuses on emotional depth, relationship dynamics\n' +
+                        '• 🚀 Sci-Fi World Building - AI emphasizes technical accuracy, future tech\n' +
+                        '• 🕵️ Mystery Plotting - AI helps with clues, red herrings, plot twists\n' +
+                        '• ✍️ Character Development - AI dives deep into psychology, motivations\n\n' +
+                        '💡 Pro Tips:\n' +
+                        '• Only ONE context can be active at a time\n' +
+                        '• Use custom icons & colors to make them memorable\n' +
+                        '• Switch contexts to change how the AI responds\n\n' +
+                        '🎨 Best Practice: Create a context for each genre or writing phase!\n\n' +
+                        'NOTE: CRUD = Create, Read, Update, Delete (you can make/edit/remove contexts)'
+                      );
+                    }}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
                 </div>
                 <ContextList
                   contexts={contexts}
@@ -108,8 +135,40 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
 
               {/* PROJECTS Section */}
               <div className="mb-6">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Projects
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Projects
+                  </div>
+                  <button
+                    className="text-gray-400 hover:text-violet-600 transition-colors"
+                    title="What is Project Linking?"
+                    onClick={() => {
+                      alert(
+                        '🔗 PROJECT LINKING: Give AI Full Context About Your Novel\n\n' +
+                        'Link a project to chat and the AI becomes your smart co-author who knows EVERYTHING about your story!\n\n' +
+                        '✨ What the AI Sees When Linked:\n' +
+                        '• All your characters (names, traits, relationships)\n' +
+                        '• Complete plot outline and story structure\n' +
+                        '• World-building details and settings\n' +
+                        '• Current chapter progress and word count\n' +
+                        '• Story themes and genre conventions\n\n' +
+                        '💡 Real-Life Use Cases:\n' +
+                        '• "Rewrite Chapter 3 to foreshadow Elena\'s betrayal"\n' +
+                        '• "Is this dialogue consistent with Marcus\'s personality?"\n' +
+                        '• "Suggest 3 ways to raise the stakes in Act 2"\n' +
+                        '• "Check if this scene contradicts my outline"\n\n' +
+                        '🎯 Pro Tips:\n' +
+                        '• Link = AI has your story bible in mind\n' +
+                        '• Unlink = General writing chat (no project context)\n' +
+                        '• Progress bar shows your writing momentum!\n\n' +
+                        'Think of it as giving the AI your entire manuscript folder! 📚'
+                      );
+                    }}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
                 </div>
                 <ProjectList
                   projects={projects}
@@ -122,8 +181,43 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
 
               {/* CONVERSATIONS Section */}
               <div>
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Conversations
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Conversations
+                  </div>
+                  <button
+                    className="text-gray-400 hover:text-violet-600 transition-colors"
+                    title="Managing Your Chat History"
+                    onClick={() => {
+                      alert(
+                        '💬 CONVERSATIONS: Your AI Chat History\n\n' +
+                        'Every chat is auto-saved and organized by date. Think of it like your text message history with a super-smart writing buddy!\n\n' +
+                        '📅 Date Groups:\n' +
+                        '• Today - Fresh conversations\n' +
+                        '• Yesterday - Recent chats\n' +
+                        '• Last 7 Days - This week\'s work\n' +
+                        '• Older - Your archive\n\n' +
+                        '✨ Quick Actions:\n' +
+                        '• Click any conversation to continue it\n' +
+                        '• Hover to see Rename & Delete buttons\n' +
+                        '• "New Chat" starts fresh (good for new topics)\n\n' +
+                        '💡 Real-Life Workflow:\n' +
+                        '1. Link your novel project\n' +
+                        '2. Name conversation "Chapter 5 Revisions"\n' +
+                        '3. Keep all related feedback in one thread\n' +
+                        '4. Switch to "Character Arcs" for different topic\n\n' +
+                        '🎯 Pro Tips:\n' +
+                        '• Rename conversations to find them later\n' +
+                        '• Keep brainstorming separate from editing chats\n' +
+                        '• Message count shows how deep you went\n\n' +
+                        'Your conversations never expire - come back anytime! 🕐'
+                      );
+                    }}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
                 </div>
                 <ConversationList
                   userId="default-user" // TODO: Get from auth context

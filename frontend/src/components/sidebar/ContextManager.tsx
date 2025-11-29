@@ -129,12 +129,16 @@ export const ContextManager: React.FC<ContextManagerProps> = ({
               autoFocus
             />
             <p className="text-xs text-gray-500 mt-1">{name.length}/100 characters</p>
+            <div className="mt-2 p-2 bg-blue-50 rounded-lg">
+              <p className="text-xs text-blue-900 font-semibold mb-1">💡 Examples:</p>
+              <p className="text-xs text-gray-700">Romance Writing • Sci-Fi Projects • Mystery Plotting • Character Development</p>
+            </div>
           </div>
 
           {/* Icon Picker */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Icon
+              Icon <span className="text-xs text-gray-500">(Pick an emoji that represents this context)</span>
             </label>
             <div className="grid grid-cols-8 gap-2">
               {PRESET_ICONS.map((emoji) => (
@@ -159,7 +163,7 @@ export const ContextManager: React.FC<ContextManagerProps> = ({
           {/* Color Picker */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Color
+              Color <span className="text-xs text-gray-500">(Helps you spot it quickly in the sidebar)</span>
             </label>
             <div className="grid grid-cols-8 gap-2 mb-3">
               {PRESET_COLORS.map((presetColor) => (
@@ -197,11 +201,12 @@ export const ContextManager: React.FC<ContextManagerProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
-              placeholder="Notes about this context..."
+              placeholder="e.g., For emotional romance scenes, first-person POV, focus on relationship dynamics..."
               rows={3}
               maxLength={500}
             />
             <p className="text-xs text-gray-500 mt-1">{description.length}/500 characters</p>
+            <p className="text-xs text-gray-600 mt-1">💡 Add notes about how you want the AI to respond in this context</p>
           </div>
 
           {/* Error Message */}
