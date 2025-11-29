@@ -215,9 +215,9 @@ Transform the floating chat widget into a full-screen application with persisten
 
 ### ✅ Step 2: Real Sidebar Functionality (COMPLETE)
 
-**Duration**: 1 day  
-**Status**: ✅ COMPLETE (Steps 2.1 & 2.2)  
-**Commits**: 2 (Context Management + Project Linking + Bug Fixes)  
+**Duration**: 2 days  
+**Status**: ✅ COMPLETE (Steps 2.1, 2.2 & 2.3)  
+**Commits**: 4 (Context Management + Project Linking + Bug Fixes + Conversation List)  
 #### 2.1 Context Management System ✅
 
 **Backend API** (`backend/api/contexts.py` - ✅ COMPLETE):
@@ -327,37 +327,79 @@ async def send_message_with_project(
 - Added array safety checks in ProjectList
 - Improved error handling for failed API calls
 
-#### 2.3 Conversation Management (📋 NOT STARTED)
+#### 2.3 Conversation Management ✅
 
-**Backend API** (`backend/api/conversations.py` - TO BE ENHANCED):
-
-**Backend API** (`backend/api/conversations.py` - ENHANCE):
+**Backend API** (`backend/api/conversations.py` - ✅ EXISTING):
 ```python
-GET /api/conversations?context_id={id}  # Filter by context
-GET /api/conversations?project_id={id}  # Filter by project
+GET    /api/chat/conversations              # List conversations
+POST   /api/chat/conversations              # Create conversation
+GET    /api/chat/conversations/{id}         # Get conversation with messages
+PATCH  /api/chat/conversations/{id}         # Rename conversation
+DELETE /api/chat/conversations/{id}         # Delete conversation
 ```
 
-**Frontend Components**:
+**Frontend Components** (✅ COMPLETE):
 
-1. **ConversationList** (`frontend/src/components/sidebar/ConversationList.tsx`)
+1. **ConversationList** (`frontend/src/components/sidebar/ConversationList.tsx` - ✅)
    ```typescript
    Features:
    - Group by date: Today, Yesterday, Last 7 Days, Older
-   - Show first message as preview (truncated)
-   - Show message count badge
-   - Active conversation highlighted
+   - Show conversation title, date, message count
+   - Active conversation highlighted with violet accent
    - Hover actions:
-     - Rename (inline edit)
+     - Rename (inline edit with Enter/Escape)
      - Delete (with confirmation)
-   - Auto-scroll to active
-   - Virtualized list for performance (react-virtual)
+   - New Chat button at top
+   - Empty state with helpful prompt
+   - Message count and last activity displayed
    ```
 
-**Integration**:
-- Move conversation list from ChatWidget to Sidebar
-- ChatWidget receives active conversation ID as prop
+2. **useConversation Hook** (`frontend/src/hooks/useConversation.ts` - ✅)
+   ```typescript
+   // Global conversation state with Zustand
+   interface ConversationState {
+     conversationId: string | null;
+     setConversationId: (id: string | null) => void;
+     clearConversation: () => void;
+   }
+   
+   // Persisted to localStorage: 'writemind-conversation'
+   ```
+
+**Integration** (✅ COMPLETE):
+- Moved conversation list from ChatWidget to Sidebar
+- ChatWidget now uses global conversation state
+- Removed conversation list dropdown from ChatWidget
+- Removed List button and conversation management UI
 - Clicking conversation in sidebar loads it in chat
-- New conversation button in sidebar
+- New conversation button clears active conversation
+- State persists across page reloads
+
+**Date Grouping Logic**:
+```typescript
+const groupConversationsByDate = (conversations: Conversation[]): ConversationGroup[] => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const lastWeek = new Date(today);
+  lastWeek.setDate(lastWeek.getDate() - 7);
+
+  // Group conversations into: Today, Yesterday, Last 7 Days, Older
+  // Filter out empty groups
+  return groups.filter(group => group.conversations.length > 0);
+};
+```
+
+**Testing Results**:
+- ✅ Conversations display grouped by date
+- ✅ Active conversation highlighted
+- ✅ Rename with Enter/Escape keyboard shortcuts works
+- ✅ Delete with confirmation works
+- ✅ New Chat button clears conversation
+- ✅ State persists across page reloads
+- ✅ Clicking conversation loads messages in chat
+- ✅ Empty state displays when no conversations
 
 #### 2.4 Sidebar UX Enhancements
 
@@ -667,7 +709,7 @@ backend/
 - [x] Novel Studio accessible and shows both headers
 - [x] No visual regressions
 
-### Step 2 ✅ COMPLETE (2.1 & 2.2)
+### Step 2 ✅ COMPLETE (2.1, 2.2 & 2.3)
 - [x] User can create/edit/delete contexts
 - [x] User can activate/deactivate contexts (only one active)
 - [x] Context display with custom icons and colors
@@ -676,20 +718,13 @@ backend/
 - [x] AI receives full project context automatically
 - [x] Projects show quick actions menu
 - [x] Empty states guide user actions
-- [ ] Context changes affect conversation filtering (Step 2.3)
-- [ ] Conversation list moved to sidebar (Step 2.3)
+- [x] Conversation list moved to sidebar (Step 2.3)
+- [x] Conversations grouped by date (Today, Yesterday, Last 7 Days, Older)
+- [x] Inline rename/delete conversations (Step 2.3)
+- [x] Global conversation state with persistence (Step 2.3)
+- [ ] Context changes affect conversation filtering (Step 2.4)
 - [ ] All sections collapsible (Step 2.4)
-- [ ] Search/filter works (Step 2.4)ns
-
-### Step 2 📋
-- [ ] User can create/edit/delete contexts
-- [ ] User can switch active context
-- [ ] Context changes affect conversation filtering
-- [ ] User can link project to chat
-- [ ] Linked project info displays in chat
-- [ ] Conversation list moved to sidebar
-- [ ] All sections collapsible
-- [ ] Search/filter works
+- [ ] Search/filter works (Step 2.4)
 
 ### Step 3 📋
 - [ ] Info panel slides in when project linked
