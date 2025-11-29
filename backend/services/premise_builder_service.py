@@ -1045,7 +1045,7 @@ Use the baseline premise and collected story elements below to craft a rich, det
         genre = session.genre_profile.primary_genre if session.genre_profile else "Fiction"
         subgenre = session.genre_profile.secondary_genre if session.genre_profile else None
         subgenres = session.genre_profile.subgenres if session.genre_profile and session.genre_profile.subgenres else []
-        comedy_elements = session.genre_profile.comedy_elements if session.genre_profile and session.genre_profile.comedy_elements else []
+        comedy_elements = []  # Not stored in GenreProfile, but needed for Premise model
         
         # Extract tone/theme info
         tone_adjectives = session.tone_theme_profile.tone_adjectives if session.tone_theme_profile and session.tone_theme_profile.tone_adjectives else []
