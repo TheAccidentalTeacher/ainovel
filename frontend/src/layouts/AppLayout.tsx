@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Menu, X } from 'lucide-react';
 import { NavigationHeader } from '../components/navigation/NavigationHeader';
 import { ContextList } from '../components/sidebar/ContextList';
 import { ContextManager } from '../components/sidebar/ContextManager';
@@ -27,6 +27,7 @@ interface AppLayoutProps {
 export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => {
   const [isContextManagerOpen, setIsContextManagerOpen] = useState(false);
   const [editingContext, setEditingContext] = useState<Context | null>(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Collapsed sections state
   const { contexts: contextsCollapsed, projects: projectsCollapsed, conversations: conversationsCollapsed, toggleSection } = useCollapsedSections();
@@ -104,11 +105,36 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
       {/* Navigation Header - Always visible */}
       <NavigationHeader />
 
+      {/* Mobile Hamburger Menu Button */}
+      {showSidebar && (
+        <button
+          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          className="md:hidden fixed bottom-6 left-6 z-50 bg-violet-600 text-white p-3 rounded-full shadow-lg hover:bg-violet-700 transition-colors"
+          aria-label="Toggle sidebar"
+        >
+          {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      )}
+
       {/* Main Content Area - Below header (64px offset) */}
       <div className="pt-16 h-screen flex">
+        {/* Mobile Overlay */}
+        {showSidebar && isMobileSidebarOpen && (
+          <div
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar - Optional, for chat contexts/projects */}
         {showSidebar && (
-          <aside className="w-[280px] bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto">
+          <aside className={`
+            w-[280px] bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto
+            md:static md:translate-x-0 md:z-auto
+            fixed inset-y-0 left-0 z-40 pt-16
+            transform transition-transform duration-300 ease-in-out
+            ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          `}>
             <div className="p-4">
               {/* CONTEXTS Section */}
               <div className="mb-6">
@@ -291,14 +317,16 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
           {children}
         </main>
 
-        {/* Info Panel - Shows when project is linked */}
+        {/* Info Panel - Shows when project is linked (hidden on tablets and mobile) */}
         {showSidebar && (
-          <InfoPanel
-            project={linkedProject}
-            storyBible={storyBible}
-            outline={outline}
-            isVisible={!!linkedProjectId}
-          />
+          <div className="hidden lg:block">
+            <InfoPanel
+              project={linkedProject}
+              storyBible={storyBible}
+              outline={outline}
+              isVisible={!!linkedProjectId}
+            />
+          </div>
         )}
       </div>
 

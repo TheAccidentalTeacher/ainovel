@@ -555,7 +555,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  className={`max-w-[80%] md:max-w-[70%] lg:max-w-[60%] rounded-lg px-3 py-2 md:px-4 ${
                     message.role === 'user'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
@@ -689,7 +689,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-3 md:p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex gap-2">
               <textarea
                 ref={inputRef}
@@ -698,13 +698,13 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 onKeyDown={handleKeyDown}
                 placeholder="Ask me anything..."
                 disabled={isStreaming}
-                className="flex-1 resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50 min-h-[80px] max-h-[120px]"
+                className="flex-1 resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm md:text-base text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50 min-h-[60px] md:min-h-[80px] max-h-[120px]"
                 rows={2}
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!input.trim() || isStreaming}
-                className="self-end px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2"
+                className="self-end px-3 py-2 md:px-4 min-h-[44px] min-w-[44px] bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {isStreaming ? (
                   <Loader2 size={20} className="animate-spin" />
