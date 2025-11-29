@@ -6,6 +6,7 @@ import { ContextList } from '../components/sidebar/ContextList';
 import { ContextManager } from '../components/sidebar/ContextManager';
 import { ProjectList } from '../components/sidebar/ProjectList';
 import { ConversationList } from '../components/sidebar/ConversationList';
+import { InfoPanel } from '../components/info-panel/InfoPanel';
 import { 
   useContexts, 
   useCreateContext, 
@@ -52,6 +53,19 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
   
   // Extract projects array from response
   const projects = (projectsData as any)?.projects || [];
+
+  // Fetch linked project details for InfoPanel
+  const { data: linkedProjectData } = useQuery({
+    queryKey: ['project', linkedProjectId],
+    queryFn: () => apiClient.getProject(linkedProjectId!),
+    enabled: !!linkedProjectId,
+    staleTime: 60000, // 1 minute
+  });
+
+  // Extract project details from response
+  const linkedProject = linkedProjectData?.project || null;
+  const storyBible = linkedProjectData?.story_bible || undefined;
+  const outline = linkedProjectData?.outline || undefined;
 
   // Handlers
   const handleCreateContext = () => {
@@ -276,6 +290,16 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
         <main className="flex-1 overflow-auto">
           {children}
         </main>
+
+        {/* Info Panel - Shows when project is linked */}
+        {showSidebar && (
+          <InfoPanel
+            project={linkedProject}
+            storyBible={storyBible}
+            outline={outline}
+            isVisible={!!linkedProjectId}
+          />
+        )}
       </div>
 
       {/* Context Manager Modal */}
