@@ -12,10 +12,11 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, MessageCircle, Send, Loader2, List, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen, Edit2, Trash2, Check, XCircle } from 'lucide-react';
+import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../services/chatService';
 import { SearchFeatureTour } from './SearchFeatureTour';
+import { useConversation } from '../hooks/useConversation';
 
 interface Message {
   id: string;
@@ -35,17 +36,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   const [isOpen, setIsOpen] = useState(fullScreen ? true : false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(() => {
-    // Load last conversation ID from localStorage
-    return localStorage.getItem(`chat_conversation_${userId}`) || null;
-  });
+  // Use global conversation state
+  const { conversationId, setConversationId, clearConversation } = useConversation();
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [width, setWidth] = useState(400); // Default width
   const [isResizing, setIsResizing] = useState(false);
   const [selectedModel, setSelectedModel] = useState('claude-sonnet-4-20250514');
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
-  const [showConversationList, setShowConversationList] = useState(false);
   const [showSearchHelp, setShowSearchHelp] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
   const [searchResults, setSearchResults] = useState<Array<{
@@ -58,8 +56,6 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   const [searchAnswer, setSearchAnswer] = useState<string>('');
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchTour, setShowSearchTour] = useState(false);
-  const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
-  const [renameTitle, setRenameTitle] = useState('');
   const [searchType, setSearchType] = useState<string>('');
 
   // Show tour when web search is first enabled
@@ -92,45 +88,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
     onSuccess: (data: { conversation: { id: string }; messages: Message[] }) => {
       setConversationId(data.conversation.id);
       setMessages(data.messages);
-      // Persist conversation ID
-      localStorage.setItem(`chat_conversation_${userId}`, data.conversation.id);
     },
   });
 
-  // Load conversation list
-  const { data: conversationsListData } = useQuery({
-    queryKey: ['conversations', userId, projectId],
-    queryFn: () => chatApi.listConversations(userId, projectId, 50, 0),
-  });
 
-  // Rename conversation
-  const renameConversationMutation = useMutation({
-    mutationFn: ({ id, title }: { id: string; title: string }) =>
-      fetch(`/api/chat/conversations/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title }),
-      }).then(res => res.json()),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations', userId, projectId] });
-      setRenamingConversationId(null);
-      setRenameTitle('');
-    },
-  });
-
-  // Delete conversation
-  const deleteConversationMutation = useMutation({
-    mutationFn: (id: string) =>
-      fetch(`/api/chat/conversations/${id}`, { method: 'DELETE' }).then(res => res.json()),
-    onSuccess: (_data, deletedId) => {
-      queryClient.invalidateQueries({ queryKey: ['conversations', userId, projectId] });
-      if (conversationId === deletedId) {
-        setConversationId(null);
-        setMessages([]);
-        createConversationMutation.mutate();
-      }
-    },
-  });
 
   // Load conversation history
   const { data: conversationData } = useQuery({
@@ -143,12 +104,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   useEffect(() => {
     if (conversationData) {
       setMessages(conversationData.messages);
-      // Update localStorage with current conversation
-      if (conversationData.conversation.id) {
-        localStorage.setItem(`chat_conversation_${userId}`, conversationData.conversation.id);
-      }
     }
-  }, [conversationData, userId]);
+  }, [conversationData]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -367,18 +324,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowConversationList(!showConversationList)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  aria-label="Show conversations"
-                  title="Conversation history"
-                >
-                  <List size={20} />
-                </button>
-                <button
                   onClick={() => {
-                    setConversationId(null);
+                    clearConversation();
                     setMessages([]);
-                    localStorage.removeItem(`chat_conversation_${userId}`);
                   }}
                   className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                   aria-label="New conversation"
@@ -585,105 +533,6 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
               </div>
             </div>
           </div>
-
-          {/* Conversation List */}
-          {showConversationList && (
-            <div className="border-b border-gray-200 dark:border-gray-700 max-h-[200px] overflow-y-auto bg-gray-50 dark:bg-gray-800/50">
-              {conversationsListData?.conversations.length === 0 ? (
-                <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                  No previous conversations
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {conversationsListData?.conversations.map((conv: { id: string; updated_at: string; title?: string; message_count?: number }) => (
-                    <div
-                      key={conv.id}
-                      className={`group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                        conv.id === conversationId ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                      }`}
-                    >
-                      {renamingConversationId === conv.id ? (
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={renameTitle}
-                            onChange={(e) => setRenameTitle(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                renameConversationMutation.mutate({ id: conv.id, title: renameTitle });
-                              } else if (e.key === 'Escape') {
-                                setRenamingConversationId(null);
-                                setRenameTitle('');
-                              }
-                            }}
-                            className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                            autoFocus
-                          />
-                          <button
-                            onClick={() => renameConversationMutation.mutate({ id: conv.id, title: renameTitle })}
-                            className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded"
-                          >
-                            <Check size={16} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setRenamingConversationId(null);
-                              setRenameTitle('');
-                            }}
-                            className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
-                          >
-                            <XCircle size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => {
-                              setConversationId(conv.id);
-                              setShowConversationList(false);
-                            }}
-                            className="w-full text-left"
-                          >
-                            <div className="text-sm font-medium text-gray-900 dark:text-white truncate pr-16">
-                              {conv.title || 'New Conversation'}
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(conv.updated_at).toLocaleDateString()} • {conv.message_count || 0} messages
-                            </div>
-                          </button>
-                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setRenamingConversationId(conv.id);
-                                setRenameTitle(conv.title || 'New Conversation');
-                              }}
-                              className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
-                              title="Rename conversation"
-                            >
-                              <Edit2 size={14} />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (confirm(`Delete "${conv.title || 'New Conversation'}"?`)) {
-                                  deleteConversationMutation.mutate(conv.id);
-                                }
-                              }}
-                              className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
-                              title="Delete conversation"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">

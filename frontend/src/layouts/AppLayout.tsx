@@ -4,6 +4,7 @@ import { NavigationHeader } from '../components/navigation/NavigationHeader';
 import { ContextList } from '../components/sidebar/ContextList';
 import { ContextManager } from '../components/sidebar/ContextManager';
 import { ProjectList } from '../components/sidebar/ProjectList';
+import { ConversationList } from '../components/sidebar/ConversationList';
 import { 
   useContexts, 
   useCreateContext, 
@@ -119,19 +120,15 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
                 />
               </div>
 
-              {/* CONVERSATIONS Section - Placeholder */}
+              {/* CONVERSATIONS Section */}
               <div>
                 <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
                   Conversations
                 </div>
-                <div className="space-y-1">
-                  <div className="p-2 rounded-lg hover:bg-gray-100 cursor-pointer text-sm text-gray-600">
-                    Today
-                  </div>
-                  <p className="text-xs text-gray-400 px-2 py-2">
-                    Conversation list coming in Step 2
-                  </p>
-                </div>
+                <ConversationList
+                  userId="default-user" // TODO: Get from auth context
+                  projectId={linkedProjectId || undefined}
+                />
               </div>
             </div>
           </aside>
