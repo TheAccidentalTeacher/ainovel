@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { NavigationHeader } from '../components/navigation/NavigationHeader';
 import { ContextList } from '../components/sidebar/ContextList';
 import { ContextManager } from '../components/sidebar/ContextManager';
@@ -13,6 +14,7 @@ import {
   useDeleteContext 
 } from '../hooks/useContexts';
 import { useLinkedProject } from '../hooks/useLinkedProject';
+import { useCollapsedSections } from '../hooks/useCollapsedSections';
 import apiClient from '../lib/api-client';
 import type { Context, Project } from '../types';
 
@@ -24,6 +26,9 @@ interface AppLayoutProps {
 export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => {
   const [isContextManagerOpen, setIsContextManagerOpen] = useState(false);
   const [editingContext, setEditingContext] = useState<Context | null>(null);
+
+  // Collapsed sections state
+  const { contexts: contextsCollapsed, projects: projectsCollapsed, conversations: conversationsCollapsed, toggleSection } = useCollapsedSections();
 
   // Queries and mutations
   const { data: contexts = [], isLoading: isLoadingContexts, error: contextsError } = useContexts();
@@ -93,14 +98,25 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
             <div className="p-4">
               {/* CONTEXTS Section */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Contexts
+                <button
+                  onClick={() => toggleSection('contexts')}
+                  className="w-full flex items-center justify-between mb-3 hover:bg-gray-50 rounded px-2 py-1 -mx-2 transition-colors group"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Contexts
+                    </div>
+                    {contextsCollapsed ? (
+                      <ChevronDown size={14} className="text-gray-400 group-hover:text-violet-600 transition-colors" />
+                    ) : (
+                      <ChevronUp size={14} className="text-gray-400 group-hover:text-violet-600 transition-colors" />
+                    )}
                   </div>
                   <button
                     className="text-gray-400 hover:text-violet-600 transition-colors"
                     title="What are Contexts?"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       alert(
                         '🎯 CONTEXTS: Organize Your AI Conversations\n\n' +
                         'Think of contexts as "mental modes" for your AI assistant.\n\n' +
@@ -122,27 +138,40 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </button>
+                </button>
+                <div className={`transition-all duration-200 ease-in-out overflow-hidden ${contextsCollapsed ? 'max-h-0' : 'max-h-[600px]'}`}>
+                  <ContextList
+                    contexts={contexts}
+                    onActivate={handleToggleContext}
+                    onEdit={handleEditContext}
+                    onDelete={handleDeleteContext}
+                    onCreate={handleCreateContext}
+                    isLoading={isLoadingContexts}
+                  />
                 </div>
-                <ContextList
-                  contexts={contexts}
-                  onActivate={handleToggleContext}
-                  onEdit={handleEditContext}
-                  onDelete={handleDeleteContext}
-                  onCreate={handleCreateContext}
-                  isLoading={isLoadingContexts}
-                />
               </div>
 
               {/* PROJECTS Section */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Projects
+                <button
+                  onClick={() => toggleSection('projects')}
+                  className="w-full flex items-center justify-between mb-3 hover:bg-gray-50 rounded px-2 py-1 -mx-2 transition-colors group"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Projects
+                    </div>
+                    {projectsCollapsed ? (
+                      <ChevronDown size={14} className="text-gray-400 group-hover:text-violet-600 transition-colors" />
+                    ) : (
+                      <ChevronUp size={14} className="text-gray-400 group-hover:text-violet-600 transition-colors" />
+                    )}
                   </div>
                   <button
                     className="text-gray-400 hover:text-violet-600 transition-colors"
                     title="What is Project Linking?"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       alert(
                         '🔗 PROJECT LINKING: Give AI Full Context About Your Novel\n\n' +
                         'Link a project to chat and the AI becomes your smart co-author who knows EVERYTHING about your story!\n\n' +
@@ -169,26 +198,39 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </button>
+                </button>
+                <div className={`transition-all duration-200 ease-in-out overflow-hidden ${projectsCollapsed ? 'max-h-0' : 'max-h-[600px]'}`}>
+                  <ProjectList
+                    projects={projects}
+                    linkedProjectId={linkedProjectId}
+                    onLinkProject={linkProject}
+                    onUnlinkProject={unlinkProject}
+                    isLoading={isLoadingProjects}
+                  />
                 </div>
-                <ProjectList
-                  projects={projects}
-                  linkedProjectId={linkedProjectId}
-                  onLinkProject={linkProject}
-                  onUnlinkProject={unlinkProject}
-                  isLoading={isLoadingProjects}
-                />
               </div>
 
               {/* CONVERSATIONS Section */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Conversations
+                <button
+                  onClick={() => toggleSection('conversations')}
+                  className="w-full flex items-center justify-between mb-3 hover:bg-gray-50 rounded px-2 py-1 -mx-2 transition-colors group"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Conversations
+                    </div>
+                    {conversationsCollapsed ? (
+                      <ChevronDown size={14} className="text-gray-400 group-hover:text-violet-600 transition-colors" />
+                    ) : (
+                      <ChevronUp size={14} className="text-gray-400 group-hover:text-violet-600 transition-colors" />
+                    )}
                   </div>
                   <button
                     className="text-gray-400 hover:text-violet-600 transition-colors"
                     title="Managing Your Chat History"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       alert(
                         '💬 CONVERSATIONS: Your AI Chat History\n\n' +
                         'Every chat is auto-saved and organized by date. Think of it like your text message history with a super-smart writing buddy!\n\n' +
@@ -218,11 +260,13 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </button>
+                </button>
+                <div className={`transition-all duration-200 ease-in-out overflow-hidden ${conversationsCollapsed ? 'max-h-0' : 'max-h-[600px]'}`}>
+                  <ConversationList
+                    userId="default-user" // TODO: Get from auth context
+                    projectId={linkedProjectId || undefined}
+                  />
                 </div>
-                <ConversationList
-                  userId="default-user" // TODO: Get from auth context
-                  projectId={linkedProjectId || undefined}
-                />
               </div>
             </div>
           </aside>
