@@ -28,7 +28,7 @@ async def create_context(context_data: ContextCreate):
     The new context will be created in inactive state. Use the toggle endpoint
     to activate it if desired.
     """
-    db = get_database()
+    db = await get_database()
     
     # Create context document
     context_doc = {
@@ -64,7 +64,7 @@ async def list_contexts(user_id: str = "alana"):
     1. Active context first (if any)
     2. Most recently updated
     """
-    db = get_database()
+    db = await get_database()
     
     # Fetch all contexts for user
     cursor = db.contexts.find({"user_id": user_id}).sort([
@@ -90,7 +90,7 @@ async def list_contexts(user_id: str = "alana"):
 @router.get("/contexts/{context_id}", response_model=ContextResponse)
 async def get_context(context_id: str):
     """Get a specific context by ID."""
-    db = get_database()
+    db = await get_database()
     
     context = await db.contexts.find_one({"_id": context_id})
     if not context:
@@ -117,7 +117,7 @@ async def update_context(context_id: str, context_update: ContextUpdate):
     
     Only provided fields will be updated. Use PATCH with only the fields you want to change.
     """
-    db = get_database()
+    db = await get_database()
     
     # Build update document (only include provided fields)
     update_data = {}
@@ -176,7 +176,7 @@ async def toggle_context(context_id: str):
     - The context is simply set to inactive
     - No other context is automatically activated
     """
-    db = get_database()
+    db = await get_database()
     
     # Get current context
     context = await db.contexts.find_one({"_id": context_id})
@@ -221,7 +221,7 @@ async def delete_context(context_id: str):
     WARNING: This will also delete all conversations associated with this context.
     This operation cannot be undone.
     """
-    db = get_database()
+    db = await get_database()
     
     # Check if context exists
     context = await db.contexts.find_one({"_id": context_id})
