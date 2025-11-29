@@ -1,7 +1,9 @@
 import { type ReactNode, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { NavigationHeader } from '../components/navigation/NavigationHeader';
 import { ContextList } from '../components/sidebar/ContextList';
 import { ContextManager } from '../components/sidebar/ContextManager';
+import { ProjectList } from '../components/sidebar/ProjectList';
 import { 
   useContexts, 
   useCreateContext, 
@@ -9,7 +11,9 @@ import {
   useToggleContext, 
   useDeleteContext 
 } from '../hooks/useContexts';
-import type { Context } from '../types';
+import { useLinkedProject } from '../hooks/useLinkedProject';
+import apiClient from '../lib/api-client';
+import type { Context, Project } from '../types';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -27,6 +31,14 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
   const toggleContext = useToggleContext();
   const deleteContext = useDeleteContext();
 
+  // Project linking state
+  const { linkedProjectId, linkProject, unlinkProject } = useLinkedProject();
+  const { data: projects = [], isLoading: isLoadingProjects } = useQuery<Project[]>({
+    queryKey: ['projects'],
+    queryFn: () => apiClient.listProjects(),
+    staleTime: 60000, // 1 minute
+  });
+
   // Handlers
   const handleCreateContext = () => {
     setEditingContext(null);
@@ -38,7 +50,7 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
     setIsContextManagerOpen(true);
   };
 
-  const handleSaveContext = async (data: any) => {
+  const handleSaveContext = async (data: { name: string; icon?: string; color?: string; description?: string }) => {
     if (editingContext) {
       // Update existing context
       await updateContext.mutateAsync({
@@ -85,19 +97,18 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
                 />
               </div>
 
-              {/* PROJECTS Section - Placeholder */}
+              {/* PROJECTS Section */}
               <div className="mb-6">
                 <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
                   Projects
                 </div>
-                <div className="space-y-1">
-                  <div className="p-2 rounded-lg hover:bg-gray-100 cursor-pointer text-sm text-gray-700">
-                    Leviathan Rising
-                  </div>
-                  <p className="text-xs text-gray-400 px-2 py-2">
-                    Link projects to chat in Step 2
-                  </p>
-                </div>
+                <ProjectList
+                  projects={projects}
+                  linkedProjectId={linkedProjectId}
+                  onLinkProject={linkProject}
+                  onUnlinkProject={unlinkProject}
+                  isLoading={isLoadingProjects}
+                />
               </div>
 
               {/* CONVERSATIONS Section - Placeholder */}
