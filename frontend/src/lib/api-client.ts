@@ -179,6 +179,32 @@ class APIClient {
   async deleteStoryBible(projectId: string) {
     await this.client.delete(`/projects/${projectId}/story-bible`);
   }
+
+  // === Context Management ===
+  
+  async getContexts() {
+    const response = await this.client.get('/contexts');
+    return response.data;
+  }
+
+  async createContext(data: { name: string; icon?: string; color?: string; description?: string }) {
+    const response = await this.client.post('/contexts', data);
+    return response.data;
+  }
+
+  async updateContext(contextId: string, data: { name?: string; icon?: string; color?: string; description?: string }) {
+    const response = await this.client.patch(`/contexts/${contextId}`, data);
+    return response.data;
+  }
+
+  async toggleContext(contextId: string) {
+    const response = await this.client.post(`/contexts/${contextId}/toggle`);
+    return response.data;
+  }
+
+  async deleteContext(contextId: string) {
+    await this.client.delete(`/contexts/${contextId}`);
+  }
 }
 
 const apiClient = new APIClient();

@@ -1,3 +1,30 @@
+// Context types for conversation organization
+export interface Context {
+  _id: string;
+  name: string;
+  icon: string;
+  color: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  conversation_count: number;
+}
+
+export interface ContextCreate {
+  name: string;
+  icon?: string;
+  color?: string;
+  description?: string;
+}
+
+export interface ContextUpdate {
+  name?: string;
+  icon?: string;
+  color?: string;
+  description?: string;
+}
+
 export interface Genre {
   id: string;
   name: string;
