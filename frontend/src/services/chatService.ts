@@ -6,7 +6,10 @@
 
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000/api/chat';
+// In production, API is served from same origin at /api
+// In development, use VITE_API_URL or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
+const API_BASE = `${API_BASE_URL}/chat`;
 
 export interface Conversation {
   id: string;
