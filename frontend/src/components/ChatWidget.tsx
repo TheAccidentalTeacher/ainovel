@@ -28,10 +28,11 @@ interface Message {
 interface ChatWidgetProps {
   userId: string;
   projectId?: string;
+  fullScreen?: boolean;
 }
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullScreen = false }) => {
+  const [isOpen, setIsOpen] = useState(fullScreen ? true : false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(() => {
