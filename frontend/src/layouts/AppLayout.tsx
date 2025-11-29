@@ -17,7 +17,7 @@ import {
 import { useLinkedProject } from '../hooks/useLinkedProject';
 import { useCollapsedSections } from '../hooks/useCollapsedSections';
 import apiClient from '../lib/api-client';
-import type { Context } from '../types';
+import type { Context, ContextCreate, ContextUpdate } from '../types';
 
 interface AppLayoutProps {
   children: ReactNode;
