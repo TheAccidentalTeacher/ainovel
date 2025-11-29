@@ -328,8 +328,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
       {/* Search Feature Tour Modal */}
       {showSearchTour && <SearchFeatureTour onClose={handleCloseTour} />}
 
-      {/* Floating Button */}
-      {!isOpen && (
+      {/* Floating Button - Only show if not fullScreen */}
+      {!fullScreen && !isOpen && (
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all z-50"
@@ -343,21 +343,26 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
       {isOpen && (
         <div
           ref={panelRef}
-          style={{ width: `${width}px` }}
-          className="fixed bottom-6 right-6 h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-2xl flex flex-col z-50 border border-gray-200 dark:border-gray-700"
+          style={fullScreen ? {} : { width: `${width}px` }}
+          className={fullScreen 
+            ? "h-full w-full bg-white dark:bg-gray-800 flex flex-col" 
+            : "fixed bottom-6 right-6 h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-2xl flex flex-col z-50 border border-gray-200 dark:border-gray-700"
+          }
         >
-          {/* Resize Handle (left edge) */}
-          <div
-            onMouseDown={() => setIsResizing(true)}
-            className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500 hover:w-1.5 transition-all z-10"
-            style={{ marginLeft: '-2px' }}
-          />
+          {/* Resize Handle (left edge) - Only in widget mode */}
+          {!fullScreen && (
+            <div
+              onMouseDown={() => setIsResizing(true)}
+              className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500 hover:w-1.5 transition-all z-10"
+              style={{ marginLeft: '-2px' }}
+            />
+          )}
           
           {/* Header */}
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <MessageCircle size={20} className="text-blue-600" />
+                <MessageCircle size={20} className={fullScreen ? "text-violet-600" : "text-blue-600"} />
                 <h3 className="font-semibold text-gray-900 dark:text-white">Writing Assistant</h3>
               </div>
               <div className="flex items-center gap-2">
@@ -381,13 +386,16 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 >
                   <Plus size={20} />
                 </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  aria-label="Close chat"
-                >
-                  <X size={20} />
-                </button>
+                {/* Close button - Only in widget mode */}
+                {!fullScreen && (
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    aria-label="Close chat"
+                  >
+                    <X size={20} />
+                  </button>
+                )}
               </div>
             </div>
             
