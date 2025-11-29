@@ -14,7 +14,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { chatApi, type Message as ChatMessage, type ConversationResponse } from '../services/chatService';
+import { chatApi, type ConversationResponse } from '../services/chatService';
 import { SearchFeatureTour } from './SearchFeatureTour';
 import { useConversation } from '../hooks/useConversation';
 
@@ -372,11 +372,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
               </select>
               
               {/* Model Description */}
-              {modelsData?.models.find((m: any) => m.id === selectedModel && m.description)?.description && (
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {modelsData.models.find((m: any) => m.id === selectedModel)?.description}
-                </p>
-              )}
+              {(() => {
+                const model = modelsData?.models.find((m: any) => m.id === selectedModel);
+                return model && 'description' in model && model.description ? (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {model.description as string}
+                  </p>
+                ) : null;
+              })()}
               
               {/* Web Search Toggle with Info */}
               <div className="space-y-2">
