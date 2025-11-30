@@ -672,7 +672,7 @@ class PremiseBuilderService:
             provider=AIProvider.OPENAI,
             model_name="gpt-4o",
             temperature=0.8,
-            max_tokens=2000
+            max_tokens=16000  # GPT-4o supports large context - allow comprehensive baseline premise
         )
         
         start = time.time()
@@ -880,7 +880,7 @@ class PremiseBuilderService:
             provider=AIProvider.ANTHROPIC,
             model_name="claude-sonnet-4-20250514",
             temperature=0.85,
-            max_tokens=8000
+            max_tokens=50000  # Claude Sonnet 4.5 supports up to 200K - use generous limit for 2000-word comprehensive premise
         )
         
         start = time.time()

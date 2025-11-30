@@ -38,7 +38,7 @@ class PremiseBuilderStoryBibleService:
         self.anthropic = Anthropic(api_key=settings.anthropic_api_key)
         self.model = "claude-sonnet-4-20250514"  # Latest Claude Sonnet 4.5
         self.temperature = 0.85  # Creative but coherent
-        self.max_tokens = 16000  # Support long, detailed bible
+        self.max_tokens = 100000  # Claude Sonnet 4.5 supports up to 200K context - use maximum for comprehensive story bible
     
     async def generate_story_bible(
         self,
