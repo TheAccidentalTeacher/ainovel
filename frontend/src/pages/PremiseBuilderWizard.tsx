@@ -465,7 +465,6 @@ export default function PremiseBuilderWizard() {
   
   const [baselinePremise, setBaselinePremise] = useState<string | null>(null)
   const [premiumPremise, setPremiumPremise] = useState<string | null>(null)
-  const [storyBible, setStoryBible] = useState<any | null>(null)
   
   // Premise editing states
   const [isEditingBaseline, setIsEditingBaseline] = useState(false)
@@ -1191,56 +1190,6 @@ export default function PremiseBuilderWizard() {
     } finally {
       setIsLoading(false)
       console.log('🏁 generatePremium complete')
-    }
-  }
-
-  // Generate story bible (Step 9)
-  const generateStoryBible = async () => {
-    console.log('📖 generateStoryBible called')
-    console.log('📋 Session ID:', sessionId)
-    
-    if (!sessionId) {
-      console.log('❌ No session ID, aborting')
-      return
-    }
-    
-    try {
-      setIsLoading(true)
-      console.log('📡 Sending request to:', `${API_BASE}/premise-builder/sessions/${sessionId}/story-bible`)
-      
-      const response = await fetch(`${API_BASE}/premise-builder/sessions/${sessionId}/story-bible`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      
-      console.log('📬 Response status:', response.status, response.statusText)
-      
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.log('❌ Response error:', errorText)
-        throw new Error('Failed to generate story bible')
-      }
-      
-      const data = await response.json()
-      console.log('📦 Response data:', data)
-      
-      // Backend returns { session: { story_bible: { characters, world, themes, plot, style } } }
-      const bible = data.session?.story_bible
-      console.log('📚 Extracted story bible:', bible)
-      
-      if (bible) {
-        setStoryBible(bible)
-        console.log('✅ Story bible set successfully!')
-      } else {
-        console.log('❌ No story bible in response')
-        throw new Error('No story bible generated')
-      }
-    } catch (err) {
-      console.log('❌ Error caught:', err)
-      setError(err instanceof Error ? err.message : 'Failed to generate story bible')
-    } finally {
-      setIsLoading(false)
-      console.log('🏁 generateStoryBible complete')
     }
   }
 
@@ -4068,154 +4017,12 @@ export default function PremiseBuilderWizard() {
             🔄 Regenerate
           </button>
           <button
-            onClick={() => setCurrentStep(9)}
+            onClick={completeSession}
             disabled={isLoading}
             className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg transition-all font-medium"
           >
-            Continue to Story Bible →
+            ✓ Accept & Create Project
           </button>
-        </div>
-      )}
-    </div>
-  )
-
-  const renderStep9 = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-2">📖 Story Bible</h2>
-        <p className="text-gray-400">Comprehensive narrative blueprint synthesizing all your wizard decisions</p>
-        <p className="text-sm text-gray-500 mt-2">
-          Professional 4000-6000+ word foundation with genre-specific frameworks from 63-source research compilation
-        </p>
-      </div>
-
-      {!storyBible ? (
-        <div className="text-center py-12 space-y-4">
-          <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-6 text-left max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-purple-300 mb-3">Your Story Bible will include:</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li className="flex items-start">
-                <span className="text-purple-400 mr-2">👥</span>
-                <span><strong>Characters:</strong> Deep profiles with arcs, psychology, relationships (800-1200 words)</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-400 mr-2">🌍</span>
-                <span><strong>World:</strong> Settings, rules, history, culture (800-1200 words)</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-400 mr-2">💭</span>
-                <span><strong>Themes:</strong> Central questions, values, motifs (800-1200 words)</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-400 mr-2">📊</span>
-                <span><strong>Plot:</strong> Structure, beats, turning points, subplots (800-1200 words)</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-400 mr-2">✍️</span>
-                <span><strong>Style:</strong> Voice, tone, POV, prose techniques (800-1200 words)</span>
-              </li>
-            </ul>
-          </div>
-          <button
-            onClick={generateStoryBible}
-            disabled={isLoading}
-            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-all font-semibold text-lg"
-          >
-            {isLoading ? '⏳ Generating Story Bible (this may take 30-60 seconds)...' : '📖 Generate Story Bible'}
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Characters Section */}
-          <div className="bg-gray-900/50 p-6 rounded-lg border border-purple-700">
-            <h3 className="text-xl font-bold text-purple-300 mb-4 flex items-center">
-              <span className="mr-2">👥</span> Characters
-              <span className="ml-auto text-sm font-normal text-gray-500">
-                {storyBible.character_word_count || 0} words
-              </span>
-            </h3>
-            <div className="prose prose-invert max-w-none">
-              <pre className="whitespace-pre-wrap text-gray-300">{storyBible.characters}</pre>
-            </div>
-          </div>
-
-          {/* World Section */}
-          <div className="bg-gray-900/50 p-6 rounded-lg border border-emerald-700">
-            <h3 className="text-xl font-bold text-emerald-300 mb-4 flex items-center">
-              <span className="mr-2">🌍</span> World
-              <span className="ml-auto text-sm font-normal text-gray-500">
-                {storyBible.world_word_count || 0} words
-              </span>
-            </h3>
-            <div className="prose prose-invert max-w-none">
-              <pre className="whitespace-pre-wrap text-gray-300">{storyBible.world}</pre>
-            </div>
-          </div>
-
-          {/* Themes Section */}
-          <div className="bg-gray-900/50 p-6 rounded-lg border border-blue-700">
-            <h3 className="text-xl font-bold text-blue-300 mb-4 flex items-center">
-              <span className="mr-2">💭</span> Themes
-              <span className="ml-auto text-sm font-normal text-gray-500">
-                {storyBible.theme_word_count || 0} words
-              </span>
-            </h3>
-            <div className="prose prose-invert max-w-none">
-              <pre className="whitespace-pre-wrap text-gray-300">{storyBible.themes}</pre>
-            </div>
-          </div>
-
-          {/* Plot Section */}
-          <div className="bg-gray-900/50 p-6 rounded-lg border border-amber-700">
-            <h3 className="text-xl font-bold text-amber-300 mb-4 flex items-center">
-              <span className="mr-2">📊</span> Plot
-              <span className="ml-auto text-sm font-normal text-gray-500">
-                {storyBible.plot_word_count || 0} words
-              </span>
-            </h3>
-            <div className="prose prose-invert max-w-none">
-              <pre className="whitespace-pre-wrap text-gray-300">{storyBible.plot}</pre>
-            </div>
-          </div>
-
-          {/* Style Section */}
-          <div className="bg-gray-900/50 p-6 rounded-lg border border-rose-700">
-            <h3 className="text-xl font-bold text-rose-300 mb-4 flex items-center">
-              <span className="mr-2">✍️</span> Style
-              <span className="ml-auto text-sm font-normal text-gray-500">
-                {storyBible.style_word_count || 0} words
-              </span>
-            </h3>
-            <div className="prose prose-invert max-w-none">
-              <pre className="whitespace-pre-wrap text-gray-300">{storyBible.style}</pre>
-            </div>
-          </div>
-
-          {/* Total Word Count */}
-          <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-4 text-center">
-            <p className="text-gray-300">
-              <span className="font-semibold text-purple-300">Total Story Bible:</span>{' '}
-              {storyBible.total_word_count || 0} words
-            </p>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-between pt-4">
-            <button 
-              onClick={generateStoryBible} 
-              disabled={isLoading} 
-              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-            >
-              🔄 Regenerate Story Bible
-            </button>
-            <button
-              onClick={completeSession}
-              disabled={isLoading}
-              className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
-            >
-              {isLoading ? 'Creating Project...' : '✓ Accept & Create Project'}
-            </button>
-          </div>
         </div>
       )}
     </div>
@@ -4232,7 +4039,6 @@ export default function PremiseBuilderWizard() {
       case 6: return renderStep6()
       case 7: return renderStep7()
       case 8: return renderStep8()
-      case 9: return renderStep9()
       default: return null
     }
   }
