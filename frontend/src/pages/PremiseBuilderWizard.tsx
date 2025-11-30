@@ -2139,36 +2139,44 @@ export default function PremiseBuilderWizard() {
       setError(null)
       
       // 🔥 CRITICAL FIX: Save any existing plot edits to session FIRST
-      // This ensures AI pulls Alana's manual edits when generating
-      console.log('💾 [PLOT] Auto-saving current plot state before generation...')
-      const currentPlotData = {
-        primary_conflict: primaryConflict || undefined,
-        conflict_types: conflictTypes,
-        stakes: stakes || undefined,
-        stakes_layers: stakesLayers,
-        inciting_incident: incitingIncident || undefined,
-        first_plot_point: firstPlotPoint || undefined,
-        midpoint_shift: midpointShift || undefined,
-        second_plot_point: secondPlotPoint || undefined,
-        climax_confrontation: climaxConfrontation || undefined,
-        resolution: resolution || undefined,
-        key_story_beats: keyStoryBeats,
-        emotional_beats: emotionalBeats,
-        ending_vibe: endingVibe || undefined,
-        final_image: finalImage || undefined,
-        romantic_subplot: romanticSubplot || undefined,
-        secondary_subplot: secondarySubplot || undefined,
-        thematic_subplot: thematicSubplot || undefined,
-        additional_subplots: additionalSubplots,
-        major_twists: majorTwists,
-        red_herrings: redHerrings,
-        tension_escalation: tensionEscalation || undefined,
-        pacing_notes: pacingNotes || undefined
-      }
+      // This ensures AI pulls user's manual edits when generating
+      // ONLY save if user has actually entered something (avoid validation errors on first generation)
+      const hasPlotData = primaryConflict || stakes || incitingIncident || firstPlotPoint || 
+                         midpointShift || secondPlotPoint || climaxConfrontation || resolution;
       
-      // Save current state without advancing step
-      await saveStep(4, currentPlotData, { suppressAdvance: true })
-      console.log('✅ [PLOT] Current edits saved to session')
+      if (hasPlotData) {
+        console.log('💾 [PLOT] Auto-saving current plot state before generation...')
+        const currentPlotData = {
+          primary_conflict: primaryConflict || undefined,
+          conflict_types: conflictTypes,
+          stakes: stakes || undefined,
+          stakes_layers: stakesLayers,
+          inciting_incident: incitingIncident || undefined,
+          first_plot_point: firstPlotPoint || undefined,
+          midpoint_shift: midpointShift || undefined,
+          second_plot_point: secondPlotPoint || undefined,
+          climax_confrontation: climaxConfrontation || undefined,
+          resolution: resolution || undefined,
+          key_story_beats: keyStoryBeats,
+          emotional_beats: emotionalBeats,
+          ending_vibe: endingVibe || undefined,
+          final_image: finalImage || undefined,
+          romantic_subplot: romanticSubplot || undefined,
+          secondary_subplot: secondarySubplot || undefined,
+          thematic_subplot: thematicSubplot || undefined,
+          additional_subplots: additionalSubplots,
+          major_twists: majorTwists,
+          red_herrings: redHerrings,
+          tension_escalation: tensionEscalation || undefined,
+          pacing_notes: pacingNotes || undefined
+        }
+        
+        // Save current state without advancing step
+        await saveStep(4, currentPlotData, { suppressAdvance: true })
+        console.log('✅ [PLOT] Current edits saved to session')
+      } else {
+        console.log('⏭️ [PLOT] No manual edits to save, proceeding directly to generation')
+      }
       
       const response = await fetch(`${API_BASE}/premise-builder/sessions/${sessionId}/ai`, {
         method: 'POST',
