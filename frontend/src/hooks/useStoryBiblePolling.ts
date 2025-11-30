@@ -11,7 +11,7 @@ export function useStoryBiblePolling(
   onComplete?: () => void
 ) {
   const queryClient = useQueryClient();
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollIntervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const pollCountRef = useRef<number>(0);
 
