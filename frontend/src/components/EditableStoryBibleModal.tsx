@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../lib/apiClient';
 import type { StoryBible, Character, Setting } from '../types';
@@ -21,6 +21,14 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
   const [expandedSetting, setExpandedSetting] = useState<number | null>(null);
   const [editedBible, setEditedBible] = useState<StoryBible>(JSON.parse(JSON.stringify(storyBible)));
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Reset edited bible when story bible prop changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setEditedBible(JSON.parse(JSON.stringify(storyBible)));
+      setHasUnsavedChanges(false);
+    }
+  }, [isOpen, storyBible]);
   
   // AI Enhancement state
   const [selectedText, setSelectedText] = useState('');
