@@ -5,7 +5,6 @@ import apiClient from '../lib/apiClient';
 import StoryBibleModal from '../components/StoryBibleModal';
 import { useChapterStream } from '../hooks/useChapterStream';
 import { useBulkGeneration } from '../hooks/useBulkGeneration';
-import { useStoryBiblePolling } from '../hooks/useStoryBiblePolling';
 import type { ChapterOutline, Chapter } from '../types';
 
 export default function ProjectDetailPage() {
@@ -29,27 +28,22 @@ export default function ProjectDetailPage() {
 
   // Generate Story Bible mutation
   const generateStoryBibleMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       console.log('[ProjectDetail] 📖 Generating Story Bible for project:', id);
-      return apiClient.generateStoryBible(id!);
+      const result = await apiClient.generateStoryBible(id!);
+      console.log('[ProjectDetail] ✅ Story Bible API call complete');
+      return result;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       console.log('[ProjectDetail] ✅ Story Bible generated:', data);
-      queryClient.invalidateQueries({ queryKey: ['project', id] });
+      // Refetch project data to get updated story bible
+      await queryClient.invalidateQueries({ queryKey: ['project', id] });
+      await queryClient.refetchQueries({ queryKey: ['project', id] });
     },
     onError: (error) => {
       console.error('[ProjectDetail] ❌ Story Bible generation failed:', error);
     },
   });
-
-  // Story Bible polling - polls every 3 seconds while generating
-  const storyBiblePolling = useStoryBiblePolling(
-    id,
-    generateStoryBibleMutation.isPending,
-    () => {
-      console.log('[ProjectDetail] 🎉 Story Bible polling detected completion!');
-    }
-  );
 
   // Generate outline mutation
   const generateOutlineMutation = useMutation({
@@ -260,22 +254,15 @@ export default function ProjectDetailPage() {
               
               <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>⏱️ {storyBiblePolling.elapsedTime}s elapsed</span>
-                <span className="text-gray-600">•</span>
-                <span>Poll #{storyBiblePolling.pollCount}</span>
+                <span>Generating with Claude Sonnet 4.5...</span>
               </div>
               
               <div className="text-xs text-gray-500">
-                Target: 4000-6000 words • Using Claude Sonnet 4.5
+                Target: 4000-6000 words • Typically takes 60-90 seconds
               </div>
               
               <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-1000"
-                  style={{ 
-                    width: `${Math.min(100, (storyBiblePolling.elapsedTime / 90) * 100)}%` 
-                  }}
-                ></div>
+                <div className="h-full bg-gradient-to-r from-purple-600 to-purple-400 animate-pulse"></div>
               </div>
             </div>
           </div>
