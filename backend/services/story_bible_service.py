@@ -46,8 +46,8 @@ Parse the premise and extract:
 **Response must be valid JSON only, no explanatory text.**"""
 
 
-def create_story_bible_prompt(premise: Premise, content_restrictions: list[str] = None, tropes_to_avoid: list[str] = None) -> str:
-    """Create the story bible generation prompt with constraints."""
+def create_story_bible_prompt(premise: Premise, expanded_premise: str = None, content_restrictions: list[str] = None, tropes_to_avoid: list[str] = None) -> str:
+    """Create the story bible generation prompt with constraints and expanded premise."""
     
     constraints_section = ""
     if content_restrictions or tropes_to_avoid:
@@ -58,15 +58,22 @@ def create_story_bible_prompt(premise: Premise, content_restrictions: list[str] 
         if tropes_to_avoid:
             constraints_section += f"**Tropes to EXCLUDE:** {', '.join(tropes_to_avoid)}\n"
     
-    return f"""Generate a comprehensive Story Bible from this novel premise:
+    # Use expanded premise if available, fallback to basic premise
+    premise_content = expanded_premise if expanded_premise else premise.content
+    premise_type = "EXPANDED PREMISE" if expanded_premise else "PREMISE"
+    
+    return f"""Generate a comprehensive Story Bible from this novel premise.
+
+This Story Bible will be used directly for outline generation and chapter writing, so it must be thorough and detailed.
+Target: 4000-6000 words total across all sections.
 
 **Genre:** {premise.genre}
 **Subgenre:** {premise.subgenre or 'None'}
 **Target Word Count:** {premise.target_word_count:,} words
 **Target Chapters:** {premise.target_chapter_count}
 {constraints_section}
-**Premise:**
-{premise.content}
+**{premise_type}:**
+{premise_content}
 
 ---
 
@@ -78,37 +85,37 @@ Extract and structure all Story Bible components. Return JSON with this exact st
       "name": "Full Character Name",
       "aliases": ["Nickname", "Alternate Name"],
       "age": "Age or range",
-      "physical_description": "Detailed appearance (100-200 words)",
-      "personality": "Key personality traits (100-150 words)",
-      "backstory": "Character history and background (150-300 words)",
-      "goals": "Motivations, desires, what they want (100 words)",
-      "character_arc": "How they change throughout story (100-150 words)",
+      "physical_description": "Detailed appearance with vivid sensory details (200-400 words)",
+      "personality": "Deep personality profile with contradictions, strengths, flaws, fears (200-300 words)",
+      "backstory": "Comprehensive character history and formative experiences (300-500 words)",
+      "goals": "Layered motivations, conscious and unconscious desires, what drives them (150-250 words)",
+      "character_arc": "Complete transformation arc from beginning through end, including setbacks (200-300 words)",
       "relationships": {{"Character Name": "relationship description"}},
-      "quirks": "Unique features, mannerisms, habits (50-100 words)",
+      "quirks": "Unique features, mannerisms, habits, verbal tics (100-150 words)",
       "role": "protagonist/antagonist/love interest/mentor/supporting/etc",
-      "practical_complications": "How unusual traits affect daily life: custom furniture, modified clothing, environmental interactions (50-100 words). Example for three-legged character: 'Custom three-legged stool at workbench, modified trousers, distinctive walking rhythm, children ask questions, needs wider doorways'",
-      "sensory_signatures": "Non-visual sensory details: scent, voice, texture, sound of movement (50-100 words). Example: 'Voice has slight rasp, hands smell of sawdust and lemon oil, footsteps create three-beat rhythm, calloused hands'",
-      "internal_obstacles": "Contradictory desires, past hurts, emotional blocks (50-100 words). Example: 'Fears being seen as curiosity not person, wants love but expects rejection, struggles between pride and shame'",
-      "speech_patterns": "Deflection habits, evasions, inarticulate moments (50-100 words). Example: 'Changes subject when emotions run deep, uses humor to deflect, goes silent when hurt, says I should go when wants to stay'"
+      "practical_complications": "How unusual traits affect daily life: custom furniture, modified clothing, environmental interactions (100-150 words). Example for three-legged character: 'Custom three-legged stool at workbench, modified trousers, distinctive walking rhythm, children ask questions, needs wider doorways'",
+      "sensory_signatures": "Non-visual sensory details: scent, voice, texture, sound of movement, distinctive sounds (100-150 words). Example: 'Voice has slight rasp, hands smell of sawdust and lemon oil, footsteps create three-beat rhythm, calloused hands'",
+      "internal_obstacles": "Contradictory desires, past hurts, emotional blocks, psychological barriers (100-150 words). Example: 'Fears being seen as curiosity not person, wants love but expects rejection, struggles between pride and shame'",
+      "speech_patterns": "Deflection habits, evasions, inarticulate moments, unique voice (100-150 words). Example: 'Changes subject when emotions run deep, uses humor to deflect, goes silent when hurt, says I should go when wants to stay'"
     }}
   ],
   "settings": [
     {{
       "name": "Location Name",
-      "description": "Physical description (150-250 words)",
-      "atmosphere": "Mood, feeling, tone (50-100 words)",
-      "significance": "Why it matters to plot (50-100 words)",
-      "special_features": "Unique rules, properties, elements (50-150 words)",
-      "sensory_palette": ["sawdust smell", "lemon oil scent", "smooth wood texture", "rhythmic sanding sounds", "wood shavings underfoot"]
+      "description": "Rich physical description with spatial layout and key features (250-400 words)",
+      "atmosphere": "Mood, feeling, tone, emotional resonance (100-150 words)",
+      "significance": "Why it matters to plot and characters, thematic connections (100-150 words)",
+      "special_features": "Unique rules, properties, elements, hidden details (100-200 words)",
+      "sensory_palette": ["sawdust smell", "lemon oil scent", "smooth wood texture", "rhythmic sanding sounds", "wood shavings underfoot", "temperature", "lighting quality"]
     }}
   ],
-  "themes": ["Theme 1", "Theme 2", "Theme 3"],
-  "humor_style": "Description of humor level and style (100 words)",
-  "tone_notes": "Overall tone, pacing, voice, POV guidelines (150 words)",
-  "genre_guidelines": "Genre-specific elements to maintain (100-150 words)",
-  "main_plot_arc": "Primary story arc beginning → middle → end (200-300 words)",
-  "subplots": ["B-story description", "C-story description"],
-  "key_milestones": ["Major event 1", "Major event 2", "Climax", "Resolution"]
+  "themes": ["Theme 1 with explanation", "Theme 2 with explanation", "Theme 3 with explanation"],
+  "humor_style": "Detailed description of humor level, style, and examples (150-200 words)",
+  "tone_notes": "Comprehensive tone guidelines: voice, pacing, POV, narrative distance, emotional register (250-300 words)",
+  "genre_guidelines": "Genre-specific elements, conventions, and expectations to maintain (200-300 words)",
+  "main_plot_arc": "Detailed primary story arc with all major turning points: beginning → inciting incident → rising action → midpoint → complications → climax → resolution (400-600 words)",
+  "subplots": ["B-story description with arc (100-150 words)", "C-story description with arc (100-150 words)"],
+  "key_milestones": ["Major event 1 (detailed)", "Major event 2 (detailed)", "Midpoint revelation", "Dark night of soul", "Climax", "Resolution"]
 }}
 
 Be thorough and detailed. This Story Bible will maintain consistency across the entire novel generation process."""
@@ -142,16 +149,18 @@ async def generate_story_bible_from_premise(
         f"restrictions={content_restrictions}, tropes_to_avoid={tropes_to_avoid}"
     )
     
-    # Claude Sonnet 4.5 supports up to 64K output tokens
-    # Use 16K for comprehensive Story Bibles with many characters/settings
-    ai_config.max_tokens = 16000
+    # Claude Sonnet 4.5 supports up to 200K context, 64K output tokens
+    # Use 100K for uber comprehensive Story Bibles (4000-6000 words)
+    # This feeds directly into outline generation
+    ai_config.max_tokens = 100000
     
     # Create AI service
     ai_service = get_ai_service()
     
-    # Build prompt
+    # Build prompt with expanded premise if available
+    expanded_premise = getattr(premise, 'expanded_content', None)
     system_prompt = STORY_BIBLE_SYSTEM_PROMPT
-    user_prompt = create_story_bible_prompt(premise, content_restrictions, tropes_to_avoid)
+    user_prompt = create_story_bible_prompt(premise, expanded_premise, content_restrictions, tropes_to_avoid)
     
     logger.debug(f"System prompt length: {len(system_prompt)} chars")
     logger.debug(f"User prompt length: {len(user_prompt)} chars")
