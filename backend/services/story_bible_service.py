@@ -65,8 +65,8 @@ def create_story_bible_prompt(premise: Premise, expanded_premise: str = None, co
     return f"""Generate a comprehensive Story Bible from this novel premise.
 
 This Story Bible will be used directly for outline generation and chapter writing, so it must be thorough and detailed.
-Target: 3500-4500 words total across all sections.
-CRITICAL: Prioritize depth and richness in character development and plot structure. Ensure complete, valid JSON.
+Target: 3000-4000 words total across all sections (within 8K token limit).
+CRITICAL: Prioritize depth and richness. Ensure complete, valid JSON. Do not truncate mid-section.
 
 **Genre:** {premise.genre}
 **Subgenre:** {premise.subgenre or 'None'}
