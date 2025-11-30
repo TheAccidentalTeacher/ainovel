@@ -1005,7 +1005,7 @@ export default function PremiseBuilderWizard() {
       
       const data = await response.json()
       // Navigate to the new project
-      navigate(`/projects/${data.project_id}`)
+      navigate(`/studio/projects/${data.project_id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to complete')
     } finally {

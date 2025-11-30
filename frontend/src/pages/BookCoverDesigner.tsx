@@ -1044,7 +1044,7 @@ export default function BookCoverDesigner() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate(`/projects/${projectId}`)}
+            onClick={() => navigate(`/studio/projects/${projectId}`)}
             className="text-sm text-gray-600 hover:text-gray-900 mb-4"
           >
             ← Back to Project

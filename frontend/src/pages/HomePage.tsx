@@ -100,7 +100,7 @@ export default function HomePage() {
         </div>
         <div className="flex gap-3">
           <Link
-            to="/cover-designer"
+            to="/studio/cover-designer"
             className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
           >
             <span className="mr-2">🎨</span>
@@ -108,7 +108,7 @@ export default function HomePage() {
           </Link>
           {hasSavedSession && (
             <Link
-              to="/premise-builder/new?mode=resume"
+              to="/studio/premise-builder/new?mode=resume"
               className="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors border border-gray-600"
             >
               <span className="mr-2">📋</span>
@@ -116,7 +116,7 @@ export default function HomePage() {
             </Link>
           )}
           <Link
-            to="/new"
+            to="/studio/new"
             className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
@@ -130,7 +130,7 @@ export default function HomePage() {
         <div className="text-center py-12">
           <p className="text-gray-400 text-lg mb-4">No projects yet</p>
           <Link
-            to="/new"
+            to="/studio/new"
             className="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
@@ -155,7 +155,7 @@ export default function HomePage() {
                     key={project.id}
                     className="relative bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-primary-500 transition-colors group"
                   >
-                    <Link to={`/projects/${project.id}`} className="block">
+                    <Link to={`/studio/projects/${project.id}`} className="block">
                       <h3 className="text-xl font-semibold text-white mb-2 pr-8">{project.title}</h3>
                       <div className="space-y-2 text-sm text-gray-400">
                         <p>

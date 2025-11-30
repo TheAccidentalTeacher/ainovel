@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+cimport { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../lib/apiClient';
 import { useState, useEffect } from 'react';
@@ -54,7 +54,7 @@ export default function OutlineEditorPage() {
       <div className="p-8">
         <div className="text-red-400">No outline found</div>
         <button
-          onClick={() => navigate(`/projects/${id}`)}
+          onClick={() => navigate(`/studio/projects/${id}`)}
           className="mt-4 text-blue-400 hover:text-blue-300"
         >
           ← Back to Project

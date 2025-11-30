@@ -36,7 +36,7 @@ export default function NewProjectPage() {
   const createMutation = useMutation({
     mutationFn: (data: Parameters<typeof apiClient.createProject>[0]) => apiClient.createProject(data),
     onSuccess: (response: { project: { id: string } }) => {
-      navigate(`/projects/${response.project.id}`)
+      navigate(`/studio/projects/${response.project.id}`)
     },
   })
 
@@ -110,7 +110,7 @@ export default function NewProjectPage() {
               </li>
             </ul>
             <button
-              onClick={() => navigate('/premise-builder/new')}
+              onClick={() => navigate('/studio/premise-builder/new')}
               className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors group-hover:shadow-lg group-hover:shadow-primary-500/50"
             >
               Start Guided Builder
@@ -169,7 +169,7 @@ export default function NewProjectPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => navigate('/premise-builder/new?mode=resume')}
+                  onClick={() => navigate('/studio/premise-builder/new?mode=resume')}
                   className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                 >
                   Resume
