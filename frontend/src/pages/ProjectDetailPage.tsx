@@ -45,6 +45,25 @@ export default function ProjectDetailPage() {
     },
   });
 
+  // Delete Story Bible mutation
+  const deleteStoryBibleMutation = useMutation({
+    mutationFn: async () => {
+      console.log('[ProjectDetail] 🗑️ Deleting Story Bible for project:', id);
+      const result = await apiClient.deleteStoryBible(id!);
+      console.log('[ProjectDetail] ✅ Story Bible deleted');
+      return result;
+    },
+    onSuccess: async () => {
+      console.log('[ProjectDetail] 🔄 Refreshing project data after deletion');
+      await queryClient.invalidateQueries({ queryKey: ['project', id] });
+      await queryClient.refetchQueries({ queryKey: ['project', id] });
+    },
+    onError: (error) => {
+      console.error('[ProjectDetail] ❌ Story Bible deletion failed:', error);
+      alert('Failed to delete Story Bible. Please try again.');
+    },
+  });
+
   // Generate outline mutation
   const generateOutlineMutation = useMutation({
     mutationFn: () => {
@@ -299,24 +318,42 @@ export default function ProjectDetailPage() {
               Story Bible v{story_bible.version || 1} created to maintain consistency across your novel
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-6 flex justify-between items-center">
               <button
                 onClick={() => {
-                  if (window.confirm('⚠️ Regenerate Story Bible? This will create a new comprehensive Story Bible from your premise. The current Story Bible will be replaced.')) {
-                    generateStoryBibleMutation.mutate();
+                  if (window.confirm('🗑️ Delete Story Bible?\n\nThis will permanently delete the current Story Bible. You can generate a new one afterwards.')) {
+                    deleteStoryBibleMutation.mutate();
                   }
                 }}
-                disabled={generateStoryBibleMutation.isPending}
-                className="px-6 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={deleteStoryBibleMutation.isPending || generateStoryBibleMutation.isPending}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                🔄 Regenerate Story Bible
+                {deleteStoryBibleMutation.isPending ? '🗑️ Deleting...' : '🗑️ Delete'}
               </button>
-              <button
-                className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-                onClick={() => setIsStoryBibleModalOpen(true)}
-              >
-                View/Edit Story Bible →
-              </button>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    if (window.confirm('⚠️ Regenerate Story Bible?\n\nThis will delete the current Story Bible and create a new comprehensive Story Bible from your premise.')) {
+                      deleteStoryBibleMutation.mutate();
+                      // Wait for deletion to complete, then generate
+                      setTimeout(() => {
+                        generateStoryBibleMutation.mutate();
+                      }, 1000);
+                    }
+                  }}
+                  disabled={generateStoryBibleMutation.isPending || deleteStoryBibleMutation.isPending}
+                  className="px-6 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  🔄 Regenerate Story Bible
+                </button>
+                <button
+                  className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                  onClick={() => setIsStoryBibleModalOpen(true)}
+                >
+                  View/Edit Story Bible →
+                </button>
+              </div>
             </div>
           </div>
         ) : !generateStoryBibleMutation.isPending && (
