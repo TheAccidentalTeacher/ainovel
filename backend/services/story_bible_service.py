@@ -167,6 +167,9 @@ async def generate_story_bible_from_premise(
     
     # Call AI
     try:
+        logger.info(f"Calling AI service with max_tokens={ai_config.max_tokens}, model={ai_config.model_name}")
+        logger.info(f"User prompt length: {len(user_prompt)} chars")
+        
         response_data = await ai_service.generate_text(
             prompt=user_prompt,
             config=ai_config,

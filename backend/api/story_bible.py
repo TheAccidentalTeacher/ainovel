@@ -77,6 +77,11 @@ async def generate_story_bible(
         logger.info(f"Found builder constraints: restrictions={content_restrictions}, tropes={tropes_to_avoid}")
     
     try:
+        logger.info(f"Calling generate_story_bible_from_premise with premise_id={premise.id}")
+        logger.info(f"Premise has expanded_content: {hasattr(premise, 'expanded_content')}")
+        logger.info(f"Content restrictions: {content_restrictions}")
+        logger.info(f"Tropes to avoid: {tropes_to_avoid}")
+        
         # Generate Story Bible with constraints
         story_bible = await generate_story_bible_from_premise(
             premise, 
@@ -84,6 +89,8 @@ async def generate_story_bible(
             content_restrictions=content_restrictions,
             tropes_to_avoid=tropes_to_avoid
         )
+        
+        logger.info(f"Story Bible generation completed successfully")
         
         # Save to database
         story_bible_dict = story_bible.model_dump()
