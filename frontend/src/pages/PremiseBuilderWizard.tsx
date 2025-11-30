@@ -462,6 +462,15 @@ export default function PremiseBuilderWizard() {
   
   const [baselinePremise, setBaselinePremise] = useState<string | null>(null)
   const [premiumPremise, setPremiumPremise] = useState<string | null>(null)
+  
+  // Premise editing states
+  const [isEditingBaseline, setIsEditingBaseline] = useState(false)
+  const [baselinePremiseEdit, setBaselinePremiseEdit] = useState('')
+  const [selectedText, setSelectedText] = useState('')
+  const [selectionStart, setSelectionStart] = useState(0)
+  const [selectionEnd, setSelectionEnd] = useState(0)
+  const [showEnhanceMenu, setShowEnhanceMenu] = useState(false)
+  const [isEnhancing, setIsEnhancing] = useState(false)
 
   // Fetch genres for dropdown
   const { data: genresData, isLoading: genresLoading, error: genresError } = useQuery({
@@ -939,6 +948,85 @@ export default function PremiseBuilderWizard() {
     } finally {
       setIsLoading(false)
       console.log('🏁 generateBaseline complete')
+    }
+  }
+
+  // Enhance selected text in baseline premise
+  const enhanceBaselineText = async (enhancementType: string) => {
+    if (!sessionId || !selectedText) return
+    
+    try {
+      setIsEnhancing(true)
+      setShowEnhanceMenu(false)
+      
+      const enhancementPrompts: Record<string, string> = {
+        expand: 'Expand this text with more vivid details and depth',
+        funnier: 'Make this text funnier and more comedic',
+        dramatic: 'Make this text more dramatic and impactful',
+        concise: 'Make this text more concise while keeping the key points',
+        descriptive: 'Add more sensory and descriptive details',
+        emotional: 'Enhance the emotional resonance of this text',
+        rewrite: 'Rewrite this text in a fresh way while keeping the same meaning'
+      }
+      
+      const prompt = enhancementPrompts[enhancementType] || 'Enhance this text'
+      
+      const response = await fetch(`${API_BASE}/premise-builder/sessions/${sessionId}/ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'enhance_text',
+          context: { text_to_enhance: selectedText, instruction: prompt },
+          user_input: ''
+        })
+      })
+      
+      if (!response.ok) throw new Error('Enhancement failed')
+      
+      const data = await response.json()
+      const enhanced = data.suggestion || selectedText
+      
+      // Replace selected text with enhanced version
+      const before = baselinePremiseEdit.substring(0, selectionStart)
+      const after = baselinePremiseEdit.substring(selectionEnd)
+      const newText = before + enhanced + after
+      
+      setBaselinePremiseEdit(newText)
+      setBaselinePremise(newText)
+      setSelectedText('')
+      setShowEnhanceMenu(false)
+    } catch (err) {
+      console.error('Enhancement error:', err)
+      alert('Failed to enhance text. Please try again.')
+    } finally {
+      setIsEnhancing(false)
+    }
+  }
+
+  // Save baseline premise edits
+  const saveBaselinePremise = async () => {
+    if (!sessionId) return
+    
+    try {
+      setIsLoading(true)
+      const response = await fetch(`${API_BASE}/premise-builder/sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 7,
+          data: { baseline_premise: { content: baselinePremiseEdit } }
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to save')
+      
+      setBaselinePremise(baselinePremiseEdit)
+      setIsEditingBaseline(false)
+    } catch (err) {
+      console.error('Save error:', err)
+      alert('Failed to save changes')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -3381,10 +3469,133 @@ export default function PremiseBuilderWizard() {
           </button>
         </div>
       ) : (
-        <div className="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
-          <div className="prose prose-invert max-w-none">
-            <pre className="whitespace-pre-wrap text-gray-300">{baselinePremise}</pre>
+        <div className="relative">
+          {/* Edit/View Toggle */}
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={() => {
+                setIsEditingBaseline(!isEditingBaseline)
+                if (!isEditingBaseline) {
+                  setBaselinePremiseEdit(baselinePremise)
+                }
+              }}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center gap-2"
+            >
+              {isEditingBaseline ? '👁️ Preview' : '✏️ Edit'}
+            </button>
+            
+            {isEditingBaseline && (
+              <button
+                onClick={saveBaselinePremise}
+                disabled={isLoading}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                💾 Save Changes
+              </button>
+            )}
           </div>
+
+          {isEditingBaseline ? (
+            <div className="relative">
+              <textarea
+                value={baselinePremiseEdit}
+                onChange={(e) => setBaselinePremiseEdit(e.target.value)}
+                onSelect={(e) => {
+                  const target = e.target as HTMLTextAreaElement
+                  const start = target.selectionStart
+                  const end = target.selectionEnd
+                  const selected = target.value.substring(start, end)
+                  
+                  if (selected.length > 0) {
+                    setSelectedText(selected)
+                    setSelectionStart(start)
+                    setSelectionEnd(end)
+                    setShowEnhanceMenu(true)
+                  } else {
+                    setShowEnhanceMenu(false)
+                  }
+                }}
+                className="w-full min-h-[400px] px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+              
+              {/* Enhancement Menu */}
+              {showEnhanceMenu && selectedText && (
+                <div className="absolute top-2 right-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 z-10">
+                  <div className="text-xs text-gray-400 mb-2 px-2">
+                    Enhance Selection ({selectedText.length} chars)
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => enhanceBaselineText('expand')}
+                      disabled={isEnhancing}
+                      className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      📝 Expand with Detail
+                    </button>
+                    <button
+                      onClick={() => enhanceBaselineText('funnier')}
+                      disabled={isEnhancing}
+                      className="px-3 py-2 text-sm bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      😄 Make Funnier
+                    </button>
+                    <button
+                      onClick={() => enhanceBaselineText('dramatic')}
+                      disabled={isEnhancing}
+                      className="px-3 py-2 text-sm bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      🎭 More Dramatic
+                    </button>
+                    <button
+                      onClick={() => enhanceBaselineText('descriptive')}
+                      disabled={isEnhancing}
+                      className="px-3 py-2 text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      🌟 Add Description
+                    </button>
+                    <button
+                      onClick={() => enhanceBaselineText('emotional')}
+                      disabled={isEnhancing}
+                      className="px-3 py-2 text-sm bg-pink-600 hover:bg-pink-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      💖 More Emotional
+                    </button>
+                    <button
+                      onClick={() => enhanceBaselineText('concise')}
+                      disabled={isEnhancing}
+                      className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-500 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      ✂️ Make Concise
+                    </button>
+                    <button
+                      onClick={() => enhanceBaselineText('rewrite')}
+                      disabled={isEnhancing}
+                      className="px-3 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      🔄 Rewrite Fresh
+                    </button>
+                    <button
+                      onClick={() => setShowEnhanceMenu(false)}
+                      className="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-left"
+                    >
+                      ✕ Cancel
+                    </button>
+                  </div>
+                  {isEnhancing && (
+                    <div className="mt-2 text-xs text-center text-gray-400">
+                      ⏳ Enhancing...
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
+              <div className="prose prose-invert max-w-none">
+                <pre className="whitespace-pre-wrap text-gray-300 leading-relaxed">{baselinePremise}</pre>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
