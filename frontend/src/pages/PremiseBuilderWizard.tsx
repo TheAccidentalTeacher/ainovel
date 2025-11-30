@@ -471,6 +471,8 @@ export default function PremiseBuilderWizard() {
   const [selectionEnd, setSelectionEnd] = useState(0)
   const [showEnhanceMenu, setShowEnhanceMenu] = useState(false)
   const [isEnhancing, setIsEnhancing] = useState(false)
+  const [customEnhancement, setCustomEnhancement] = useState('')
+  const [showCustomInput, setShowCustomInput] = useState(false)
 
   // Fetch genres for dropdown
   const { data: genresData, isLoading: genresLoading, error: genresError } = useQuery({
@@ -952,12 +954,13 @@ export default function PremiseBuilderWizard() {
   }
 
   // Enhance selected text in baseline premise
-  const enhanceBaselineText = async (enhancementType: string) => {
+  const enhanceBaselineText = async (enhancementType: string, customInstruction?: string) => {
     if (!sessionId || !selectedText) return
     
     try {
       setIsEnhancing(true)
       setShowEnhanceMenu(false)
+      setShowCustomInput(false)
       
       const enhancementPrompts: Record<string, string> = {
         expand: 'Expand this text with more vivid details and depth',
@@ -966,7 +969,8 @@ export default function PremiseBuilderWizard() {
         concise: 'Make this text more concise while keeping the key points',
         descriptive: 'Add more sensory and descriptive details',
         emotional: 'Enhance the emotional resonance of this text',
-        rewrite: 'Rewrite this text in a fresh way while keeping the same meaning'
+        rewrite: 'Rewrite this text in a fresh way while keeping the same meaning',
+        custom: customInstruction || 'Enhance this text'
       }
       
       const prompt = enhancementPrompts[enhancementType] || 'Enhance this text'
@@ -3574,8 +3578,66 @@ export default function PremiseBuilderWizard() {
                     >
                       🔄 Rewrite Fresh
                     </button>
+                    
+                    {/* Custom Enhancement */}
+                    <div className="border-t border-gray-600 pt-1 mt-1">
+                      {!showCustomInput ? (
+                        <button
+                          onClick={() => setShowCustomInput(true)}
+                          disabled={isEnhancing}
+                          className="w-full px-3 py-2 text-sm bg-orange-600 hover:bg-orange-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                        >
+                          ✍️ Custom Enhancement
+                        </button>
+                      ) : (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={customEnhancement}
+                            onChange={(e) => setCustomEnhancement(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && customEnhancement.trim()) {
+                                enhanceBaselineText('custom', customEnhancement)
+                                setCustomEnhancement('')
+                              }
+                            }}
+                            placeholder="e.g., Add more humor, Make it darker..."
+                            className="w-full px-2 py-1 text-sm bg-gray-900 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            autoFocus
+                          />
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => {
+                                if (customEnhancement.trim()) {
+                                  enhanceBaselineText('custom', customEnhancement)
+                                  setCustomEnhancement('')
+                                }
+                              }}
+                              disabled={isEnhancing || !customEnhancement.trim()}
+                              className="flex-1 px-2 py-1 text-xs bg-orange-600 hover:bg-orange-700 disabled:bg-gray-700 text-white rounded transition-colors"
+                            >
+                              Apply
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowCustomInput(false)
+                                setCustomEnhancement('')
+                              }}
+                              className="flex-1 px-2 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
                     <button
-                      onClick={() => setShowEnhanceMenu(false)}
+                      onClick={() => {
+                        setShowEnhanceMenu(false)
+                        setShowCustomInput(false)
+                        setCustomEnhancement('')
+                      }}
                       className="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-left"
                     >
                       ✕ Cancel
