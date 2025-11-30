@@ -1832,7 +1832,17 @@ export default function PremiseBuilderWizard() {
         <input
           type="text"
           value={themes.join(', ')}
-          onChange={(e) => setThemes(e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Only split and trim when there's a comma, otherwise preserve the raw input
+            if (value.includes(',')) {
+              setThemes(value.split(',').map(t => t.trim()).filter(Boolean));
+            } else if (value.trim()) {
+              setThemes([value]);
+            } else {
+              setThemes([]);
+            }
+          }}
           placeholder="e.g., redemption, found family, power corrupts, identity"
           className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
@@ -1876,7 +1886,17 @@ export default function PremiseBuilderWizard() {
         <input
           type="text"
           value={coreValues.join(', ')}
-          onChange={(e) => setCoreValues(e.target.value.split(',').map(v => v.trim()).filter(Boolean))}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Only split and trim when there's a comma, otherwise preserve the raw input
+            if (value.includes(',')) {
+              setCoreValues(value.split(',').map(v => v.trim()).filter(Boolean));
+            } else if (value.trim()) {
+              setCoreValues([value]);
+            } else {
+              setCoreValues([]);
+            }
+          }}
           placeholder="e.g., justice, family, freedom, loyalty, truth"
           className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
@@ -1920,11 +1940,18 @@ export default function PremiseBuilderWizard() {
         <textarea
           value={atmosphericElementsInput}
           onChange={(e) => {
+            const value = e.target.value;
             // Store the raw input value for display
-            setAtmosphericElementsInput(e.target.value);
-            // Parse into array for saving (will be done properly on blur/save)
-            const parsed = e.target.value.split(',').map(a => a.trim()).filter(a => a.length > 0);
-            setAtmosphericElements(parsed);
+            setAtmosphericElementsInput(value);
+            // Only split and trim when there's a comma, otherwise preserve the raw input
+            if (value.includes(',')) {
+              const parsed = value.split(',').map(a => a.trim()).filter(a => a.length > 0);
+              setAtmosphericElements(parsed);
+            } else if (value.trim()) {
+              setAtmosphericElements([value]);
+            } else {
+              setAtmosphericElements([]);
+            }
           }}
           placeholder="e.g., claustrophobic, whimsical, foreboding, ethereal, gritty"
           rows={2}

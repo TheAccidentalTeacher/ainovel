@@ -189,9 +189,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
       setIsSearching(true);
     }
 
+    // Use dynamic API URL for production/development compatibility
+    const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
+
     try {
       const response = await fetch(
-        `http://localhost:8000/api/chat/conversations/${conversationId}/messages?model=${selectedModel}&web_search=${webSearchEnabled}`,
+        `${API_BASE_URL}/chat/conversations/${conversationId}/messages?model=${selectedModel}&web_search=${webSearchEnabled}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

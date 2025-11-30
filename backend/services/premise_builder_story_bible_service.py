@@ -431,7 +431,9 @@ class PremiseBuilderStoryBibleService:
         user_prompt = self._build_user_prompt(context)
         
         try:
-            response = self.anthropic.messages.create(
+            # Use streaming for long-running generation (required by Anthropic for >10 min operations)
+            full_content = ""
+            with self.anthropic.messages.stream(
                 model=self.model,
                 max_tokens=self.max_tokens,
                 temperature=self.temperature,
@@ -440,12 +442,16 @@ class PremiseBuilderStoryBibleService:
                     "role": "user",
                     "content": user_prompt
                 }]
-            )
+            ) as stream:
+                for text in stream.text_stream:
+                    full_content += text
+            
+            # Get final message with token usage
+            final_message = stream.get_final_message()
             
             # Parse response into sections
-            content = response.content[0].text
-            sections = self._parse_sections(content)
-            sections["total_tokens"] = response.usage.input_tokens + response.usage.output_tokens
+            sections = self._parse_sections(full_content)
+            sections["total_tokens"] = final_message.usage.input_tokens + final_message.usage.output_tokens
             
             return sections
             
