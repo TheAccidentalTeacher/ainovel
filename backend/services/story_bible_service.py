@@ -65,8 +65,8 @@ def create_story_bible_prompt(premise: Premise, expanded_premise: str = None, co
     return f"""Generate a comprehensive Story Bible from this novel premise.
 
 This Story Bible will be used directly for outline generation and chapter writing, so it must be thorough and detailed.
-Target: 3000-4000 words total across all sections.
-CRITICAL: Keep responses concise to fit within token limits. Focus on essential details.
+Target: 3500-4500 words total across all sections.
+CRITICAL: Prioritize depth and richness in character development and plot structure. Ensure complete, valid JSON."""
 
 **Genre:** {premise.genre}
 **Subgenre:** {premise.subgenre or 'None'}
@@ -86,42 +86,47 @@ Extract and structure all Story Bible components. Return JSON with this exact st
       "name": "Full Character Name",
       "aliases": ["Nickname", "Alternate Name"],
       "age": "Age or range",
-      "physical_description": "Detailed appearance with vivid sensory details (100-150 words)",
-      "personality": "Deep personality profile with contradictions, strengths, flaws, fears (100-150 words)",
-      "backstory": "Comprehensive character history and formative experiences (150-200 words)",
-      "goals": "Layered motivations, conscious and unconscious desires, what drives them (80-100 words)",
-      "character_arc": "Complete transformation arc from beginning through end, including setbacks (100-150 words)",
+      "physical_description": "Detailed appearance with vivid sensory details (150-200 words)",
+      "personality": "Deep personality profile with contradictions, strengths, flaws, fears (150-200 words)",
+      "backstory": "Comprehensive character history and formative experiences (200-250 words)",
+      "goals": "Layered motivations, conscious and unconscious desires, what drives them (100-150 words)",
+      "character_arc": "Complete transformation arc from beginning through end, including setbacks (150-200 words)",
       "relationships": {{"Character Name": "relationship description"}},
-      "quirks": "Unique features, mannerisms, habits, verbal tics (50-80 words)",
+      "quirks": "Unique features, mannerisms, habits, verbal tics (80-120 words)",
       "role": "protagonist/antagonist/love interest/mentor/supporting/etc",
-      "practical_complications": "How unusual traits affect daily life: custom furniture, modified clothing, environmental interactions (50-80 words). Example for three-legged character: 'Custom three-legged stool at workbench, modified trousers, distinctive walking rhythm, children ask questions, needs wider doorways'",
-      "sensory_signatures": "Non-visual sensory details: scent, voice, texture, sound of movement, distinctive sounds (50-80 words). Example: 'Voice has slight rasp, hands smell of sawdust and lemon oil, footsteps create three-beat rhythm, calloused hands'",
-      "internal_obstacles": "Contradictory desires, past hurts, emotional blocks, psychological barriers (50-80 words). Example: 'Fears being seen as curiosity not person, wants love but expects rejection, struggles between pride and shame'",
-      "speech_patterns": "Deflection habits, evasions, inarticulate moments, unique voice (50-80 words). Example: 'Changes subject when emotions run deep, uses humor to deflect, goes silent when hurt, says I should go when wants to stay'"
+      "practical_complications": "How unusual traits affect daily life: custom furniture, modified clothing, environmental interactions (80-120 words). Example for three-legged character: 'Custom three-legged stool at workbench, modified trousers, distinctive walking rhythm, children ask questions, needs wider doorways'",
+      "sensory_signatures": "Non-visual sensory details: scent, voice, texture, sound of movement, distinctive sounds (80-120 words). Example: 'Voice has slight rasp, hands smell of sawdust and lemon oil, footsteps create three-beat rhythm, calloused hands'",
+      "internal_obstacles": "Contradictory desires, past hurts, emotional blocks, psychological barriers (80-120 words). Example: 'Fears being seen as curiosity not person, wants love but expects rejection, struggles between pride and shame'",
+      "speech_patterns": "Deflection habits, evasions, inarticulate moments, unique voice (80-120 words). Example: 'Changes subject when emotions run deep, uses humor to deflect, goes silent when hurt, says I should go when wants to stay'"
     }}
   ],
   "settings": [
     {{
       "name": "Location Name",
-      "description": "Rich physical description with spatial layout and key features (100-150 words)",
-      "atmosphere": "Mood, feeling, tone, emotional resonance (50-80 words)",
-      "significance": "Why it matters to plot and characters, thematic connections (50-80 words)",
-      "special_features": "Unique rules, properties, elements, hidden details (50-100 words)",
+      "description": "Rich physical description with spatial layout and key features (150-200 words)",
+      "atmosphere": "Mood, feeling, tone, emotional resonance (80-120 words)",
+      "significance": "Why it matters to plot and characters, thematic connections (80-120 words)",
+      "special_features": "Unique rules, properties, elements, hidden details (80-120 words)",
       "sensory_palette": ["sawdust smell", "lemon oil scent", "smooth wood texture", "rhythmic sanding sounds", "wood shavings underfoot", "temperature", "lighting quality"]
     }}
   ],
   "themes": ["Theme 1 with explanation", "Theme 2 with explanation", "Theme 3 with explanation"],
-  "humor_style": "Detailed description of humor level, style, and examples (80-120 words)",
-  "tone_notes": "Comprehensive tone guidelines: voice, pacing, POV, narrative distance, emotional register (100-150 words)",
-  "genre_guidelines": "Genre-specific elements, conventions, and expectations to maintain (100-150 words)",
-  "main_plot_arc": "Detailed primary story arc with all major turning points: beginning → inciting incident → rising action → midpoint → complications → climax → resolution (200-300 words)",
-  "subplots": ["B-story description with arc (80-100 words)", "C-story description with arc (80-100 words)"],
+  "humor_style": "Detailed description of humor level, style, and examples (120-150 words)",
+  "tone_notes": "Comprehensive tone guidelines: voice, pacing, POV, narrative distance, emotional register (150-200 words)",
+  "genre_guidelines": "Genre-specific elements, conventions, and expectations to maintain (150-200 words)",
+  "main_plot_arc": "Detailed primary story arc with all major turning points: beginning → inciting incident → rising action → midpoint → complications → climax → resolution (300-400 words)",
+  "subplots": ["B-story description with arc (100-150 words)", "C-story description with arc (100-150 words)"],
   "key_milestones": ["Major event 1 (detailed)", "Major event 2 (detailed)", "Midpoint revelation", "Dark night of soul", "Climax", "Resolution"]
 }}
 
 Be thorough and detailed. This Story Bible will maintain consistency across the entire novel generation process.
 
-**CRITICAL: You MUST return complete, valid JSON. Ensure all strings are properly closed and all brackets/braces are balanced. If approaching token limit, prioritize completing the JSON structure over adding more detail.**"""
+**DEPTH STRATEGY:**
+- Main characters (protagonist, antagonist, love interest): Use FULL word counts for all fields
+- Supporting characters: Focus on 3-4 key fields (physical, personality, role, goals)
+- Minor characters: Brief entries (50-100 words total)
+
+**CRITICAL: You MUST return complete, valid JSON. Ensure all strings are properly closed and all brackets/braces are balanced. If approaching token limit, reduce detail on supporting characters but keep protagonist/antagonist comprehensive.**"""
 
 
 async def generate_story_bible_from_premise(
