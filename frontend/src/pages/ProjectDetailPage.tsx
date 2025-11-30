@@ -5,6 +5,7 @@ import apiClient from '../lib/apiClient';
 import StoryBibleModal from '../components/StoryBibleModal';
 import { useChapterStream } from '../hooks/useChapterStream';
 import { useBulkGeneration } from '../hooks/useBulkGeneration';
+import { useStoryBiblePolling } from '../hooks/useStoryBiblePolling';
 import type { ChapterOutline, Chapter } from '../types';
 
 export default function ProjectDetailPage() {
@@ -25,6 +26,15 @@ export default function ProjectDetailPage() {
     queryFn: () => apiClient.getProject(id!),
     enabled: !!id,
   });
+
+  // Story Bible polling - polls every 3 seconds while generating
+  const storyBiblePolling = useStoryBiblePolling(
+    id,
+    generateStoryBibleMutation.isPending,
+    () => {
+      console.log('[ProjectDetail] 🎉 Story Bible polling detected completion!');
+    }
+  );
 
   // Generate Story Bible mutation
   const generateStoryBibleMutation = useMutation({
@@ -248,12 +258,24 @@ export default function ProjectDetailPage() {
                 </div>
               </div>
               
-              <div className="text-sm text-gray-400">
-                ⏱️ This typically takes 60-90 seconds for comprehensive analysis
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span>⏱️ {storyBiblePolling.elapsedTime}s elapsed</span>
+                <span className="text-gray-600">•</span>
+                <span>Poll #{storyBiblePolling.pollCount}</span>
               </div>
               
-              <div className="text-xs text-gray-500 mt-4">
+              <div className="text-xs text-gray-500">
                 Target: 4000-6000 words • Using Claude Sonnet 4.5
+              </div>
+              
+              <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-1000"
+                  style={{ 
+                    width: `${Math.min(100, (storyBiblePolling.elapsedTime / 90) * 100)}%` 
+                  }}
+                ></div>
               </div>
             </div>
           </div>
