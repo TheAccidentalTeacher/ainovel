@@ -412,6 +412,7 @@ export default function PremiseBuilderWizard() {
   const [coreValues, setCoreValues] = useState<string[]>([])
   const [centralQuestion, setCentralQuestion] = useState('')
   const [atmosphericElements, setAtmosphericElements] = useState<string[]>([])
+  const [atmosphericElementsInput, setAtmosphericElementsInput] = useState('')
   const [heatLevel] = useState('')
   
   const [protagonist, setProtagonist] = useState<CharacterSeed | null>(null)
@@ -565,7 +566,9 @@ export default function PremiseBuilderWizard() {
                 setEmotionalTone(session.tone_theme_profile.emotional_tone || '')
                 setCoreValues(session.tone_theme_profile.core_values || [])
                 setCentralQuestion(session.tone_theme_profile.central_question || '')
-                setAtmosphericElements(session.tone_theme_profile.atmospheric_elements || [])
+                const atmos = session.tone_theme_profile.atmospheric_elements || [];
+                setAtmosphericElements(atmos);
+                setAtmosphericElementsInput(atmos.join(', '));
               }
               if (session.character_seeds) {
                 console.log('👥 [STATE] Restoring character seeds:', session.character_seeds)
@@ -713,6 +716,7 @@ export default function PremiseBuilderWizard() {
       
       case 'suggest_atmosphere':
         setAtmosphericElements(suggestions)
+        setAtmosphericElementsInput(suggestions.join(', '))
         break
       
       default:
@@ -1770,12 +1774,18 @@ export default function PremiseBuilderWizard() {
             🤖 AI Suggest
           </button>
         </div>
-        <input
-          type="text"
-          value={atmosphericElements.join(', ')}
-          onChange={(e) => setAtmosphericElements(e.target.value.split(',').map(a => a.trim()).filter(Boolean))}
+        <textarea
+          value={atmosphericElementsInput}
+          onChange={(e) => {
+            // Store the raw input value for display
+            setAtmosphericElementsInput(e.target.value);
+            // Parse into array for saving (will be done properly on blur/save)
+            const parsed = e.target.value.split(',').map(a => a.trim()).filter(a => a.length > 0);
+            setAtmosphericElements(parsed);
+          }}
           placeholder="e.g., claustrophobic, whimsical, foreboding, ethereal, gritty"
-          className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          rows={2}
+          className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
         />
       </div>
 
