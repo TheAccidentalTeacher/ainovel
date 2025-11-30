@@ -215,9 +215,47 @@ export default function ProjectDetailPage() {
         </div>
 
         {generateStoryBibleMutation.isPending && (
-          <div className="text-center py-8">
-            <div className="text-purple-400 mb-2">Extracting characters, settings, and themes from premise...</div>
-            <div className="text-gray-400 text-sm">This may take 30-60 seconds</div>
+          <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
+                <div className="text-purple-400 font-semibold text-lg">Generating Comprehensive Story Bible...</div>
+              </div>
+              
+              <div className="text-gray-300 text-sm max-w-md mx-auto">
+                Creating detailed character profiles, world-building, themes, and narrative structure
+              </div>
+              
+              <div className="bg-gray-800/50 rounded p-4 max-w-lg mx-auto">
+                <div className="text-xs text-gray-400 mb-3">Generating:</div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                    <span className="text-gray-300">Deep character profiles (200-400 words each)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <span className="text-gray-300">Rich world-building and settings (250-400 words each)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                    <span className="text-gray-300">Comprehensive themes and tone (250-300 words)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.6s'}}></div>
+                    <span className="text-gray-300">Detailed plot arc and structure (400-600 words)</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-400">
+                ⏱️ This typically takes 60-90 seconds for comprehensive analysis
+              </div>
+              
+              <div className="text-xs text-gray-500 mt-4">
+                Target: 4000-6000 words • Using Claude Sonnet 4.5
+              </div>
+            </div>
           </div>
         )}
 
