@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from 'axios';
 import type { Character, Setting, StoryBible, AIConfig } from '../types';
+import { debug } from './debug';
 
 export interface AIModel {
   id: string;
@@ -17,7 +18,7 @@ class APIClient {
   private client: AxiosInstance;
 
   constructor() {
-    console.log('[APIClient] Initializing with baseURL:', API_BASE_URL);
+    debug.info('APIClient', 'Initializing with baseURL', API_BASE_URL);
     this.client = axios.create({
       baseURL: API_BASE_URL,
       headers: {
@@ -26,37 +27,48 @@ class APIClient {
       timeout: 600000, // 10 minutes for AI operations (large outlines with 40+ chapters can take 5+ minutes)
     });
 
-    // Request interceptor for debugging
+    // Request interceptor with enhanced debugging
     this.client.interceptors.request.use(
       (config) => {
-        console.log('[APIClient] Request:', config.method?.toUpperCase(), config.url, config.data);
+        const startTime = Date.now();
+        (config as any).__startTime = startTime;
+        
+        debug.apiRequest(
+          config.method || 'GET',
+          config.url || '',
+          config.data,
+          config
+        );
         return config;
       },
       (error) => {
-        console.error('[APIClient] Request error:', error);
+        debug.apiError('REQUEST', 'Failed to send', error);
         return Promise.reject(error);
       }
     );
 
-    // Response interceptor for debugging
+    // Response interceptor with enhanced debugging
     this.client.interceptors.response.use(
       (response) => {
-        console.log('[APIClient] Response:', response.status, response.config.url, response.data);
+        const duration = (response.config as any).__startTime 
+          ? Date.now() - (response.config as any).__startTime 
+          : undefined;
+          
+        debug.apiResponse(
+          response.config.method || 'GET',
+          response.config.url || '',
+          response.status,
+          response.data,
+          duration
+        );
         return response;
       },
       (error) => {
-        console.error('[APIClient] Response error:', {
-          message: error.message,
-          code: error.code,
-          url: error.config?.url,
-          baseURL: error.config?.baseURL,
-          fullURL: error.config?.baseURL + error.config?.url,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          headers: error.response?.headers
-        });
-        console.error('[APIClient] Full error object:', error);
+        debug.apiError(
+          error.config?.method || 'UNKNOWN',
+          error.config?.url || 'UNKNOWN',
+          error
+        );
         return Promise.reject(error);
       }
     );

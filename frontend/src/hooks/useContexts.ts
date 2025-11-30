@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../lib/api-client';
 import type { Context, ContextCreate, ContextUpdate } from '../types';
+import { debug } from '../lib/debug';
 
 const CONTEXTS_QUERY_KEY = ['contexts'];
 
@@ -8,9 +9,21 @@ const CONTEXTS_QUERY_KEY = ['contexts'];
  * Hook for fetching all contexts
  */
 export const useContexts = () => {
+  debug.hook('useContexts', 'Initializing query');
+  
   return useQuery<Context[]>({
     queryKey: CONTEXTS_QUERY_KEY,
-    queryFn: () => apiClient.getContexts(),
+    queryFn: async () => {
+      debug.hook('useContexts', 'Fetching contexts');
+      try {
+        const data = await apiClient.getContexts();
+        debug.success('useContexts', `Fetched ${data?.length || 0} contexts`);
+        return data;
+      } catch (error) {
+        debug.error('useContexts', error);
+        throw error;
+      }
+    },
     staleTime: 30000, // Consider fresh for 30 seconds
     retry: 1, // Only retry once
   });
