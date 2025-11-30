@@ -488,6 +488,31 @@ def generate_preview_html(session: PremiseBuilderSession) -> str:
         
         html_parts.append("</div>")
     
+    # Step 7: Baseline Premise
+    if session.baseline_premise:
+        bp = session.baseline_premise
+        html_parts.append("""
+                <div class="section">
+                    <h2>✨ Baseline Premise</h2>
+                    <div class="subtitle" style="text-align: left; margin-bottom: 1.5rem;">AI-generated synthesis using GPT-4o</div>
+        """)
+        
+        if bp.content:
+            html_parts.append(f"""
+                    <div class="logline-box" style="font-size: 1rem; line-height: 1.9;">
+                        {bp.content.replace(chr(10), '<br><br>')}
+                    </div>
+            """)
+        
+        if bp.word_count:
+            html_parts.append(f"""
+                    <div class="value" style="margin-top: 1rem; color: #95a5a6; font-size: 0.9rem;">
+                        Word count: {bp.word_count} words
+                    </div>
+            """)
+        
+        html_parts.append("</div>")
+    
     # Timestamp
     html_parts.append(f"""
                 <div class="timestamp">

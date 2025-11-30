@@ -880,7 +880,7 @@ class PremiseBuilderService:
             provider=AIProvider.ANTHROPIC,
             model_name="claude-sonnet-4-20250514",
             temperature=0.85,
-            max_tokens=4000
+            max_tokens=8000
         )
         
         start = time.time()
@@ -941,44 +941,148 @@ class PremiseBuilderService:
     ) -> str:
         """Build prompt for premium premise synthesis."""
         
-        prompt = """You are an award-winning novelist's assistant with expertise in story development. Create a premium, long-form premise (700-1000 words) that will serve as the foundation for a full novel outline and manuscript.
+        prompt = """You are an award-winning novelist's assistant with expertise in story development. Create a comprehensive, premium premise (TARGET: 2000 words, ±100) that will serve as the authoritative foundation for generating a full novel outline and manuscript.
 
-Use the baseline premise and collected story elements below to craft a rich, detailed premise that:
-1. Vividly establishes the world and atmosphere
-2. Deeply characterizes the protagonist and key characters
-3. Sets up compelling conflicts with clear stakes
-4. Outlines the emotional journey and character arcs
-5. Hints at major plot beats without spoiling everything
-6. Captures the unique voice and tone of the story
-7. Makes the novel impossible to resist writing and reading
+This premise must synthesize ALL the collected story elements below into a rich, detailed narrative blueprint that:
+1. Vividly establishes the world, setting, and atmosphere
+2. Deeply characterizes the protagonist and key characters with specific details
+3. Sets up compelling conflicts with crystal-clear stakes
+4. Outlines the complete emotional journey and character arcs
+5. Incorporates major plot beats and structural turning points
+6. Captures the unique voice, tone, and thematic depth
+7. Respects all content guidelines, tropes, and constraints
+8. Makes the novel impossible to resist writing and reading
 
-**Baseline Premise:**
+**IMPORTANT:** Aim for approximately 2000 words (±100). Be thorough and specific.
+
+**Baseline Premise (User-Edited):**
 """
         
         if session.baseline_premise:
             prompt += f"{session.baseline_premise.content}\n\n"
         
-        # Include full context
-        prompt += "**Additional Context:**\n"
+        # Include COMPREHENSIVE context from all wizard steps
+        prompt += "**Complete Story Context:**\n\n"
         
-        if session.structure_targets:
-            prompt += f"- Target Length: {session.structure_targets.target_word_count:,} words in {session.structure_targets.target_chapter_count} chapters\n"
+        # Genre information
+        if session.genre_profile:
+            prompt += "**GENRE & STYLE:**\n"
+            prompt += f"- Primary Genre: {session.genre_profile.primary_genre}\n"
+            if session.genre_profile.secondary_genre:
+                prompt += f"- Secondary Genre: {session.genre_profile.secondary_genre}\n"
+            if session.genre_profile.subgenres:
+                prompt += f"- Subgenres: {', '.join(session.genre_profile.subgenres)}\n"
+            if session.genre_profile.audience_rating:
+                prompt += f"- Audience Rating: {session.genre_profile.audience_rating}\n"
+            prompt += "\n"
         
+        # Tone & Theme
         if session.tone_theme_profile:
+            prompt += "**TONE & THEMES:**\n"
+            if session.tone_theme_profile.darkness_level:
+                prompt += f"- Darkness Level: {session.tone_theme_profile.darkness_level}/10\n"
+            if session.tone_theme_profile.humor_level:
+                prompt += f"- Humor Level: {session.tone_theme_profile.humor_level}/10\n"
+            if session.tone_theme_profile.themes:
+                prompt += f"- Themes: {', '.join(session.tone_theme_profile.themes)}\n"
+            if session.tone_theme_profile.emotional_tone:
+                prompt += f"- Emotional Journey: {session.tone_theme_profile.emotional_tone}\n"
+            if session.tone_theme_profile.core_values:
+                prompt += f"- Core Values: {', '.join(session.tone_theme_profile.core_values)}\n"
+            if session.tone_theme_profile.central_question:
+                prompt += f"- Central Question: {session.tone_theme_profile.central_question}\n"
+            if session.tone_theme_profile.atmospheric_elements:
+                prompt += f"- Atmosphere: {', '.join(session.tone_theme_profile.atmospheric_elements)}\n"
             if session.tone_theme_profile.heat_level:
                 prompt += f"- Romance Heat Level: {session.tone_theme_profile.heat_level.value}\n"
+            prompt += "\n"
         
+        # Characters
+        if session.character_seeds:
+            prompt += "**CHARACTERS:**\n"
+            if session.character_seeds.protagonist:
+                p = session.character_seeds.protagonist
+                prompt += f"- Protagonist: {p.name} - {p.brief_description}\n"
+                if p.goal:
+                    prompt += f"  Goal: {p.goal}\n"
+                if p.flaw:
+                    prompt += f"  Flaw: {p.flaw}\n"
+            if session.character_seeds.antagonist:
+                a = session.character_seeds.antagonist
+                prompt += f"- Antagonist: {a.name} - {a.brief_description}\n"
+            if session.character_seeds.supporting_cast:
+                for char in session.character_seeds.supporting_cast:
+                    prompt += f"- {char.name} ({char.role}): {char.brief_description}\n"
+            prompt += "\n"
+        
+        # Plot Structure
+        if session.plot_intent:
+            prompt += "**PLOT STRUCTURE:**\n"
+            if session.plot_intent.primary_conflict:
+                prompt += f"- Primary Conflict: {session.plot_intent.primary_conflict}\n"
+            if session.plot_intent.stakes:
+                prompt += f"- Stakes: {session.plot_intent.stakes}\n"
+            if session.plot_intent.inciting_incident:
+                prompt += f"- Inciting Incident: {session.plot_intent.inciting_incident}\n"
+            if session.plot_intent.first_plot_point:
+                prompt += f"- First Plot Point: {session.plot_intent.first_plot_point}\n"
+            if session.plot_intent.midpoint_shift:
+                prompt += f"- Midpoint: {session.plot_intent.midpoint_shift}\n"
+            if session.plot_intent.second_plot_point:
+                prompt += f"- Second Plot Point: {session.plot_intent.second_plot_point}\n"
+            if session.plot_intent.climax_confrontation:
+                prompt += f"- Climax: {session.plot_intent.climax_confrontation}\n"
+            if session.plot_intent.resolution:
+                prompt += f"- Resolution: {session.plot_intent.resolution}\n"
+            if session.plot_intent.romantic_subplot:
+                prompt += f"- Romance Subplot: {session.plot_intent.romantic_subplot}\n"
+            if session.plot_intent.secondary_subplot:
+                prompt += f"- Secondary Subplot: {session.plot_intent.secondary_subplot}\n"
+            if session.plot_intent.thematic_subplot:
+                prompt += f"- Thematic Subplot: {session.plot_intent.thematic_subplot}\n"
+            prompt += "\n"
+        
+        # Structure Targets
+        if session.structure_targets:
+            prompt += "**STRUCTURE & FORMAT:**\n"
+            prompt += f"- Target Length: {session.structure_targets.target_word_count:,} words in {session.structure_targets.target_chapter_count} chapters\n"
+            if session.structure_targets.pov_style:
+                prompt += f"- Point of View: {session.structure_targets.pov_style.value.replace('_', ' ').title()}\n"
+            if session.structure_targets.tense_style:
+                prompt += f"- Tense: {session.structure_targets.tense_style.value.title()}\n"
+            if session.structure_targets.pacing_preference:
+                prompt += f"- Pacing: {session.structure_targets.pacing_preference.value.title()}\n"
+            prompt += "\n"
+        
+        # Content Guidelines (CRITICAL)
         if session.constraints_profile:
+            prompt += "**CONTENT GUIDELINES (MUST RESPECT):**\n"
+            if session.constraints_profile.tropes_to_include:
+                prompt += f"- Include These Tropes: {', '.join(session.constraints_profile.tropes_to_include)}\n"
+            if session.constraints_profile.tropes_to_avoid:
+                prompt += f"- Avoid These Tropes: {', '.join(session.constraints_profile.tropes_to_avoid)}\n"
+            if session.constraints_profile.content_warnings:
+                prompt += f"- Content Warnings: {', '.join(session.constraints_profile.content_warnings)}\n"
+            if session.constraints_profile.content_restrictions:
+                prompt += f"- Content Restrictions: {', '.join(session.constraints_profile.content_restrictions)}\n"
             if session.constraints_profile.faith_elements:
                 prompt += f"- Faith Elements: {session.constraints_profile.faith_elements}\n"
+            if session.constraints_profile.must_have_scenes:
+                prompt += f"- Must-Have Scenes:\n"
+                for scene in session.constraints_profile.must_have_scenes:
+                    prompt += f"  • {scene}\n"
+            if session.constraints_profile.cultural_considerations:
+                prompt += f"- Cultural Considerations: {session.constraints_profile.cultural_considerations}\n"
+            prompt += "\n"
         
         if refinement:
-            prompt += f"\n**Refinement Request:** {refinement}\n"
+            prompt += f"**REFINEMENT REQUEST:** {refinement}\n\n"
         
-        prompt += "\n**Task:**\n"
-        prompt += "Write a premium premise (700-1000 words) that will inspire compelling outline and chapter generation. "
-        prompt += "Be specific about sensory details, character quirks, and emotional beats. "
-        prompt += "Make it sing.\n\n"
+        prompt += "\n**YOUR TASK:**\n"
+        prompt += "Using ALL the context above, write a comprehensive premium premise of approximately 2000 words (±100 words) that synthesizes everything into a cohesive, inspiring narrative blueprint. "
+        prompt += "This premise will be the SOLE foundation for outline and chapter generation, so include every critical detail. "
+        prompt += "Be specific about sensory details, character quirks, emotional beats, plot progression, and thematic elements. "
+        prompt += "Weave in the content guidelines naturally. Make every sentence count. Make it sing.\n\n"
         prompt += "After the premise, include a metadata block in this format:\n"
         prompt += "```json\n"
         prompt += "{\n"
