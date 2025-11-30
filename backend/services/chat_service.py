@@ -3,6 +3,13 @@ Chat service for AI conversation management.
 
 Handles streaming responses, context management, token counting,
 and conversation history for the chatbot system.
+
+🦸 CODE MASTER INTEGRATION:
+- Default bot personality: 80's hero coding assistant (He-Man + Duke + Snake Eyes + Lion-O + BraveStarr)
+- Dynamic personality adaptation based on conversation keywords
+- See: docs/CODE_MASTER_QUICK_START.md for usage guide
+- See: docs/80S_HERO_CODING_ASSISTANT_DOSSIER.md for complete specification (3,924 lines)
+- Personality system prompt generated dynamically from bot.system_prompt field
 """
 
 import json

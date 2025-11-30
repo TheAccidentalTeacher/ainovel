@@ -415,6 +415,9 @@ export default function PremiseBuilderWizard() {
   const [atmosphericElementsInput, setAtmosphericElementsInput] = useState('')
   const [heatLevel] = useState('')
   
+  // 🦸 CODE MASTER FIX: AI Brainstorming user input state
+  const [brainstormPrompt, setBrainstormPrompt] = useState('')
+  
   const [protagonist, setProtagonist] = useState<CharacterSeed | null>(null)
   const [antagonist, setAntagonist] = useState<CharacterSeed | null>(null)
   const [supportingCast, setSupportingCast] = useState<CharacterSeed[]>([])
@@ -1467,6 +1470,8 @@ export default function PremiseBuilderWizard() {
                 </p>
                 <textarea
                   rows={2}
+                  value={brainstormPrompt}
+                  onChange={(e) => setBrainstormPrompt(e.target.value)}
                   placeholder={`Any specific elements? (e.g., "with aliens", "set in Amish country", "cozy mystery vibe") or leave blank for surprise`}
                   className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3"
                 />
@@ -1515,12 +1520,12 @@ export default function PremiseBuilderWizard() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={async () => {
-                      console.log('AI Brainstorm clicked!', { primaryGenre, secondaryGenre, comedyElements })
+                      console.log('AI Brainstorm clicked!', { primaryGenre, secondaryGenre, comedyElements, userPrompt: brainstormPrompt })
                       await requestAIAssist('brainstorm_concept', { 
                         primary_genre: primaryGenre, 
                         secondary_genre: secondaryGenre,
                         comedy_elements: comedyElements,
-                        seed: 'Generate creative novel concept based on selected genres'
+                        seed: brainstormPrompt || 'Generate creative novel concept based on selected genres'
                       })
                     }}
                     disabled={isAiLoading}
@@ -1539,12 +1544,14 @@ export default function PremiseBuilderWizard() {
                   
                   <button
                     onClick={async () => {
-                      console.log('Subgenre Mashup clicked!', { primaryGenre, subgenres, comedyElements })
+                      console.log('Subgenre Mashup clicked!', { primaryGenre, subgenres, comedyElements, userPrompt: brainstormPrompt })
+                      const defaultPrompt = `Create wild mashup concepts combining these ${primaryGenre} subgenres: ${subgenres.join(', ')}`
+                      const userContext = brainstormPrompt ? ` with these elements: ${brainstormPrompt}` : ''
                       await requestAIAssist('mashup_subgenres', { 
                         primary_genre: primaryGenre, 
                         subgenres: subgenres,
                         comedy_elements: comedyElements,
-                        seed: `Create wild mashup concepts combining these ${primaryGenre} subgenres: ${subgenres.join(', ')}`
+                        seed: defaultPrompt + userContext
                       })
                     }}
                     disabled={isAiLoading || subgenres.length < 2}

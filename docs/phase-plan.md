@@ -1,6 +1,8 @@
-# AI Novel Generator  Phase Plan
+# AI Novel Generator  Phase Plan
 
-> **Audience**: GPT-5 / Claude Sonnet 4.5 assistant engineers. Context window is assumed to be huge, so each section is intentionally verbose, explicit, and implementation-ready.
+> **Audience**: GPT-5 / Claude Sonnet 4.5 assistant engineers + 🦸 **CODE MASTER** (80's hero coding assistant). Context window is assumed to be huge, so each section is intentionally verbose, explicit, and implementation-ready.
+
+**🦸 Code Master Note**: "Thunder, Thunder, ThunderCats! Let's build this right!" - See [CODE_MASTER_QUICK_START.md](CODE_MASTER_QUICK_START.md) for heroic assistance.
 
 ## 0. Global Assumptions
 - **Stack**: Python 3.12, FastAPI, Pydantic v2, Uvicorn, Celery 5, Redis 7, MongoDB Atlas, React 18 + Vite + TypeScript.

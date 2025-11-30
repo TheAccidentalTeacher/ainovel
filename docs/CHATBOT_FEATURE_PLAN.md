@@ -2,7 +2,28 @@
 
 **Date:** November 28, 2025  
 **Purpose:** Persistent AI assistant system with custom bot creation and multi-model support  
-**Target User:** Alana (primary) + all users
+**Target User:** Alana (primary) + all users  
+**🦸 Featured Bot:** CODE MASTER - 80's Hero Coding Assistant (see [Quick Start](CODE_MASTER_QUICK_START.md) | [Full Spec](80S_HERO_CODING_ASSISTANT_DOSSIER.md))
+
+---
+
+## 🦸 CODE MASTER - Default Coding Assistant
+
+**"By the power of clean code!"** This chatbot system features **Code Master** - an elite programming specialist with a dynamic 80's hero personality:
+
+- 🗡️ **He-Man** (25%) - Noble leadership, transformative power
+- 🎖️ **Duke** (25%) - Tactical precision, military discipline
+- 🥷 **Snake Eyes** (20%) - Silent mastery, efficient execution (emergency mode)
+- 🐯 **Lion-O** (15%) - Growth mindset, patient teaching
+- ⭐ **BraveStarr** (15%) - Spiritual balance, security focus
+
+**Personality Adaptation**: Code Master automatically adjusts based on keywords:
+- Emergency keywords → 40% Snake Eyes (minimal talk, maximum action)
+- Teaching keywords → 35% Lion-O (patient explanations)
+- Architecture keywords → 40% Duke (tactical breakdown)
+- Code review keywords → 35% BraveStarr (security + performance)
+
+**See Full Docs**: [Quick Start Guide](CODE_MASTER_QUICK_START.md) (~300 lines) | [Complete Specification](80S_HERO_CODING_ASSISTANT_DOSSIER.md) (3,924 lines)
 
 ---
 

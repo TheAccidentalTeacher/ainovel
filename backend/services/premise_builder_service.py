@@ -578,9 +578,14 @@ class PremiseBuilderService:
             secondary = context.get("secondary_genre", "")
             comedy_elements = context.get("comedy_elements", [])
             subgenres = context.get("subgenres", [])
+            user_seed = context.get("seed", "")  # 🦸 CODE MASTER FIX: Get user's custom prompt
             genres_text = f"{primary} + {secondary}" if secondary else primary
             
             prompt = f"{system}\n\nGenerate 5 creative novel concept ideas for a {genres_text} story"
+            
+            # 🦸 Add user's custom requirements if provided
+            if user_seed and user_seed != "Generate creative novel concept based on selected genres":
+                prompt += f" {user_seed}"
             
             # Add subgenre context if available
             if subgenres:
@@ -606,12 +611,19 @@ class PremiseBuilderService:
             primary = context.get("primary_genre", "")
             subgenres = context.get("subgenres", [])
             comedy_elements = context.get("comedy_elements", [])
+            user_seed = context.get("seed", "")  # 🦸 CODE MASTER FIX: Get user's custom prompt
             
             if not subgenres or len(subgenres) < 2:
                 prompt = f"{system}\n\nNot enough subgenres selected for mashup."
             else:
                 subgenres_text = ", ".join(subgenres)
-                prompt = f"{system}\n\nCreate 5 creative novel concepts that mashup these {primary} subgenres: **{subgenres_text}**\n\n"
+                prompt = f"{system}\n\nCreate 5 creative novel concepts that mashup these {primary} subgenres: **{subgenres_text}**"
+                
+                # 🦸 Add user's custom requirements if provided
+                if user_seed and not user_seed.startswith("Create wild mashup"):
+                    prompt += f" {user_seed}"
+                
+                prompt += "\n\n"
                 prompt += f"📚 **SUBGENRE REQUIREMENTS:**\n"
                 prompt += f"Each concept must authentically blend elements from ALL of these specific subgenres: {subgenres_text}\n"
                 prompt += f"- Don't just mention them - SHOW how they intersect in the plot\n"
