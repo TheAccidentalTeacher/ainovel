@@ -149,10 +149,10 @@ async def generate_story_bible_from_premise(
         f"restrictions={content_restrictions}, tropes_to_avoid={tropes_to_avoid}"
     )
     
-    # Claude Sonnet 4.5 supports up to 200K context, 64K output tokens
-    # Use 100K for uber comprehensive Story Bibles (4000-6000 words)
+    # Claude Sonnet 4.5 supports up to 200K input context, 8K output tokens
+    # Use 8K for comprehensive Story Bibles (4000-6000 words)
     # This feeds directly into outline generation
-    ai_config.max_tokens = 100000
+    ai_config.max_tokens = 8000
     
     # Create AI service
     ai_service = get_ai_service()
