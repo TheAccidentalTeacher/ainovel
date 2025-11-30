@@ -27,15 +27,6 @@ export default function ProjectDetailPage() {
     enabled: !!id,
   });
 
-  // Story Bible polling - polls every 3 seconds while generating
-  const storyBiblePolling = useStoryBiblePolling(
-    id,
-    generateStoryBibleMutation.isPending,
-    () => {
-      console.log('[ProjectDetail] 🎉 Story Bible polling detected completion!');
-    }
-  );
-
   // Generate Story Bible mutation
   const generateStoryBibleMutation = useMutation({
     mutationFn: () => {
@@ -50,6 +41,15 @@ export default function ProjectDetailPage() {
       console.error('[ProjectDetail] ❌ Story Bible generation failed:', error);
     },
   });
+
+  // Story Bible polling - polls every 3 seconds while generating
+  const storyBiblePolling = useStoryBiblePolling(
+    id,
+    generateStoryBibleMutation.isPending,
+    () => {
+      console.log('[ProjectDetail] 🎉 Story Bible polling detected completion!');
+    }
+  );
 
   // Generate outline mutation
   const generateOutlineMutation = useMutation({
