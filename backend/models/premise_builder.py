@@ -180,6 +180,49 @@ class PremiseArtifact(BaseModel):
     )
 
 
+class StoryBibleArtifact(BaseModel):
+    """
+    Generated Story Bible - comprehensive narrative blueprint.
+    
+    Synthesizes all wizard data + premium premise + professional craft standards
+    from 63-source research compilation. Designed to be 'so uber awesome that 
+    novelists would be jealous of us.'
+    """
+    # Core Sections
+    characters: str = Field(..., description="Deep character profiles with arcs, psychology, relationships, transformation")
+    world: str = Field(..., description="Settings, rules, history, culture, worldbuilding details")
+    themes: str = Field(..., description="Central questions, values, motifs, philosophical depth")
+    plot: str = Field(..., description="Structure, beats, turning points, subplots, pacing strategy")
+    style: str = Field(..., description="Voice, tone, POV, prose techniques, narrative approach")
+    
+    # Generation metadata
+    total_word_count: int = Field(default=0, description="Combined word count of all sections")
+    section_word_counts: Dict[str, int] = Field(
+        default_factory=dict,
+        description="Word count per section (characters, world, themes, plot, style)"
+    )
+    model_used: str = Field(..., description="AI model (Claude Sonnet 4.5 recommended)")
+    provider: str = Field(..., description="AI provider (anthropic)")
+    temperature: float = Field(default=0.85, description="Generation temperature")
+    tokens_used: int = Field(default=0, description="Total tokens consumed")
+    generation_time_seconds: float = Field(default=0.0, description="Time to generate")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    # Research integration tracking
+    genre_frameworks_applied: List[str] = Field(
+        default_factory=list,
+        description="Genre-specific frameworks from research (e.g., 'Hero\'s Journey', 'Romance Beat Sheet')"
+    )
+    character_systems_applied: List[str] = Field(
+        default_factory=list,
+        description="Character frameworks used (e.g., 'Campbell Archetypes', 'Jung Psychology', 'Hauge Identity vs Desire')"
+    )
+    structure_system_used: str = Field(
+        default="Three-Act Structure",
+        description="Primary plot structure system applied"
+    )
+
+
 class PremiseRefinement(BaseModel):
     """Single refinement request in Step 7 or 8."""
     request: str = Field(..., description="User's modification request")
@@ -209,6 +252,7 @@ class PremiseBuilderSession(BaseModel):
     constraints_profile: Optional[ConstraintsProfile] = None
     baseline_premise: Optional[PremiseArtifact] = None
     premium_premise: Optional[PremiseArtifact] = None
+    story_bible: Optional[StoryBibleArtifact] = None
     
     # Iteration tracking
     refinement_history: List[PremiseRefinement] = Field(default_factory=list, description="Modification requests")
