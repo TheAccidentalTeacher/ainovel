@@ -65,7 +65,8 @@ def create_story_bible_prompt(premise: Premise, expanded_premise: str = None, co
     return f"""Generate a comprehensive Story Bible from this novel premise.
 
 This Story Bible will be used directly for outline generation and chapter writing, so it must be thorough and detailed.
-Target: 4000-6000 words total across all sections.
+Target: 3000-4000 words total across all sections.
+CRITICAL: Keep responses concise to fit within token limits. Focus on essential details.
 
 **Genre:** {premise.genre}
 **Subgenre:** {premise.subgenre or 'None'}
@@ -85,40 +86,42 @@ Extract and structure all Story Bible components. Return JSON with this exact st
       "name": "Full Character Name",
       "aliases": ["Nickname", "Alternate Name"],
       "age": "Age or range",
-      "physical_description": "Detailed appearance with vivid sensory details (200-400 words)",
-      "personality": "Deep personality profile with contradictions, strengths, flaws, fears (200-300 words)",
-      "backstory": "Comprehensive character history and formative experiences (300-500 words)",
-      "goals": "Layered motivations, conscious and unconscious desires, what drives them (150-250 words)",
-      "character_arc": "Complete transformation arc from beginning through end, including setbacks (200-300 words)",
+      "physical_description": "Detailed appearance with vivid sensory details (100-150 words)",
+      "personality": "Deep personality profile with contradictions, strengths, flaws, fears (100-150 words)",
+      "backstory": "Comprehensive character history and formative experiences (150-200 words)",
+      "goals": "Layered motivations, conscious and unconscious desires, what drives them (80-100 words)",
+      "character_arc": "Complete transformation arc from beginning through end, including setbacks (100-150 words)",
       "relationships": {{"Character Name": "relationship description"}},
-      "quirks": "Unique features, mannerisms, habits, verbal tics (100-150 words)",
+      "quirks": "Unique features, mannerisms, habits, verbal tics (50-80 words)",
       "role": "protagonist/antagonist/love interest/mentor/supporting/etc",
-      "practical_complications": "How unusual traits affect daily life: custom furniture, modified clothing, environmental interactions (100-150 words). Example for three-legged character: 'Custom three-legged stool at workbench, modified trousers, distinctive walking rhythm, children ask questions, needs wider doorways'",
-      "sensory_signatures": "Non-visual sensory details: scent, voice, texture, sound of movement, distinctive sounds (100-150 words). Example: 'Voice has slight rasp, hands smell of sawdust and lemon oil, footsteps create three-beat rhythm, calloused hands'",
-      "internal_obstacles": "Contradictory desires, past hurts, emotional blocks, psychological barriers (100-150 words). Example: 'Fears being seen as curiosity not person, wants love but expects rejection, struggles between pride and shame'",
-      "speech_patterns": "Deflection habits, evasions, inarticulate moments, unique voice (100-150 words). Example: 'Changes subject when emotions run deep, uses humor to deflect, goes silent when hurt, says I should go when wants to stay'"
+      "practical_complications": "How unusual traits affect daily life: custom furniture, modified clothing, environmental interactions (50-80 words). Example for three-legged character: 'Custom three-legged stool at workbench, modified trousers, distinctive walking rhythm, children ask questions, needs wider doorways'",
+      "sensory_signatures": "Non-visual sensory details: scent, voice, texture, sound of movement, distinctive sounds (50-80 words). Example: 'Voice has slight rasp, hands smell of sawdust and lemon oil, footsteps create three-beat rhythm, calloused hands'",
+      "internal_obstacles": "Contradictory desires, past hurts, emotional blocks, psychological barriers (50-80 words). Example: 'Fears being seen as curiosity not person, wants love but expects rejection, struggles between pride and shame'",
+      "speech_patterns": "Deflection habits, evasions, inarticulate moments, unique voice (50-80 words). Example: 'Changes subject when emotions run deep, uses humor to deflect, goes silent when hurt, says I should go when wants to stay'"
     }}
   ],
   "settings": [
     {{
       "name": "Location Name",
-      "description": "Rich physical description with spatial layout and key features (250-400 words)",
-      "atmosphere": "Mood, feeling, tone, emotional resonance (100-150 words)",
-      "significance": "Why it matters to plot and characters, thematic connections (100-150 words)",
-      "special_features": "Unique rules, properties, elements, hidden details (100-200 words)",
+      "description": "Rich physical description with spatial layout and key features (100-150 words)",
+      "atmosphere": "Mood, feeling, tone, emotional resonance (50-80 words)",
+      "significance": "Why it matters to plot and characters, thematic connections (50-80 words)",
+      "special_features": "Unique rules, properties, elements, hidden details (50-100 words)",
       "sensory_palette": ["sawdust smell", "lemon oil scent", "smooth wood texture", "rhythmic sanding sounds", "wood shavings underfoot", "temperature", "lighting quality"]
     }}
   ],
   "themes": ["Theme 1 with explanation", "Theme 2 with explanation", "Theme 3 with explanation"],
-  "humor_style": "Detailed description of humor level, style, and examples (150-200 words)",
-  "tone_notes": "Comprehensive tone guidelines: voice, pacing, POV, narrative distance, emotional register (250-300 words)",
-  "genre_guidelines": "Genre-specific elements, conventions, and expectations to maintain (200-300 words)",
-  "main_plot_arc": "Detailed primary story arc with all major turning points: beginning → inciting incident → rising action → midpoint → complications → climax → resolution (400-600 words)",
-  "subplots": ["B-story description with arc (100-150 words)", "C-story description with arc (100-150 words)"],
+  "humor_style": "Detailed description of humor level, style, and examples (80-120 words)",
+  "tone_notes": "Comprehensive tone guidelines: voice, pacing, POV, narrative distance, emotional register (100-150 words)",
+  "genre_guidelines": "Genre-specific elements, conventions, and expectations to maintain (100-150 words)",
+  "main_plot_arc": "Detailed primary story arc with all major turning points: beginning → inciting incident → rising action → midpoint → complications → climax → resolution (200-300 words)",
+  "subplots": ["B-story description with arc (80-100 words)", "C-story description with arc (80-100 words)"],
   "key_milestones": ["Major event 1 (detailed)", "Major event 2 (detailed)", "Midpoint revelation", "Dark night of soul", "Climax", "Resolution"]
 }}
 
-Be thorough and detailed. This Story Bible will maintain consistency across the entire novel generation process."""
+Be thorough and detailed. This Story Bible will maintain consistency across the entire novel generation process.
+
+**CRITICAL: You MUST return complete, valid JSON. Ensure all strings are properly closed and all brackets/braces are balanced. If approaching token limit, prioritize completing the JSON structure over adding more detail.**"""
 
 
 async def generate_story_bible_from_premise(
@@ -247,7 +250,7 @@ async def generate_story_bible_from_premise(
 
 def parse_story_bible_json(response: str) -> Dict[str, Any]:
     """
-    Parse AI response as JSON, handling markdown code blocks.
+    Parse AI response as JSON, handling markdown code blocks and incomplete responses.
     
     Args:
         response: Raw AI response text
@@ -277,8 +280,40 @@ def parse_story_bible_json(response: str) -> Dict[str, Any]:
         return data
     except json.JSONDecodeError as e:
         logger.error(f"JSON parsing failed: {e}")
-        logger.error(f"Response content: {content[:1000]}...")
-        raise ValueError(f"Failed to parse Story Bible JSON: {e}")
+        logger.error(f"Response length: {len(content)} chars")
+        logger.error(f"Response content preview: {content[:1000]}...")
+        logger.error(f"Response content tail: ...{content[-500:]}")
+        
+        # Try to fix incomplete JSON by closing unterminated strings and structures
+        logger.warning("Attempting to repair incomplete JSON response...")
+        try:
+            # Find the last complete object/array before the error
+            # Truncate at the error position and try to close structures
+            error_pos = e.pos if hasattr(e, 'pos') else len(content)
+            truncated = content[:error_pos]
+            
+            # Count unclosed brackets
+            open_braces = truncated.count('{') - truncated.count('}')
+            open_brackets = truncated.count('[') - truncated.count(']')
+            
+            # Try to close the JSON
+            repaired = truncated.rstrip(',\n ')
+            
+            # Close any unterminated string
+            if truncated.count('"') % 2 != 0:
+                repaired += '"'
+            
+            # Close arrays and objects
+            repaired += ']' * open_brackets
+            repaired += '}' * open_braces
+            
+            logger.info(f"Attempting parse of repaired JSON ({len(repaired)} chars)")
+            data = json.loads(repaired)
+            logger.warning(f"Successfully parsed REPAIRED JSON with keys: {list(data.keys())}")
+            return data
+        except Exception as repair_error:
+            logger.error(f"JSON repair failed: {repair_error}")
+            raise ValueError(f"Failed to parse Story Bible JSON: {e}. Repair attempt also failed.")
 
 
 def format_story_bible_for_context(story_bible: StoryBible) -> str:
