@@ -636,6 +636,15 @@ class PremiseBuilderService:
                     prompt += f" with {comedy_text} comedy"
                 prompt += ". Each concept should be 2-3 sentences with SPECIFIC details. Format as a numbered list."
         
+        elif action == "enhance_text":
+            # Text enhancement for baseline premise editing
+            text_to_enhance = context.get("text_to_enhance", "")
+            instruction = context.get("instruction", "Enhance this text")
+            
+            prompt = f"{system}\n\n{instruction}.\n\n"
+            prompt += f"Original text:\n{text_to_enhance}\n\n"
+            prompt += f"Enhanced version (return ONLY the enhanced text, no explanations):"
+        
         else:
             # Generic fallback
             prompt = f"{system}\n\nHelp the author with this request: {action}\n\nContext: {user_input}"
