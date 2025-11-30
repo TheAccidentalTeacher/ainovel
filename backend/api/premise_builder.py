@@ -32,6 +32,7 @@ from models.premise_builder import (
 )
 from models.database import get_database
 from services.premise_builder_service import PremiseBuilderService
+from services.premise_builder_story_bible_service import PremiseBuilderStoryBibleService
 
 
 logger = logging.getLogger(__name__)
@@ -328,6 +329,89 @@ async def generate_premium_premise(
     except Exception as e:
         logger.error(f"Failed to generate premium premise for {session_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Premium generation failed: {str(e)}")
+
+
+@router.post("/sessions/{session_id}/story-bible", response_model=BuilderSessionResponse)
+async def generate_story_bible(
+    session_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> BuilderSessionResponse:
+    """
+    Generate comprehensive story bible from completed premise builder session (Step 9).
+    
+    Synthesizes all wizard data + 2000-word premium premise into professional
+    narrative blueprint with 5 core sections:
+    - Characters: Deep profiles with arcs, psychology, relationships (800-1200 words)
+    - World: Settings, rules, history, culture (800-1200 words)
+    - Themes: Central questions, values, motifs (800-1200 words)
+    - Plot: Structure, beats, turning points, subplots (800-1200 words)
+    - Style: Voice, tone, POV, prose techniques (800-1200 words)
+    
+    Total: 4000-6000+ words of novelist-quality narrative foundation.
+    
+    Prerequisites:
+    - Premium premise must exist (Step 8 completed)
+    - All wizard steps (0-6) must be completed
+    
+    Uses Claude Sonnet 4.5 with 100K max_tokens for comprehensive synthesis.
+    Applies genre-specific frameworks from 63-source research compilation.
+    """
+    service = PremiseBuilderService(db)
+    story_bible_service = PremiseBuilderStoryBibleService()
+    
+    session = await service.get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+    
+    if not session.premium_premise:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot generate story bible. Premium premise required (complete Step 8 first)."
+        )
+    
+    if session.current_step < 6:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot generate story bible. Complete all wizard steps (0-6) first."
+        )
+    
+    try:
+        # Generate comprehensive story bible
+        story_bible = await story_bible_service.generate_story_bible(session)
+        
+        # Update session with story bible
+        session.story_bible = story_bible
+        session.current_step = max(session.current_step, 9)  # Story bible is step 9
+        
+        # Save updated session
+        db_session = db["premise_builder_sessions"]
+        await db_session.update_one(
+            {"_id": session.id},
+            {"$set": {
+                "story_bible": story_bible.dict(),
+                "current_step": session.current_step,
+                "updated_at": session.updated_at
+            }}
+        )
+        
+        logger.info(f"Story bible generated for session {session_id}")
+        
+        return BuilderSessionResponse(
+            session=session,
+            next_step=10,  # Ready for outline generation
+            can_generate_baseline=True,
+            can_generate_premium=True,
+            can_complete=True
+        )
+    
+    except ValueError as e:
+        # Prerequisites not met
+        logger.warning(f"Story bible generation prerequisites not met for {session_id}: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    except Exception as e:
+        logger.error(f"Failed to generate story bible for {session_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Story bible generation failed: {str(e)}")
 
 
 @router.post("/sessions/{session_id}/complete")
