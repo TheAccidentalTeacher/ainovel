@@ -1,19 +1,52 @@
 import { useState } from 'react';
-import type { StoryBible } from '../types';
+import { useMutation } from '@tanstack/react-query';
+import apiClient from '../lib/apiClient';
+import type { StoryBible, Character, Setting } from '../types';
 
 interface StoryBibleModalProps {
   isOpen: boolean;
   onClose: () => void;
   storyBible: StoryBible;
-  onSave?: (updatedStoryBible: Partial<StoryBible>) => void;
+  projectId: string;
+  onSave?: (updatedStoryBible: StoryBible) => Promise<void>;
 }
 
 type TabType = 'characters' | 'settings' | 'themes' | 'plot';
 
-export default function StoryBibleModal({ isOpen, onClose, storyBible }: StoryBibleModalProps) {
+export default function StoryBibleModal({ isOpen, onClose, storyBible, projectId, onSave }: StoryBibleModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('characters');
   const [expandedCharacter, setExpandedCharacter] = useState<number | null>(null);
   const [expandedSetting, setExpandedSetting] = useState<number | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedBible, setEditedBible] = useState<StoryBible>(storyBible);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // AI Enhancement state
+  const [selectedText, setSelectedText] = useState('');
+  const [selectionStart, setSelectionStart] = useState(0);
+  const [selectionEnd, setSelectionEnd] = useState(0);
+  const [showEnhanceMenu, setShowEnhanceMenu] = useState(false);
+  const [enhanceMenuPosition, setEnhanceMenuPosition] = useState({ top: 0, left: 0 });
+  const [currentField, setCurrentField] = useState<{ type: string; index: number; field: string } | null>(null);
+  const [customEnhancement, setCustomEnhancement] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+
+  // AI Enhancement mutation
+  const enhanceMutation = useMutation({
+    mutationFn: async ({ text, instruction }: { text: string; instruction: string }) => {
+      return apiClient.enhanceText(text, instruction);
+    },
+    onSuccess: (data) => {
+      const enhanced = data.enhanced_text || selectedText;
+      if (currentField) {
+        applyEnhancement(enhanced);
+      }
+      setShowEnhanceMenu(false);
+      setSelectedText('');
+      setShowCustomInput(false);
+      setCustomEnhancement('');
+    }
+  });
 
   if (!isOpen) return null;
 

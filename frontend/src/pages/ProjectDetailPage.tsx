@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../lib/apiClient';
-import StoryBibleModal from '../components/StoryBibleModal';
+import EditableStoryBibleModal from '../components/EditableStoryBibleModal';
 import { useChapterStream } from '../hooks/useChapterStream';
 import { useBulkGeneration } from '../hooks/useBulkGeneration';
 import type { ChapterOutline, Chapter } from '../types';
@@ -745,10 +745,11 @@ export default function ProjectDetailPage() {
 
       {/* Story Bible Modal */}
       {story_bible && (
-        <StoryBibleModal
+        <EditableStoryBibleModal
           isOpen={isStoryBibleModalOpen}
           onClose={() => setIsStoryBibleModalOpen(false)}
           storyBible={story_bible}
+          projectId={id!}
         />
       )}
 

@@ -21,7 +21,9 @@ from models.schemas import (
     AIConfig
 )
 from services.story_bible_service import generate_story_bible_from_premise
+from services.ai_service import generate_ai_content
 from models.database import get_database
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -237,3 +239,61 @@ async def delete_story_bible(
     logger.info(f"Story Bible deleted: {story_bible_id}")
     
     return {"message": "Story Bible deleted successfully"}
+
+
+class EnhanceTextRequest(BaseModel):
+    text: str
+    instruction: str
+
+
+@router.post("/projects/{project_id}/enhance-text")
+async def enhance_text(
+    project_id: str,
+    request: EnhanceTextRequest,
+    db: AsyncIOMotorDatabase = Depends(get_database)
+):
+    """
+    Enhance text using AI for Story Bible editing.
+    
+    Takes a text selection and an enhancement instruction,
+    returns the enhanced version.
+    """
+    logger.info(f"Text enhancement requested for project_id={project_id}")
+    logger.info(f"Text length: {len(request.text)}, Instruction: {request.instruction}")
+    
+    # Get project to check AI config
+    project = await db.projects.find_one({"id": project_id})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get AI config from project or use default
+    ai_config = AIConfig()
+    if "ai_config" in project:
+        ai_config = AIConfig(**project["ai_config"])
+    
+    try:
+        prompt = f"""{request.instruction}
+
+Original text:
+{request.text}
+
+Enhanced version:"""
+        
+        enhanced = await generate_ai_content(
+            prompt=prompt,
+            ai_config=ai_config,
+            max_tokens=2000,
+            temperature=0.8
+        )
+        
+        logger.info(f"Text enhancement complete. Original: {len(request.text)} Enhanced: {len(enhanced)}")
+        
+        return {
+            "enhanced_text": enhanced.strip(),
+            "original_length": len(request.text),
+            "enhanced_length": len(enhanced)
+        }
+        
+    except Exception as e:
+        logger.error(f"Text enhancement failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Text enhancement failed: {str(e)}")
