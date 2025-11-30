@@ -78,19 +78,24 @@ async def generate_story_bible(
     
     try:
         logger.info(f"Calling generate_story_bible_from_premise with premise_id={premise.id}")
+        logger.info(f"Premise content length: {len(premise.content)} chars")
         logger.info(f"Premise has expanded_content: {hasattr(premise, 'expanded_content')}")
         logger.info(f"Content restrictions: {content_restrictions}")
         logger.info(f"Tropes to avoid: {tropes_to_avoid}")
+        logger.info(f"AI config: model={ai_config.model_name}, provider={ai_config.provider}")
         
         # Generate Story Bible with constraints
-        story_bible = await generate_story_bible_from_premise(
-            premise, 
-            ai_config,
-            content_restrictions=content_restrictions,
-            tropes_to_avoid=tropes_to_avoid
-        )
-        
-        logger.info(f"Story Bible generation completed successfully")
+        try:
+            story_bible = await generate_story_bible_from_premise(
+                premise, 
+                ai_config,
+                content_restrictions=content_restrictions,
+                tropes_to_avoid=tropes_to_avoid
+            )
+            logger.info(f"Story Bible generation completed successfully")
+        except Exception as gen_error:
+            logger.error(f"Story Bible generation service error: {gen_error}", exc_info=True)
+            raise
         
         # Save to database
         story_bible_dict = story_bible.model_dump()
