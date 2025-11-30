@@ -66,7 +66,7 @@ def create_story_bible_prompt(premise: Premise, expanded_premise: str = None, co
 
 This Story Bible will be used directly for outline generation and chapter writing, so it must be thorough and detailed.
 Target: 3500-4500 words total across all sections.
-CRITICAL: Prioritize depth and richness in character development and plot structure. Ensure complete, valid JSON."""
+CRITICAL: Prioritize depth and richness in character development and plot structure. Ensure complete, valid JSON.
 
 **Genre:** {premise.genre}
 **Subgenre:** {premise.subgenre or 'None'}
@@ -126,7 +126,7 @@ Be thorough and detailed. This Story Bible will maintain consistency across the 
 - Supporting characters: Focus on 3-4 key fields (physical, personality, role, goals)
 - Minor characters: Brief entries (50-100 words total)
 
-**CRITICAL: You MUST return complete, valid JSON. Ensure all strings are properly closed and all brackets/braces are balanced. If approaching token limit, reduce detail on supporting characters but keep protagonist/antagonist comprehensive.**"""
+CRITICAL: You MUST return complete, valid JSON. Ensure all strings are properly closed and all brackets/braces are balanced. If approaching token limit, reduce detail on supporting characters but keep protagonist/antagonist comprehensive."""
 
 
 async def generate_story_bible_from_premise(
