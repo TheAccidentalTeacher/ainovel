@@ -474,6 +474,17 @@ export default function PremiseBuilderWizard() {
   const [isEnhancing, setIsEnhancing] = useState(false)
   const [customEnhancement, setCustomEnhancement] = useState('')
   const [showCustomInput, setShowCustomInput] = useState(false)
+  
+  // Premium premise editing states
+  const [isEditingPremium, setIsEditingPremium] = useState(false)
+  const [premiumPremiseEdit, setPremiumPremiseEdit] = useState('')
+  const [selectedTextPremium, setSelectedTextPremium] = useState('')
+  const [selectionStartPremium, setSelectionStartPremium] = useState(0)
+  const [selectionEndPremium, setSelectionEndPremium] = useState(0)
+  const [showEnhanceMenuPremium, setShowEnhanceMenuPremium] = useState(false)
+  const [isEnhancingPremium, setIsEnhancingPremium] = useState(false)
+  const [customEnhancementPremium, setCustomEnhancementPremium] = useState('')
+  const [showCustomInputPremium, setShowCustomInputPremium] = useState(false)
 
   // Fetch genres for dropdown
   const { data: genresData, isLoading: genresLoading, error: genresError } = useQuery({
@@ -1027,6 +1038,100 @@ export default function PremiseBuilderWizard() {
       
       setBaselinePremise(baselinePremiseEdit)
       setIsEditingBaseline(false)
+    } catch (err) {
+      console.error('Save error:', err)
+      alert('Failed to save changes')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Enhance premium premise text with AI
+  const enhancePremiumText = async (enhancementType: string, customInstruction?: string) => {
+    if (!selectedTextPremium && enhancementType !== 'custom') {
+      console.log('No text selected for enhancement')
+      return
+    }
+    
+    setIsEnhancingPremium(true)
+    setShowEnhanceMenuPremium(false)
+    
+    try {
+      // Map enhancement type to AI instruction
+      const enhancementPrompts: Record<string, string> = {
+        expand: `Expand and enrich this text with more detail while maintaining its core meaning: "${selectedTextPremium}"`,
+        simplify: `Simplify and clarify this text while keeping its essential meaning: "${selectedTextPremium}"`,
+        dramatize: `Make this text more dramatic and emotionally compelling: "${selectedTextPremium}"`,
+        technical: `Add more specific, technical, and concrete details to this text: "${selectedTextPremium}"`,
+        emotional: `Deepen the emotional resonance and impact of this text: "${selectedTextPremium}"`,
+        custom: customInstruction || ''
+      }
+      
+      const instruction = enhancementPrompts[enhancementType]
+      if (!instruction) {
+        console.error('Unknown enhancement type:', enhancementType)
+        return
+      }
+      
+      // Call AI assist endpoint
+      const response = await fetch(`${API_BASE}/premise-builder/sessions/${sessionId}/ai-assist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          field_type: 'enhance_text',
+          context: {
+            text: selectedTextPremium,
+            instruction: instruction,
+            enhancement_type: enhancementType
+          }
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Enhancement request failed')
+      }
+      
+      const data = await response.json()
+      const enhanced = data.suggestions?.[0] || selectedTextPremium
+      
+      // Replace selected text with enhanced version
+      const before = premiumPremiseEdit.substring(0, selectionStartPremium)
+      const after = premiumPremiseEdit.substring(selectionEndPremium)
+      const newText = before + enhanced + after
+      
+      setPremiumPremiseEdit(newText)
+      setSelectedTextPremium('')
+      setShowCustomInputPremium(false)
+      setCustomEnhancementPremium('')
+      
+    } catch (err) {
+      console.error('Enhancement error:', err)
+      alert('Failed to enhance text. Please try again.')
+    } finally {
+      setIsEnhancingPremium(false)
+    }
+  }
+
+  // Save premium premise edits
+  const savePremiumPremise = async () => {
+    if (!sessionId) return
+    
+    try {
+      setIsLoading(true)
+      const response = await fetch(`${API_BASE}/premise-builder/sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 8,
+          data: { premium_premise: { content: premiumPremiseEdit } }
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to save')
+      
+      setPremiumPremise(premiumPremiseEdit)
+      setIsEditingPremium(false)
+      alert('Premium premise saved successfully!')
     } catch (err) {
       console.error('Save error:', err)
       alert('Failed to save changes')
@@ -3773,10 +3878,180 @@ export default function PremiseBuilderWizard() {
           </button>
         </div>
       ) : (
-        <div className="bg-gray-900/50 p-6 rounded-lg border border-purple-700">
-          <div className="prose prose-invert max-w-none">
-            <pre className="whitespace-pre-wrap text-gray-300">{premiumPremise}</pre>
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-purple-300">Your Premium Premise</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setIsEditingPremium(!isEditingPremium)
+                  if (!isEditingPremium) {
+                    setPremiumPremiseEdit(premiumPremise)
+                  }
+                }}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
+              >
+                {isEditingPremium ? '👁️ Preview' : '✏️ Edit'}
+              </button>
+            </div>
+            {isEditingPremium && (
+              <button
+                onClick={savePremiumPremise}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm font-medium"
+              >
+                💾 Save Changes
+              </button>
+            )}
           </div>
+          
+          {isEditingPremium ? (
+            <div className="space-y-4">
+              <div className="relative">
+                <textarea
+                  value={premiumPremiseEdit}
+                  onChange={(e) => setPremiumPremiseEdit(e.target.value)}
+                  onSelect={(e) => {
+                    const target = e.target as HTMLTextAreaElement
+                    const start = target.selectionStart
+                    const end = target.selectionEnd
+                    if (start !== end) {
+                      setSelectedTextPremium(target.value.substring(start, end))
+                      setSelectionStartPremium(start)
+                      setSelectionEndPremium(end)
+                      setShowEnhanceMenuPremium(true)
+                    } else {
+                      setShowEnhanceMenuPremium(false)
+                    }
+                  }}
+                  className="w-full h-96 px-4 py-3 bg-gray-900 border border-purple-700 rounded-lg text-white font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-500 resize-y"
+                  placeholder="Edit your premium premise..."
+                />
+                
+                {selectedTextPremium && (
+                  <div className="absolute top-2 right-2 bg-purple-900/95 backdrop-blur-sm border border-purple-600 rounded-lg p-2 text-xs text-purple-200 max-w-xs">
+                    <div className="font-semibold mb-1">Selected: {selectedTextPremium.length} characters</div>
+                    <div className="text-purple-300">Choose enhancement below ↓</div>
+                  </div>
+                )}
+              </div>
+              
+              {showEnhanceMenuPremium && selectedTextPremium && (
+                <div className="bg-purple-900/30 border border-purple-700 rounded-lg p-4">
+                  <div className="text-sm font-semibold text-purple-300 mb-3">🎨 Enhance Selected Text</div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+                    <button
+                      onClick={() => enhancePremiumText('expand')}
+                      disabled={isEnhancingPremium}
+                      className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      📖 Expand
+                    </button>
+                    <button
+                      onClick={() => enhancePremiumText('simplify')}
+                      disabled={isEnhancingPremium}
+                      className="px-3 py-2 text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      ✂️ Simplify
+                    </button>
+                    <button
+                      onClick={() => enhancePremiumText('dramatize')}
+                      disabled={isEnhancingPremium}
+                      className="px-3 py-2 text-sm bg-red-600 hover:bg-red-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      🎭 Dramatize
+                    </button>
+                    <button
+                      onClick={() => enhancePremiumText('technical')}
+                      disabled={isEnhancingPremium}
+                      className="px-3 py-2 text-sm bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      🔬 Add Detail
+                    </button>
+                    <button
+                      onClick={() => enhancePremiumText('emotional')}
+                      disabled={isEnhancingPremium}
+                      className="px-3 py-2 text-sm bg-pink-600 hover:bg-pink-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      💗 Add Emotion
+                    </button>
+                    <button
+                      onClick={() => setShowCustomInputPremium(!showCustomInputPremium)}
+                      disabled={isEnhancingPremium}
+                      className="px-3 py-2 text-sm bg-orange-600 hover:bg-orange-700 disabled:bg-gray-700 text-white rounded transition-colors text-left"
+                    >
+                      ✨ Custom
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {showCustomInputPremium && (
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          value={customEnhancementPremium}
+                          onChange={(e) => setCustomEnhancementPremium(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && customEnhancementPremium.trim()) {
+                              enhancePremiumText('custom', customEnhancementPremium)
+                              setCustomEnhancementPremium('')
+                            }
+                          }}
+                          placeholder="e.g., Add more world-building details, Emphasize the stakes..."
+                          className="w-full px-2 py-1 text-sm bg-gray-900 border border-purple-600 rounded text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          autoFocus
+                        />
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => {
+                              if (customEnhancementPremium.trim()) {
+                                enhancePremiumText('custom', customEnhancementPremium)
+                                setCustomEnhancementPremium('')
+                              }
+                            }}
+                            disabled={isEnhancingPremium || !customEnhancementPremium.trim()}
+                            className="flex-1 px-2 py-1 text-xs bg-orange-600 hover:bg-orange-700 disabled:bg-gray-700 text-white rounded transition-colors"
+                          >
+                            Apply
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowCustomInputPremium(false)
+                              setCustomEnhancementPremium('')
+                            }}
+                            className="flex-1 px-2 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      setShowEnhanceMenuPremium(false)
+                      setShowCustomInputPremium(false)
+                      setCustomEnhancementPremium('')
+                    }}
+                    className="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-left mt-2"
+                  >
+                    ✕ Cancel
+                  </button>
+                  {isEnhancingPremium && (
+                    <div className="mt-2 text-xs text-center text-gray-400">
+                      ⏳ Enhancing...
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-gray-900/50 p-6 rounded-lg border border-purple-700">
+              <div className="prose prose-invert max-w-none">
+                <pre className="whitespace-pre-wrap text-gray-300 leading-relaxed">{premiumPremise}</pre>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
