@@ -82,9 +82,10 @@ def create_application() -> FastAPI:
     )
     
     # Register API routes
-    from api import health, projects, genres, outlines, story_bible, chapters, summaries, bulk_generation, export, premise_builder, chat, contexts
+    from api import health, projects, genres, outlines, story_bible, chapters, summaries, bulk_generation, export, premise_builder, chat, contexts, health_check
     
     app.include_router(health.router, prefix="/api", tags=["health"])
+    app.include_router(health_check.router, prefix="/api", tags=["health-check"])  # 🦸 CODE MASTER: Comprehensive testing!
     app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
     app.include_router(premise_builder.router, tags=["premise-builder"])
     app.include_router(story_bible.router, prefix="/api", tags=["story-bible"])
@@ -102,6 +103,18 @@ def create_application() -> FastAPI:
     # Requires: BOOK_COVERS_ENABLED=true in .env to use endpoints
     from book_covers.routes import router as book_covers_router
     app.include_router(book_covers_router, prefix="/api/book-covers", tags=["book-covers"])
+    
+    # === 🦸 CODE MASTER: Serve Health Dashboard ===
+    # Serve the health dashboard at /health-dashboard
+    from fastapi.responses import HTMLResponse
+    
+    @app.get("/health-dashboard", response_class=HTMLResponse)
+    async def serve_health_dashboard():
+        """Serve the Code Master health dashboard"""
+        dashboard_path = Path(__file__).parent.parent / "health-dashboard.html"
+        if dashboard_path.exists():
+            return HTMLResponse(content=dashboard_path.read_text(encoding='utf-8'), status_code=200)
+        return HTMLResponse(content="<h1>Health dashboard not found</h1>", status_code=404)
     
     # === Serve Frontend Static Files ===
     # Mount the React app's build output (production only)

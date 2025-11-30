@@ -1,7 +1,9 @@
 import { type ReactNode, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Menu, X } from 'lucide-react';
 import { NavigationHeader } from '../components/navigation/NavigationHeader';
+import { ChatWidget } from '../components/ChatWidget';
 import { ContextList } from '../components/sidebar/ContextList';
 import { ContextManager } from '../components/sidebar/ContextManager';
 import { ProjectList } from '../components/sidebar/ProjectList';
@@ -25,9 +27,13 @@ interface AppLayoutProps {
 }
 
 export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => {
+  const location = useLocation();
   const [isContextManagerOpen, setIsContextManagerOpen] = useState(false);
   const [editingContext, setEditingContext] = useState<Context | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Show chat widget on all pages EXCEPT the home chat page
+  const showChatWidget = location.pathname !== '/';
 
   // Collapsed sections state
   const { contexts: contextsCollapsed, projects: projectsCollapsed, conversations: conversationsCollapsed, toggleSection } = useCollapsedSections();
@@ -338,6 +344,15 @@ export const AppLayout = ({ children, showSidebar = false }: AppLayoutProps) => 
         onSave={handleSaveContext}
         context={editingContext}
       />
+
+      {/* Global Chat Widget - Available on all pages except home chat page */}
+      {showChatWidget && (
+        <ChatWidget 
+          userId="alana" 
+          projectId={linkedProjectId || undefined}
+          fullScreen={false}
+        />
+      )}
     </div>
   );
 };

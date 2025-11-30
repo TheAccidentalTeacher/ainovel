@@ -4,7 +4,9 @@
 > - ✅ **Core Writing System**: Phase 1 complete. Story Bible extraction, structured outline generation, chapter streaming, and bulk generation all live. Comprehensive narrative consistency system with multi-layer context ensures 25-chapter coherence.
 > - ✅ **Book Cover Generator**: Phase 3 complete. End-to-end AI cover design - Story analysis → Claude design brief → DALL-E 3 generation → Typography overlay → Multi-format export (ebook/print/social). Fully operational 5-step wizard.
 > - ✅ **Production Quality Testing**: V1→V2→V3 iterative improvement complete. Anti-AI-tell rules achieved **A- grade** (94% of publication quality). Universal humanization logic working across all genres.
+> - ✅ **Global Chat Widget**: AI assistant available on EVERY page (Studio, Covers, Bots) as floating widget. Never leave your creative flow! 💬⚡
 > - 🦸 **CODE MASTER AI ASSISTANT**: Elite programming specialist - 80's hero personality ACTIVE! ⚔️⚡🐯⭐🥷
+> - 🤖 **Bot System (Phase 2)**: Multi-agent specialist system IN DEVELOPMENT - See [Bot System Architecture](#-bot-system-architecture) below
 > - 📚 **Documentation**: [Complete Index with 50+ guides](DOCUMENTATION_INDEX.md)
 
 ---
@@ -40,6 +42,36 @@
 3. Watch the personality adapt to your needs! 🚀
 
 📖 **[Quick Start Guide](docs/CODE_MASTER_QUICK_START.md)** (5 min read) | **[Complete Specification](docs/80S_HERO_CODING_ASSISTANT_DOSSIER.md)** (3,924 lines)
+
+---
+
+## 💬 Global Chat Widget - AI Everywhere
+
+**Available on ALL pages** (Novel Studio, Book Covers, Bots, etc.) - The chat widget is now your **constant companion** throughout the app!
+
+**Features**:
+- 🎯 **Always Accessible** - Floating blue button in bottom-right corner
+- 📱 **Resizable Panel** - Drag left edge to adjust width (320px-800px)
+- 🔗 **Project Context** - Link a project once, chat knows your story everywhere
+- 🌐 **Web Search** - Real-time internet research with intelligent search types
+- 🤖 **Multiple AI Models** - Claude Sonnet 4.5, GPT-4, GPT-4o, and more
+- 💾 **Auto-Saved Conversations** - Never lose your chat history
+- ⚡ **Streaming Responses** - Real-time AI replies with progress indicators
+
+**Real-World Usage**:
+```
+1. Working on Chapter 5 generation in Novel Studio
+2. Click chat widget while chapter is generating
+3. Ask: "What are 3 ways to increase tension in this scene?"
+4. Get suggestions based on your linked project context
+5. Apply feedback without leaving the page
+```
+
+**Technical Details**:
+- Widget hidden on home page (`/`) where fullscreen chat exists
+- Shares linked project context across all routes via `AppLayout`
+- Persistent conversation state survives navigation
+- Widget mode uses floating panel, fullscreen uses dedicated page layout
 
 ---
 
@@ -161,11 +193,101 @@ I'm continuing iterative manuscript improvement. Please:
 
 ---
 
-## 🧠 Agentic Chatbot Initiative (Phase 4B)
+## 🤖 Bot System Architecture
+
+**Mission**: Build the most sophisticated multi-agent AI system for creative writing that money can buy.
+
+### **What Makes This Revolutionary?**
+
+**TRUE MULTI-AGENT COLLABORATION** - Not just multiple bots giving separate answers:
+- **Sequential Chains**: Plot Architect outlines structure → Character Psychologist validates arcs → Dialogue Coach refines speech
+- **Parallel Analysis**: 5 agents analyze same chapter simultaneously, synthesize insights
+- **Debate Mode**: Agents challenge each other's suggestions, vote on best solution
+- **Swarm Intelligence**: Agents work like a hive mind, building consensus
+
+**CONTINUOUS LEARNING** - Agents get smarter from every interaction:
+- Feedback loop: Accept/reject tracking trains agent preferences
+- Style embedding: Analyzes manuscripts to extract writing fingerprint
+- Pattern recognition: "Alana uses 60% 'said' dialogue tags, prefers subtext"
+- Dynamic system prompts evolve based on usage
+
+**CONTEXT-AWARE ORCHESTRATION** - Agents know when to activate:
+- Phase detection: Auto-activates appropriate agents (brainstorming vs. revising)
+- Stuck detection: Offers help after 5+ minutes idle on scene
+- Consistency checking: Editor Bot auto-scans chapters for contradictions
+- Proactive research: Detects historical references, pre-fetches background
+
+**INFINITE CONTEXT MEMORY** - Never forgets through intelligent summarization:
+- Hierarchical summaries: Chapter → Arc → Book → Series
+- Entity graphs: Knowledge graph of characters, relationships, events
+- Temporal indexing: "What did we decide about Sarah's backstory in Week 2?"
+- Cross-project memory: Recognizes patterns across all novels
+
+**ADVANCED TOOL USE** - Agents take actions, not just talk:
+- Web search, document analysis, code execution
+- API integrations (Scrivener, Google Docs, publishing platforms)
+- File operations, timeline generation, visual aids
+
+**DISTINCT PERSONALITIES** - Each agent is genuinely delightful:
+- **Dialogue Coach**: Witty theater director - "Darling, this line is flatter than day-old champagne"
+- **Plot Architect**: Strategic mastermind - "Let's map the tension curve. I see a flatline in Act 2"
+- **Character Psychologist**: Empathetic therapist - "Why does Marcus fear intimacy? What's the wound?"
+- **Romance Expert**: Swoony optimist - "The longing glances! But we need more emotional stakes"
+- **Research Assistant**: Meticulous historian - "Victorian women couldn't own property until 1882, actually"
+- **Editor Bot**: Sharp-eyed perfectionist - "You've used 'sparkle' 7 times. Fresh metaphors?"
+
+### **Orchestration Modes**
+
+| Mode | Description | Example |
+|------|-------------|---------|
+| **Single Agent** | Simple query → One specialist | "Help make dialogue natural" → Dialogue Coach |
+| **Parallel** | Complex query → Multiple agents respond simultaneously | "Is chapter working?" → 5 agents analyze |
+| **Sequential Chain** | Multi-step task → Agents work in order | Character development pipeline |
+| **Debate** | Controversial decision → Agents debate & vote | "Should I kill this character?" |
+| **Hierarchical** | Main bot delegates to specialists, synthesizes | "Review for publication" → 6 sub-tasks |
+
+### **Competitive Advantages**
+
+Why this beats everything else on the market:
+
+| Feature | Our System | ChatGPT | Claude | Sudowrite |
+|---------|-----------|---------|---------|-----------|
+| Multi-Agent Collaboration | ✅ 6+ specialists working together | ❌ Single | ❌ Single | ⚠️ Limited |
+| Continuous Learning | ✅ Learns from every interaction | ❌ No | ❌ No | ❌ No |
+| Infinite Context | ✅ Unlimited via summaries | ⚠️ 128k | ⚠️ 200k | ⚠️ Limited |
+| Tool Use | ✅ Web search, code, APIs | ⚠️ Limited | ❌ No | ⚠️ Limited |
+| Project Memory | ✅ Full knowledge graph | ❌ No | ❌ No | ⚠️ Basic |
+| Proactive Assistance | ✅ Detects needs, offers help | ❌ Reactive | ❌ Reactive | ❌ Reactive |
+| Distinct Personalities | ✅ 6+ unique agents | ❌ Generic | ❌ Generic | ⚠️ 1 personality |
+| Debate & Consensus | ✅ Agents discuss solutions | ❌ No | ❌ No | ❌ No |
+
+### **Key Documentation**
+
+- **[Bot System Architecture](docs/BOT_SYSTEM_ARCHITECTURE.md)** - Complete technical architecture (21,000+ words)
+- **[Alana's Chatbot Master Plan](docs/ALANA_CHATBOT_MASTER_PLAN.md)** - Personalized companion implementation (25-day roadmap)
+- **[Chatbot Build Plan V2](docs/CHATBOT_BUILD_PLAN_V2.md)** - Active build plan with phase breakdowns
+- **[Agent System Discussion](docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md)** - Framework decisions & licensing strategy
+
+### **Implementation Roadmap** (12 weeks)
+
+1. **Foundation** (Week 1-2): Agent framework, MongoDB schema, router, single agent mode
+2. **Multi-Agent** (Week 3-4): Orchestrator, 6 specialists, collaboration UI, synthesis engine
+3. **Memory & Learning** (Week 5-6): Agent brain, feedback loops, pattern recognition, entity graphs
+4. **Tool System** (Week 7-8): Tool registry, web search, document analysis, timeline generator
+5. **Advanced Features** (Week 9-10): Proactive assistance, style transfer, consistency checking
+6. **Polish** (Week 11-12): Performance tuning, UI refinements, full documentation
+
+**Status**: 🏗️ Architecture complete, awaiting Alana's input on agent personalities & priorities
+
+**Next Steps**: Review architecture → Answer critical questions → Start Phase 1
+
+---
+
+## 🧠 Agentic Chatbot Initiative (Active Development)
 - **Goal:** Persistent desktop-first chatbot that spans every page, supports unlimited custom bots, and powers Alana's "Board of Directors" workflows.
-- **Key Docs:** `docs/CHATBOT_FEATURE_PLAN.md` (execution plan) + `docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md` (architecture & licensing strategy).
+- **Key Docs:** `docs/BOT_SYSTEM_ARCHITECTURE.md` (complete architecture) + `docs/CHATBOT_FEATURE_PLAN.md` (execution plan) + `docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md` (framework strategy).
 - **Phase Blueprint:** Phase 0 research → Phase 1 data/service foundation → Phase 2 core chat → Phase 3 bot creation/brains → Phase 4 context mastery → Phase 5 board orchestration → Phase 6 production hardening.
-- **Status:** Requirements captured, plan indexed, implementation to begin after outstanding clarifications in the chatbot plan's "Immediate Clarifications" section are resolved.
+- **Status:** ✅ Global chat widget deployed. 🏗️ Multi-agent architecture designed. Next: Agent framework implementation.
 - **Operators:** Scott (architecture/backend) + Alana (UX validation, bot template curation).
 
 ## Narrative Pipeline Overview
