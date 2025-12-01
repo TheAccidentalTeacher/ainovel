@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen, Bot, Users, Sparkles } from 'lucide-react';
+import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen, Bot, Users } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatApi, type ConversationResponse } from '../services/chatService';
 import { agentApi, type Agent } from '../services/agentService';
