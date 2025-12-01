@@ -39,12 +39,26 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     - Database connection initialization
     - Resource cleanup on shutdown
     """
+    import os
     settings = get_settings()
-    logger.info("application_startup", environment=settings.environment)
+    
+    logger.info("=== APPLICATION STARTING ===")
+    logger.info("application_startup", 
+                environment=settings.environment,
+                port=os.getenv("PORT", "8000"),
+                mongodb_uri_set=bool(settings.mongodb_uri))
     
     # Initialize database connection
-    await get_database()
-    logger.info("database_connected")
+    try:
+        db = await get_database()
+        # Test connection with a ping
+        await db.command("ping")
+        logger.info("✅ database_connected", status="success")
+    except Exception as e:
+        logger.error("❌ database_connection_failed", error=str(e), error_type=type(e).__name__)
+        # Continue anyway - some endpoints might still work
+    
+    logger.info("=== APPLICATION READY ===")
     
     yield
     
