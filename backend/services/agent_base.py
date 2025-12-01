@@ -89,7 +89,7 @@ class Agent(ABC):
         self.user_id = user_id
         
         # Claude client for AI responses
-        self.client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+        self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
         
         # Agent brain (memory storage)
         self.brain_collection = db.agent_brains

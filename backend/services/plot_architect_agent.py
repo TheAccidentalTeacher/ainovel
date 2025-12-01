@@ -78,7 +78,7 @@ DEBATE MODE:
 
 Your goal: Help craft stories with elegant, satisfying structures that keep readers turning pages."""
         
-    def get_expertise_tags(self) -> List[str]:
+    def get_expertise_domains(self) -> List[str]:
         return [
             "story structure",
             "plot twists",

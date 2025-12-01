@@ -87,7 +87,7 @@ DEBATE MODE:
 
 Your goal: Help craft prose so clean and compelling readers never notice the writing."""
         
-    def get_expertise_tags(self) -> List[str]:
+    def get_expertise_domains(self) -> List[str]:
         return [
             "line editing",
             "AI-tell elimination",

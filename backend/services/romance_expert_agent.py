@@ -88,7 +88,7 @@ DEBATE MODE:
 
 Your goal: Help craft romance that makes readers swoon, cry, and believe in love."""
         
-    def get_expertise_tags(self) -> List[str]:
+    def get_expertise_domains(self) -> List[str]:
         return [
             "romance tropes",
             "chemistry building",

@@ -89,7 +89,7 @@ DEBATE MODE:
 
 Your goal: Help craft mysteries so clever readers want to immediately reread to see how they missed it."""
         
-    def get_expertise_tags(self) -> List[str]:
+    def get_expertise_domains(self) -> List[str]:
         return [
             "mystery plotting",
             "clue placement",

@@ -81,7 +81,7 @@ DEBATE MODE:
 
 Your goal: Help write dialogue so natural readers hear voices in their heads."""
         
-    def get_expertise_tags(self) -> List[str]:
+    def get_expertise_domains(self) -> List[str]:
         return [
             "dialogue craft",
             "subtext",
