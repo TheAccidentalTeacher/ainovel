@@ -109,6 +109,11 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
       const decoder = new TextDecoder();
       let enhanced = '';
       
+      // Store original selection position
+      const originalValue = currentTextarea.value;
+      const before = originalValue.substring(0, selectionStart);
+      const after = originalValue.substring(selectionEnd);
+      
       if (reader) {
         while (true) {
           const { done, value } = await reader.read();
@@ -125,11 +130,13 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                 enhanced += data.chunk;
                 setStreamedText(enhanced);
                 
-                // Update textarea in real-time
-                const currentValue = currentTextarea.value;
-                const before = currentValue.substring(0, selectionStart);
-                const after = currentValue.substring(selectionEnd);
-                currentTextarea.value = before + enhanced + after;
+                // Update textarea and trigger onChange in real-time
+                const newValue = before + enhanced + after;
+                currentTextarea.value = newValue;
+                
+                // Trigger the onChange event to update React state
+                const changeEvent = new Event('input', { bubbles: true });
+                currentTextarea.dispatchEvent(changeEvent);
               } else if (data.done) {
                 break;
               } else if (data.error) {
@@ -139,10 +146,6 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
           }
         }
       }
-      
-      // Trigger change event to update state
-      const event = new Event('input', { bubbles: true });
-      currentTextarea.dispatchEvent(event);
       
       setShowEnhanceMenu(false);
       setSelectedText('');
