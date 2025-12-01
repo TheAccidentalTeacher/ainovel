@@ -37,5 +37,5 @@ COPY config/ /app/config/
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Railway provides PORT env var
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Railway provides PORT env var - use Python to read it
+CMD python -c "import os; os.execlp('uvicorn', 'uvicorn', 'main:app', '--host', '0.0.0.0', '--port', os.getenv('PORT', '8000'))"
