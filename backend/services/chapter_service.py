@@ -79,22 +79,117 @@ These theological underpinnings should naturally inform character worldviews, mo
 - Weave in subplot elements naturally
 - Maintain the specified tone throughout
 - End with the exact closing scene/hook provided - COMPLETE the scene, don't cut off mid-action
+- **TARGET WORD COUNT:** Aim for 3,000-3,500 words per chapter minimum. Develop scenes fully with complete dialogue exchanges, internal thoughts, and sensory details. Summary paragraphs indicate incomplete development—expand them into full scenes.
 
-**CRITICAL: Write like a HUMAN author, not an AI:**
+**═══════════════════════════════════════════════════════════════════════════**
+**🚨 CRITICAL: 13 ANTI-AI-TELL RULES - APPLY TO EVERY PARAGRAPH 🚨**
+**═══════════════════════════════════════════════════════════════════════════**
+
+These rules have been validated across multiple manuscripts to eliminate robotic writing patterns. Follow them religiously to produce human-quality prose.
+
+**RULE 1: SENTENCE OPENING VARIETY**
+- Maximum 1 participial phrase opening per page
+- If you open with "The [noun]", next 3 sentences must use different structures
+- Track your sentence beginnings - if 3 consecutive paragraphs start similarly, rewrite
+- Some sentences can be plain: "He walked to the door." No poetry required.
+
+**RULE 2: METAPHOR RATIONING**
+- Maximum 1 metaphor/simile per 500 words (roughly 1 per chapter)
+- NO metaphors for mundane actions (walking, sitting, picking up objects)
+- Reserve metaphors for important emotional/thematic moments only
+- If comparing to "like a [complex thing]", delete and use simple adjective instead
+
+**RULE 3: PHYSICAL RESPONSE VARIATION**
+- **BANNED PHRASES:** "stomach dropped/tightened/clenched", "heat crept up neck/face", "hands trembled/shook"
+- Physical anxiety cues: Maximum 1 per scene, must be unique each time
+- Prefer action over sensation: Character does something nervous vs. feeling nervousness
+- Show emotion through behavior, not visceral description
+
+**RULE 4: SENSORY DETAIL ECONOMY**
+- Choose ONE dominant sense per scene (smell OR sight OR sound, not all three)
+- Maximum 2 sensory details per paragraph
+- No lists of smells/sights - pick the MOST important one
+- Character must have reason to notice - don't catalog everything
+
+**RULE 5: DIALOGUE TAG SIMPLICITY**
+- Use "said" for 80% of dialogue tags
+- Allowed alternatives ONLY: asked, whispered, shouted, called
+- **BANNED:** mumbled, managed, observed, announced, continued, breathed, offered, ventured
+- NO adverbs with "said" - use action beats instead
+- Prefer: "He turned away. 'I'm fine.'" over "'I'm fine,' he said, turning away"
+
+**RULE 6: CHAPTER ENDING VARIETY**
+- **BANNED:** Ending with nature/weather observation or one-sentence philosophical reflection
+- Alternate ending types: 25% mid-dialogue, 25% action, 25% decision, 25% abrupt image
+- End earlier than feels complete - create forward momentum
+- Test: Delete last sentence. Is ending stronger? If yes, keep it deleted.
+
+**RULE 7: NUMERICAL SPECIFICITY DISCIPLINE**
+- Only use exact numbers when plot requires it (money, time, quantities that matter to conflict)
+- For atmosphere: "many", "several", "a few" - no exact counts
+- Character counting tic: Maximum 2 instances per entire novel, not per chapter
+- Delete number if you can replace with "some/many/few" without losing meaning
+
+**RULE 8: WEATHER-EMOTION INDEPENDENCE**
+- Establish weather at scene start, don't introduce mid-scene for emotional effect
+- Weather must affect plot/logistics, not just mirror emotion
+- Deliberately mismatch weather and emotion: happy scene in rain, sad scene in sunshine
+- **BAN:** Thunder arriving exactly when bad news hits
+
+**RULE 9: CHARACTER TIC RESTRAINT**
+- Introduce character tic maximum 3 times in entire novel
+- Tic only appears when character is under unusual stress
+- Each character needs 3-4 distinct traits/behaviors, rotate through them
+- If tic appeared in previous chapter, skip it in current chapter
+
+**RULE 10: ELEGANT VARIATION SYNDROME FIX**
+- Character names: Use their name or pronoun "he/she" - NO synonyms like "the monk" or "the anxious brother"
+- Key locations: Call it the same thing every time (monastery = monastery)
+- Pronouns are invisible: Use "he/she/it" freely, readers don't notice repetition
+- Only vary when meaning differs: "Bernard" vs "the festival organizer" only if role matters
+
+**RULE 11: ELLIPSES & EM-DASH DISCIPLINE**
+- **Ellipses (...):** Maximum 3 per chapter, ONLY when character is actually interrupted mid-sentence by another speaker or loses consciousness. NOT for uncertainty, nervousness, or "searching for words"
+- **Em-dashes (—):** Maximum 2 per chapter, ONLY for sudden topic shift that's plot-critical
+- Show hesitation through action beats: "He looked away. 'I don't know.'" NOT "I just... I don't know..."
+- Periods are your friend. Use them confidently. Complete your sentences.
+
+**RULE 12: INTENSIFIER BAN**
+- **BANNED UNLESS THEMATIC:** perfectly, absolutely, entirely, utterly, totally
+- Replace with specific details: "perfectly prepared feast" → "feast with roasted lamb, honey bread, and spiced wine"
+- Maximum 2 instances per chapter IF thematically justified (e.g., "perfectly imperfect" if perfection is plot theme)
+
+**RULE 13: "COMPLETELY" SURGICAL REMOVAL (MOST CRITICAL)**
+- **DELETE from emotional/mental states:** "completely unperturbed" → "unperturbed", "trust completely" → "trust"
+- **KEEP ONLY for physical completion:** "work completely free" (if essential), "voice broke completely" (physical breakdown)
+- **Manuscript target: 4-5 uses across ALL chapters, maximum 0-1 per chapter**
+- When in doubt, delete. Strong verbs and adjectives work alone.
+
+**═══════════════════════════════════════════════════════════════════════════**
+**🔍 MANDATORY SELF-CHECK BEFORE SUBMITTING CHAPTER:**
+**═══════════════════════════════════════════════════════════════════════════**
+
+1. ✅ Count metaphors - cut if more than 1-2 per chapter
+2. ✅ Find every "said" alternative - replace 80% with "said"
+3. ✅ Scan for "stomach/heat/hands" physical cues - delete and show through action
+4. ✅ Circle every specific number - delete if you can say "several/many/few"
+5. ✅ Search for "..." - maximum 3 per chapter, replace rest with periods
+6. ✅ Search for "perfectly/absolutely/entirely/utterly" - delete ALL, then add back max 1-2 if essential
+7. ✅ Search for "completely" - delete from emotional states, keep ONLY physical completion if adds meaning (target: 0-1 per chapter)
+8. ✅ Check chapter ending - does it avoid philosophical capstone? Cut if needed.
+9. ✅ Verify word count - minimum 3,000 words. If under, expand scenes with full dialogue and internal thoughts.
+
+**═══════════════════════════════════════════════════════════════════════════**
 
 **DIALOGUE RULES:**
 - Use contractions 80% of the time ("can't" not "cannot", "I'm" not "I am")
-- Include interruptions, trailing off ("I just... never mind"), and incomplete thoughts
+- Include interruptions and incomplete thoughts (but follow Rule 11: max 3 ellipses per chapter)
 - Let characters talk over each other occasionally
 - Add verbal tics, stutters, and realistic speech patterns
 - Avoid perfectly structured sentences - people ramble, backtrack, and misuse words
 - Include small talk and meandering conversations that don't all serve the plot
-- Let characters be inarticulate sometimes - they can't always find the right words
 - Use subtext: characters avoid saying what they really mean, deflect with humor, change subjects
-- DON'T have characters state their feelings directly too often - use deflection and avoidance:
-  * Instead of "I've never felt this before," try: "I should probably go" (while not moving)
-  * Instead of explaining attraction, show characters getting flustered and changing subjects
-  * Let romantic moments happen through silence and unspoken understanding, not declarations
+- DON'T have characters state their feelings directly too often - use deflection and avoidance
 
 **PROSE VARIATION:**
 - **OPENING PARAGRAPHS**: Start chapters with DIRECT, CLEAN prose. No "pale fingers of dawn," "sawdust motes dancing like spirits," or "turning X into tiny dancers in golden light." Just describe what's happening.
