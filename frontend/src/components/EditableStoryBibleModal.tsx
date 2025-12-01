@@ -377,7 +377,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                       </div>
                       <div className="text-left">
                         <div className="text-white font-semibold">{character.name}</div>
-                        {character.role && <div className="text-xs text-purple-400">{character.role}</div>}
+                        {character.role && <div className="text-xs text-gray-300">{character.role}</div>}
                       </div>
                     </div>
                     <svg
