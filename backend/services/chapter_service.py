@@ -44,13 +44,13 @@ def _get_humor_guidance(level: int) -> str:
         1: "Deadly serious - zero comedic relief, tension never breaks, characters don't joke",
         2: "Mostly serious - occasional wry observation, but humor is fleeting and dry",
         3: "Lightly earnest - understated humor, characters may smile but rarely laugh",
-        4: "Gentle humor - situational comedy, gentle teasing, wholesome funny moments",
-        5: "Balanced - comedy emerges organically from character/situation, not forced",
-        6: "Moderately funny - witty banter, comedic subplots, laugh-out-loud moments",
-        7: "Very humorous - running gags, comedic set pieces, even serious moments have levity",
-        8: "Predominantly comedy - constant jokes, physical comedy, characters are comedic archetypes",
-        9: "Farcical - absurd scenarios, slapstick dominates, reality takes a backseat",
-        10: "Pure comedy - maximalist humor, no sincere moments, everything is a punchline"
+        4: "Gentle humor - situational comedy, gentle teasing, wholesome funny moments. Comedy comes from CHARACTER BEHAVIOR and AWKWARD SITUATIONS, not from narrative commentary. Let characters do/say funny things naturally.",
+        5: "Balanced - comedy emerges organically from character/situation, not forced. LEAN INTO COMEDIC MOMENTS: when something funny happens, let it breathe - show reactions, physical comedy, escalation. Don't underplay the humor.",
+        6: "Moderately funny - witty banter, comedic subplots, laugh-out-loud moments. COMMIT TO THE COMEDY: Build comedic scenes with setup/payoff, let characters be genuinely funny (not just quirky), include physical comedy and comic timing. Make readers actually laugh.",
+        7: "Very humorous - running gags, comedic set pieces, even serious moments have levity. STRONG COMEDY DELIVERY: Every chapter should have 2-3 laugh-out-loud moments. Show the absurdity playing out in real-time with dialogue, action, and consequences. Comedy is PLOT, not seasoning.",
+        8: "Predominantly comedy - constant jokes, physical comedy, characters are comedic archetypes. COMEDY-FIRST WRITING: Prioritize funny over realistic. Escalate absurd situations. Let comic characters be wonderfully ridiculous without apologizing for it. Milk every comedic beat.",
+        9: "Farcical - absurd scenarios, slapstick dominates, reality takes a backseat. FULL COMMITMENT TO ABSURDITY: Logic bends for comedy. Characters can be cartoonishly expressive. Physical comedy is exaggerated and consequences are funny, not serious.",
+        10: "Pure comedy - maximalist humor, no sincere moments, everything is a punchline. RELENTLESS COMEDY: Every paragraph should make readers smile or laugh. Wordplay, physical gags, situational absurdity all firing simultaneously. Reality is optional."
     }
     return guidance.get(level, "")
 
@@ -100,10 +100,12 @@ These rules have been validated across multiple manuscripts to eliminate robotic
 - If comparing to "like a [complex thing]", delete and use simple adjective instead
 
 **RULE 3: PHYSICAL RESPONSE VARIATION**
-- **BANNED PHRASES:** "stomach dropped/tightened/clenched", "heat crept up neck/face", "hands trembled/shook"
+- **ABSOLUTELY BANNED - ZERO TOLERANCE:** "stomach dropped/tightened/clenched", "heat crept up neck/face", "hands trembled", "hands shook", "fingers trembled", "fingers shook"
+- **SEARCH AND DELETE**: Before finalizing chapter, search for "trembled" and "shook" - if attached to hands/fingers, DELETE ENTIRE PHRASE
 - Physical anxiety cues: Maximum 1 per scene, must be unique each time
-- Prefer action over sensation: Character does something nervous vs. feeling nervousness
-- Show emotion through behavior, not visceral description
+- Prefer action over sensation: Character DOES something nervous vs. FEELING nervousness
+- Show emotion through behavior: "He fumbled with the letter" NOT "His hands trembled as he held the letter"
+- Alternative actions: gripped tighter, clutched, grabbed, dropped, paused, hesitated, stepped back, looked away
 
 **RULE 4: SENSORY DETAIL ECONOMY**
 - Choose ONE dominant sense per scene (smell OR sight OR sound, not all three)
@@ -154,10 +156,14 @@ These rules have been validated across multiple manuscripts to eliminate robotic
 - Show hesitation through action beats: "He looked away. 'I don't know.'" NOT "I just... I don't know..."
 - Periods are your friend. Use them confidently. Complete your sentences.
 
-**RULE 12: INTENSIFIER BAN**
-- **BANNED UNLESS THEMATIC:** perfectly, absolutely, entirely, utterly, totally
+**RULE 12: INTENSIFIER BAN - MANUSCRIPT BUDGET SYSTEM**
+- **MANUSCRIPT-WIDE BUDGET: 10 intensifiers total across ALL chapters combined**
+- **BANNED WORDS:** perfectly, absolutely, entirely, utterly, totally
+- **Per-chapter allowance: Maximum 1 intensifier** (save budget for chapters that truly need it)
+- Before using ANY intensifier, ask: "Is this essential or just emphatic?"
+- 95% of the time, DELETE the intensifier: "perfectly prepared" → "prepared", "absolutely necessary" → "necessary"
 - Replace with specific details: "perfectly prepared feast" → "feast with roasted lamb, honey bread, and spiced wine"
-- Maximum 2 instances per chapter IF thematically justified (e.g., "perfectly imperfect" if perfection is plot theme)
+- **SELF-CHECK**: Count intensifiers before finalizing. If >1 in chapter, delete weakest ones.
 
 **RULE 13: "COMPLETELY" SURGICAL REMOVAL (MOST CRITICAL)**
 - **DELETE from emotional/mental states:** "completely unperturbed" → "unperturbed", "trust completely" → "trust"
@@ -171,10 +177,10 @@ These rules have been validated across multiple manuscripts to eliminate robotic
 
 1. ✅ Count metaphors - cut if more than 1-2 per chapter
 2. ✅ Find every "said" alternative - replace 80% with "said"
-3. ✅ Scan for "stomach/heat/hands" physical cues - delete and show through action
+3. ✅ Scan for "stomach/heat/hands trembled/hands shook/fingers trembled/fingers shook" - DELETE ALL INSTANCES, replace with action verbs
 4. ✅ Circle every specific number - delete if you can say "several/many/few"
 5. ✅ Search for "..." - maximum 3 per chapter, replace rest with periods
-6. ✅ Search for "perfectly/absolutely/entirely/utterly" - delete ALL, then add back max 1-2 if essential
+6. ✅ Search for "perfectly/absolutely/entirely/utterly/totally" - COUNT THEM. Delete until only 0-1 remain in chapter (manuscript budget: 10 total)
 7. ✅ Search for "completely" - delete from emotional states, keep ONLY physical completion if adds meaning (target: 0-1 per chapter)
 8. ✅ Check chapter ending - does it avoid philosophical capstone? Cut if needed.
 9. ✅ Verify word count - minimum 3,000 words. If under, expand scenes with full dialogue and internal thoughts.
