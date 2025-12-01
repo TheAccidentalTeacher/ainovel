@@ -94,12 +94,31 @@ async def get_agent_registry(db: AsyncIOMotorDatabase = Depends(get_database)) -
     global _agent_registry
     
     if not _agent_registry:
-        # Initialize first agent (Research Assistant)
-        research_assistant = create_research_assistant(db=db)
-        _agent_registry[research_assistant.agent_id] = research_assistant
+        # Import all agent factory functions
+        from services.research_assistant_agent import create_research_assistant
+        from services.plot_architect_agent import create_plot_architect
+        from services.character_developer_agent import create_character_developer
+        from services.dialogue_coach_agent import create_dialogue_coach
+        from services.editor_supreme_agent import create_editor_supreme
+        from services.romance_expert_agent import create_romance_expert
+        from services.mystery_master_agent import create_mystery_master
         
-        # TODO: Initialize other 11 agents
-        print(f"✅ Initialized {len(_agent_registry)} agents")
+        # Initialize all agents
+        agents = [
+            create_research_assistant(db=db),
+            create_plot_architect(db=db),
+            create_character_developer(db=db),
+            create_dialogue_coach(db=db),
+            create_editor_supreme(db=db),
+            create_romance_expert(db=db),
+            create_mystery_master(db=db),
+        ]
+        
+        # Register all agents
+        for agent in agents:
+            _agent_registry[agent.agent_id] = agent
+        
+        print(f"✅ Initialized {len(_agent_registry)} agents: {', '.join([a.short_name for a in agents])}")
     
     return _agent_registry
 
