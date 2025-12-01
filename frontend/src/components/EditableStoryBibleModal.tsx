@@ -48,6 +48,12 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
     field: string;
   } | null>(null);
   
+  // Enhancement sidebar state
+  const [showEnhancementSidebar, setShowEnhancementSidebar] = useState(false);
+  const [enhancedOptions, setEnhancedOptions] = useState<string[]>([]);
+  const [originalTextForEnhancement, setOriginalTextForEnhancement] = useState('');
+  const [currentEnhancementType, setCurrentEnhancementType] = useState('');
+  
   // Undo state - store original value before enhancement
   const [undoStack, setUndoStack] = useState<Array<{field: any, value: string}>>([]);
 
@@ -77,30 +83,30 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
     }
   });
 
-  // AI Enhancement with streaming
+  // AI Enhancement - now shows options in sidebar
   const enhanceText = async (enhancementType: string, customInstruction?: string) => {
     if (!selectedText || !currentTextarea || !editingField) return;
     
-    // Store original value for undo
-    const originalValue = currentTextarea.value;
-    setUndoStack(prev => [...prev, { field: editingField, value: originalValue }]);
-    
     setIsEnhancing(true);
     setStreamedText('');
+    setOriginalTextForEnhancement(selectedText);
+    setCurrentEnhancementType(enhancementType);
+    setShowEnhancementSidebar(true);
+    setShowEnhanceMenu(false);
     
     try {
       const enhancementPrompts: Record<string, string> = {
-        expand: 'Expand this text with more vivid details and depth. Maintain the same tone and flow so it blends seamlessly with surrounding text.',
-        simplify: 'Simplify and clarify this text while keeping its exact meaning. Ensure it flows naturally with surrounding context.',
-        dramatize: 'Make this text more dramatic and emotionally compelling while maintaining narrative consistency.',
-        descriptive: 'Add rich sensory details and descriptions. Keep the same narrative voice and ensure smooth integration.',
-        emotional: 'Enhance the emotional resonance of this text while preserving its core message and tone.',
-        concise: 'Make this more concise while keeping all key information. Maintain the same writing style.',
-        funnier: 'Add wit, humor, and lighter tone to this text while keeping it appropriate for the context.',
-        custom: customInstruction || 'Enhance this text while maintaining consistency with the surrounding content'
+        expand: 'Provide 3 different enhanced versions of this text with more vivid details and depth. Maintain the same tone. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]',
+        simplify: 'Provide 3 different simplified versions of this text. Keep the exact meaning but make it clearer. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]',
+        dramatize: 'Provide 3 different versions with more drama and emotional impact. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]',
+        descriptive: 'Provide 3 different versions with rich sensory details. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]',
+        emotional: 'Provide 3 different versions with enhanced emotional resonance. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]',
+        concise: 'Provide 3 different concise versions keeping all key information. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]',
+        funnier: 'Provide 3 different versions with added wit and humor. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]',
+        custom: (customInstruction || 'Enhance this text') + '\n\nProvide 3 different versions. Format as:\n\n**Option 1:**\n[text]\n\n**Option 2:**\n[text]\n\n**Option 3:**\n[text]'
       };
       
-      const prompt = enhancementPrompts[enhancementType] || 'Enhance this text';
+      const prompt = enhancementPrompts[enhancementType] || enhancementPrompts.custom;
       
       const response = await fetch(`${API_BASE}/projects/${projectId}/enhance-text-stream`, {
         method: 'POST',
@@ -117,10 +123,6 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
       const decoder = new TextDecoder();
       let enhanced = '';
       
-      // Store original selection position
-      const before = originalValue.substring(0, selectionStart);
-      const after = originalValue.substring(selectionEnd);
-      
       if (reader) {
         while (true) {
           const { done, value } = await reader.read();
@@ -136,19 +138,10 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
               if (data.chunk) {
                 enhanced += data.chunk;
                 setStreamedText(enhanced);
-                
-                // Update React state directly based on which field is being edited
-                const newValue = before + enhanced + after;
-                
-                if (editingField.type === 'character' && editingField.index !== undefined) {
-                  updateCharacter(editingField.index, editingField.field as keyof Character, newValue);
-                } else if (editingField.type === 'setting' && editingField.index !== undefined) {
-                  updateSetting(editingField.index, editingField.field as keyof Setting, newValue);
-                } else {
-                  // For all other fields (theme, plot, etc.)
-                  updateField(editingField.field as keyof StoryBible, newValue);
-                }
               } else if (data.done) {
+                // Parse options from the enhanced text
+                const options = parseEnhancedOptions(enhanced);
+                setEnhancedOptions(options);
                 break;
               } else if (data.error) {
                 throw new Error(data.error);
@@ -157,24 +150,66 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
           }
         }
       }
-      
-      // Success - close menu after a brief moment to show completion
-      setTimeout(() => {
-        setShowEnhanceMenu(false);
-        setSelectedText('');
-        setShowCustomInput(false);
-        setCustomEnhancement('');
-      }, 500);
     } catch (err) {
       console.error('Enhancement error:', err);
       alert('Failed to enhance text. Please try again.');
-      // Undo on error
-      handleUndo();
+      setShowEnhancementSidebar(false);
     } finally {
       setIsEnhancing(false);
-      // Show completion message briefly
-      setTimeout(() => setStreamedText(''), 400);
     }
+  };
+  
+  // Parse enhanced options from AI response
+  const parseEnhancedOptions = (text: string): string[] => {
+    const options: string[] = [];
+    const optionRegex = /\*\*Option \d+:\*\*\s*([\s\S]*?)(?=\*\*Option \d+:\*\*|$)/g;
+    let match;
+    
+    while ((match = optionRegex.exec(text)) !== null) {
+      const option = match[1].trim();
+      if (option) {
+        options.push(option);
+      }
+    }
+    
+    // If no formatted options found, return the whole text as one option
+    if (options.length === 0 && text.trim()) {
+      options.push(text.trim());
+    }
+    
+    return options;
+  };
+  
+  // Apply selected enhancement option
+  const applyEnhancement = (optionIndex: number) => {
+    if (!editingField || !currentTextarea) return;
+    
+    const selectedOption = enhancedOptions[optionIndex];
+    if (!selectedOption) return;
+    
+    // Store original for undo
+    const originalValue = currentTextarea.value;
+    setUndoStack(prev => [...prev, { field: editingField, value: originalValue }]);
+    
+    // Build new value with enhancement
+    const before = originalValue.substring(0, selectionStart);
+    const after = originalValue.substring(selectionEnd);
+    const newValue = before + selectedOption + after;
+    
+    // Update the appropriate field
+    if (editingField.type === 'character' && editingField.index !== undefined) {
+      updateCharacter(editingField.index, editingField.field as keyof Character, newValue);
+    } else if (editingField.type === 'setting' && editingField.index !== undefined) {
+      updateSetting(editingField.index, editingField.field as keyof Setting, newValue);
+    } else {
+      updateField(editingField.field as keyof StoryBible, newValue);
+    }
+    
+    // Close sidebar
+    setShowEnhancementSidebar(false);
+    setEnhancedOptions([]);
+    setStreamedText('');
+    setSelectedText('');
   };
   
   // Undo last enhancement
@@ -764,6 +799,93 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
           </div>
         </div>
       </div>
+
+      {/* Enhancement Sidebar */}
+      {showEnhancementSidebar && (
+        <div className="fixed inset-y-0 right-0 w-96 bg-gray-800 border-l border-gray-700 shadow-2xl z-50 flex flex-col">
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-white">✨ AI Enhancement Options</h3>
+              <p className="text-xs text-gray-400 mt-1">Choose an option or regenerate</p>
+            </div>
+            <button
+              onClick={() => {
+                setShowEnhancementSidebar(false);
+                setEnhancedOptions([]);
+                setStreamedText('');
+              }}
+              className="text-gray-400 hover:text-white"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Original Text */}
+          <div className="p-4 border-b border-gray-700 bg-gray-900">
+            <div className="text-xs text-gray-400 mb-1">Original:</div>
+            <div className="text-sm text-gray-300 italic">{originalTextForEnhancement}</div>
+          </div>
+
+          {/* Options or Loading */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {isEnhancing ? (
+              <div className="text-center py-8">
+                <div className="text-blue-400 animate-pulse mb-2">⚡ Generating options...</div>
+                <div className="text-xs text-gray-400">AI is creating multiple versions for you</div>
+                {streamedText && (
+                  <div className="mt-4 p-3 bg-gray-900 rounded text-xs text-gray-300 text-left max-h-40 overflow-hidden">
+                    {streamedText}
+                  </div>
+                )}
+              </div>
+            ) : enhancedOptions.length > 0 ? (
+              enhancedOptions.map((option, index) => (
+                <div key={index} className="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden">
+                  <div className="px-3 py-2 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-purple-400">Option {index + 1}</span>
+                    <span className="text-xs text-gray-500">{option.length} chars</span>
+                  </div>
+                  <div className="p-3 text-sm text-gray-200">{option}</div>
+                  <div className="px-3 py-2 border-t border-gray-700">
+                    <button
+                      onClick={() => applyEnhancement(index)}
+                      className="w-full px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium transition-colors"
+                    >
+                      ✓ Use This Version
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-400">
+                No options generated yet
+              </div>
+            )}
+          </div>
+
+          {/* Regenerate Options */}
+          {!isEnhancing && enhancedOptions.length > 0 && (
+            <div className="p-4 border-t border-gray-700 space-y-2">
+              <button
+                onClick={() => enhanceText(currentEnhancementType)}
+                className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
+              >
+                🔄 Regenerate Options
+              </button>
+              <button
+                onClick={() => {
+                  setShowEnhancementSidebar(false);
+                  setShowEnhanceMenu(true);
+                }}
+                className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
+              >
+                ← Back to Enhancement Menu
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
