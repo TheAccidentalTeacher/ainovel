@@ -194,26 +194,27 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
     setUndoStack(prev => prev.slice(0, -1));
   };
 
-  // Handle text selection - now tracks which field for state updates
-  const handleTextSelection = (
-    e: React.SyntheticEvent<HTMLTextAreaElement>,
+  // Handle text selection - creates a handler with field info
+  const createSelectionHandler = (
     fieldInfo: { type: 'character' | 'setting' | 'theme' | 'plot' | 'subplot' | 'milestone'; index?: number; field: string }
   ) => {
-    const target = e.currentTarget;
-    const start = target.selectionStart;
-    const end = target.selectionEnd;
-    const selected = target.value.substring(start, end);
-    
-    if (selected.length > 0) {
-      setSelectedText(selected);
-      setSelectionStart(start);
-      setSelectionEnd(end);
-      setCurrentTextarea(target);
-      setEditingField(fieldInfo);
-      setShowEnhanceMenu(true);
-    } else {
-      setShowEnhanceMenu(false);
-    }
+    return (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+      const target = e.currentTarget;
+      const start = target.selectionStart;
+      const end = target.selectionEnd;
+      const selected = target.value.substring(start, end);
+      
+      if (selected.length > 0) {
+        setSelectedText(selected);
+        setSelectionStart(start);
+        setSelectionEnd(end);
+        setCurrentTextarea(target);
+        setEditingField(fieldInfo);
+        setShowEnhanceMenu(true);
+      } else {
+        setShowEnhanceMenu(false);
+      }
+    };
   };
 
   // Keyboard shortcuts
@@ -519,7 +520,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={character.physical_description || ''}
                           onChange={(e) => updateCharacter(index, 'physical_description', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'character', index, field: 'physical_description' })}
+                          onSelect={createSelectionHandler({ type: 'character', index, field: 'physical_description' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
@@ -529,7 +530,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={character.personality || ''}
                           onChange={(e) => updateCharacter(index, 'personality', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'character', index, field: 'personality' })}
+                          onSelect={createSelectionHandler({ type: 'character', index, field: 'personality' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
@@ -539,7 +540,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={character.backstory || ''}
                           onChange={(e) => updateCharacter(index, 'backstory', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'character', index, field: 'backstory' })}
+                          onSelect={createSelectionHandler({ type: 'character', index, field: 'backstory' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[120px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
@@ -549,7 +550,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={character.goals || ''}
                           onChange={(e) => updateCharacter(index, 'goals', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'character', index, field: 'goals' })}
+                          onSelect={createSelectionHandler({ type: 'character', index, field: 'goals' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
@@ -559,7 +560,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={character.character_arc || ''}
                           onChange={(e) => updateCharacter(index, 'character_arc', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'character', index, field: 'character_arc' })}
+                          onSelect={createSelectionHandler({ type: 'character', index, field: 'character_arc' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
@@ -569,7 +570,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={character.quirks || ''}
                           onChange={(e) => updateCharacter(index, 'quirks', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'character', index, field: 'quirks' })}
+                          onSelect={createSelectionHandler({ type: 'character', index, field: 'quirks' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
@@ -620,7 +621,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={setting.description || ''}
                           onChange={(e) => updateSetting(index, 'description', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'setting', index, field: 'description' })}
+                          onSelect={createSelectionHandler({ type: 'setting', index, field: 'description' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -630,7 +631,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={setting.atmosphere || ''}
                           onChange={(e) => updateSetting(index, 'atmosphere', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'setting', index, field: 'atmosphere' })}
+                          onSelect={createSelectionHandler({ type: 'setting', index, field: 'atmosphere' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -640,7 +641,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={setting.significance || ''}
                           onChange={(e) => updateSetting(index, 'significance', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'setting', index, field: 'significance' })}
+                          onSelect={createSelectionHandler({ type: 'setting', index, field: 'significance' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -650,7 +651,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                         <textarea
                           value={setting.special_features || ''}
                           onChange={(e) => updateSetting(index, 'special_features', e.target.value)}
-                          onSelect={(e) => handleTextSelection(e, { type: 'setting', index, field: 'special_features' })}
+                          onSelect={createSelectionHandler({ type: 'setting', index, field: 'special_features' })}
                           className="w-full mt-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -669,7 +670,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                 <textarea
                   value={editedBible.humor_style || ''}
                   onChange={(e) => updateField('humor_style', e.target.value)}
-                  onSelect={(e) => handleTextSelection(e, { type: 'theme', field: 'humor_style' })}
+                  onSelect={createSelectionHandler({ type: 'theme', field: 'humor_style' })}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
@@ -679,7 +680,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                 <textarea
                   value={editedBible.tone_notes || ''}
                   onChange={(e) => updateField('tone_notes', e.target.value)}
-                  onSelect={(e) => handleTextSelection(e, { type: 'theme', field: 'tone_notes' })}
+                  onSelect={createSelectionHandler({ type: 'theme', field: 'tone_notes' })}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[120px] focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
@@ -689,7 +690,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                 <textarea
                   value={editedBible.genre_guidelines || ''}
                   onChange={(e) => updateField('genre_guidelines', e.target.value)}
-                  onSelect={(e) => handleTextSelection(e, { type: 'theme', field: 'genre_guidelines' })}
+                  onSelect={createSelectionHandler({ type: 'theme', field: 'genre_guidelines' })}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[120px] focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
@@ -704,7 +705,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                 <textarea
                   value={editedBible.main_plot_arc || ''}
                   onChange={(e) => updateField('main_plot_arc', e.target.value)}
-                  onSelect={(e) => handleTextSelection(e, { type: 'plot', field: 'main_plot_arc' })}
+                  onSelect={createSelectionHandler({ type: 'plot', field: 'main_plot_arc' })}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[200px] focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 />
               </div>
