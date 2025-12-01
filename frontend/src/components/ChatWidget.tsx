@@ -12,9 +12,10 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen } from 'lucide-react';
+import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen, Bot, Users, Sparkles } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatApi, type ConversationResponse } from '../services/chatService';
+import { agentApi, type Agent } from '../services/agentService';
 import { SearchFeatureTour } from './SearchFeatureTour';
 import { useConversation } from '../hooks/useConversation';
 
@@ -27,6 +28,8 @@ interface Message {
   token_count?: number;
   model?: string;
   search_type?: string;
+  agent_id?: string;
+  agent_name?: string;
 }
 
 interface ChatWidgetProps {
@@ -60,6 +63,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchTour, setShowSearchTour] = useState(false);
   const [searchType, setSearchType] = useState<string>('');
+  const [botMode, setBotMode] = useState<'standard' | 'agent' | 'debate'>('standard');
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const [showBotSelector, setShowBotSelector] = useState(false);
+  const [debateAgents, setDebateAgents] = useState<string[]>([]);
 
   // Show tour when web search is first enabled
   useEffect(() => {
@@ -83,6 +90,13 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   const { data: modelsData } = useQuery({
     queryKey: ['chat-models'],
     queryFn: () => chatApi.getAvailableModels(),
+  });
+
+  // Fetch available agents
+  const { data: agentsData } = useQuery({
+    queryKey: ['agents'],
+    queryFn: () => agentApi.listAgents(),
+    enabled: isOpen, // Only fetch when chat is open
   });
 
   // Create conversation on open if none exists
@@ -180,7 +194,6 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
     };
     setMessages(prev => [...prev, tempUserMessage]);
 
-    // Stream AI response
     setIsStreaming(true);
     setStreamingContent('');
     setSearchResults([]);
@@ -193,6 +206,74 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
     const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
 
     try {
+      // AGENT MODE: Chat with specific agent
+      if (botMode === 'agent' && selectedAgentId) {
+        const response = await agentApi.chatWithAgent({
+          agent_id: selectedAgentId,
+          message: userMessage,
+          project_id: projectId,
+          conversation_history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
+        });
+
+        const assistantMessage: Message = {
+          id: `agent-${Date.now()}`,
+          conversation_id: conversationId || undefined,
+          role: 'assistant',
+          content: response.response,
+          timestamp: response.timestamp,
+          token_count: 0,
+          agent_id: response.agent_id,
+          agent_name: response.agent_name,
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        setIsStreaming(false);
+        queryClient.invalidateQueries({ queryKey: ['conversation', conversationId] });
+        return;
+      }
+
+      // DEBATE MODE: Multi-agent debate
+      if (botMode === 'debate' && debateAgents.length > 0) {
+        const debateResponse = await agentApi.startDebate({
+          debate_topic: userMessage,
+          project_id: projectId,
+          context: {
+            genre: 'general',
+            conversation_context: messages.slice(-5).map(m => m.content).join('\n'),
+          },
+          participating_agents: debateAgents,
+          rounds: 1,
+        });
+
+        // Format debate as message
+        let debateContent = `🗳️ **Debate Results**\n\n`;
+        debateContent += `**Topic:** ${debateResponse.debate_topic}\n\n`;
+        debateContent += `**Participants:** ${debateResponse.participants.join(', ')}\n\n`;
+        
+        debateResponse.arguments.forEach(arg => {
+          debateContent += `**${arg.agent_name}** (${arg.vote}):\n${arg.argument}\n\n`;
+        });
+        
+        debateContent += `**Winner:** ${debateResponse.vote_tally.winner}\n`;
+        debateContent += `**Vote:** Support: ${debateResponse.vote_tally.support}, Oppose: ${debateResponse.vote_tally.oppose}, Abstain: ${debateResponse.vote_tally.abstain}\n\n`;
+        debateContent += `**Synthesis:**\n${debateResponse.synthesis}`;
+
+        const assistantMessage: Message = {
+          id: `debate-${Date.now()}`,
+          conversation_id: conversationId || undefined,
+          role: 'assistant',
+          content: debateContent,
+          timestamp: debateResponse.timestamp,
+          token_count: 0,
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        setIsStreaming(false);
+        queryClient.invalidateQueries({ queryKey: ['conversation', conversationId] });
+        return;
+      }
+
+      // STANDARD MODE: Regular streaming chat
       const response = await fetch(
         `${API_BASE_URL}/chat/conversations/${conversationId}/messages?model=${selectedModel}&web_search=${webSearchEnabled}`,
         {
@@ -384,6 +465,87 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 ) : null;
               })()}
               
+              {/* Bot Mode Selector */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setBotMode('standard')}
+                  disabled={isStreaming}
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                    botMode === 'standard'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  } disabled:opacity-50`}
+                  title="Standard AI chat"
+                >
+                  <MessageCircle size={14} />
+                  <span>Standard</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setBotMode('agent');
+                    setShowBotSelector(true);
+                  }}
+                  disabled={isStreaming || !agentsData?.agents?.length}
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                    botMode === 'agent'
+                      ? 'bg-violet-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  } disabled:opacity-50`}
+                  title="Chat with specialist bot"
+                >
+                  <Bot size={14} />
+                  <span>Agent</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setBotMode('debate');
+                    setShowBotSelector(true);
+                  }}
+                  disabled={isStreaming || !agentsData?.agents?.length}
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                    botMode === 'debate'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  } disabled:opacity-50`}
+                  title="Multi-bot debate mode"
+                >
+                  <Users size={14} />
+                  <span>Debate</span>
+                </button>
+              </div>
+
+              {/* Active Agent Display */}
+              {botMode === 'agent' && selectedAgentId && agentsData?.agents && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-md"}
+                  <Bot size={14} className="text-violet-600" />
+                  <span className="text-xs font-medium text-violet-700 dark:text-violet-300">
+                    {agentsData.agents.find((a: Agent) => a.agent_id === selectedAgentId)?.name || 'Unknown Agent'}
+                  </span>
+                  <button
+                    onClick={() => setShowBotSelector(true)}
+                    className="ml-auto text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+                  >
+                    Change
+                  </button>
+                </div>
+              )}
+
+              {/* Active Debate Agents Display */}
+              {botMode === 'debate' && debateAgents.length > 0 && agentsData?.agents && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 dark:bg-purple-900/20 rounded-md"}
+                  <Users size={14} className="text-purple-600" />
+                  <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                    {debateAgents.length} agents in debate
+                  </span>
+                  <button
+                    onClick={() => setShowBotSelector(true)}
+                    className="ml-auto text-xs text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+                  >
+                    Change
+                  </button>
+                </div>
+              )}
+
               {/* Web Search Toggle with Info */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -576,6 +738,15 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
                   }`}
                 >
+                  {/* Agent Badge */}
+                  {message.role === 'assistant' && message.agent_name && (
+                    <div className="flex items-center gap-1 mb-2 text-xs px-2 py-1 rounded bg-violet-100 dark:bg-violet-900/30 w-fit">
+                      <Bot size={12} className="text-violet-700 dark:text-violet-300" />
+                      <span className="text-violet-700 dark:text-violet-300 font-medium">
+                        {message.agent_name}
+                      </span>
+                    </div>
+                  )}
                   {/* Search Type Badge */}
                   {message.role === 'assistant' && message.search_type && (
                     <div className="flex items-center gap-1 mb-2 text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/30 w-fit">
@@ -731,6 +902,141 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               Press Enter to send, Shift+Enter for new line
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Bot Selector Modal */}
+      {showBotSelector && agentsData?.agents && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {botMode === 'agent' ? 'Select an Agent' : 'Select Debate Agents'}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {botMode === 'agent' 
+                      ? 'Choose a specialist to chat with' 
+                      : 'Select multiple agents to participate in the debate'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowBotSelector(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Agent List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="space-y-3">
+                {agentsData.agents.map((agent: Agent) => (
+                  <div
+                    key={agent.agent_id}
+                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                      botMode === 'agent'
+                        ? selectedAgentId === agent.agent_id
+                          ? 'border-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-violet-400 dark:hover:border-violet-600'
+                        : debateAgents.includes(agent.agent_id)
+                        ? 'border-purple-600 bg-purple-50 dark:bg-purple-900/20'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-600'
+                    }`}
+                    onClick={() => {
+                      if (botMode === 'agent') {
+                        setSelectedAgentId(agent.agent_id);
+                      } else {
+                        setDebateAgents(prev =>
+                          prev.includes(agent.agent_id)
+                            ? prev.filter(id => id !== agent.agent_id)
+                            : [...prev, agent.agent_id]
+                        );
+                      }
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2 rounded-lg ${
+                        botMode === 'agent' && selectedAgentId === agent.agent_id
+                          ? 'bg-violet-600'
+                          : botMode === 'debate' && debateAgents.includes(agent.agent_id)
+                          ? 'bg-purple-600'
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      }`}>
+                        <Bot size={20} className={
+                          (botMode === 'agent' && selectedAgentId === agent.agent_id) ||
+                          (botMode === 'debate' && debateAgents.includes(agent.agent_id))
+                            ? 'text-white'
+                            : 'text-gray-600 dark:text-gray-400'
+                        } />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-gray-900 dark:text-white">
+                            {agent.name}
+                          </h4>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                            {agent.short_name}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {agent.personality_description}
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {agent.expertise.slice(0, 3).map((exp, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            >
+                              {exp}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+              {botMode === 'debate' && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Selected: {debateAgents.length} agent(s) {debateAgents.length < 2 && '(minimum 2 required)'}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowBotSelector(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (botMode === 'agent' && !selectedAgentId) return;
+                    if (botMode === 'debate' && debateAgents.length < 2) return;
+                    setShowBotSelector(false);
+                  }}
+                  disabled={
+                    (botMode === 'agent' && !selectedAgentId) ||
+                    (botMode === 'debate' && debateAgents.length < 2)
+                  }
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    botMode === 'agent'
+                      ? 'bg-violet-600 hover:bg-violet-700 text-white'
+                      : 'bg-purple-600 hover:bg-purple-700 text-white'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {botMode === 'agent' ? 'Chat with Agent' : 'Start Debate'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
