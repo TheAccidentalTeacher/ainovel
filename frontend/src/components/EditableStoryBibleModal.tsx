@@ -90,14 +90,14 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
     
     try {
       const enhancementPrompts: Record<string, string> = {
-        expand: 'Expand this text with more vivid details and depth',
-        simplify: 'Simplify and clarify this text while keeping its meaning',
-        dramatize: 'Make this text more dramatic and emotionally compelling',
-        descriptive: 'Add rich sensory details and descriptions',
-        emotional: 'Enhance the emotional resonance of this text',
-        concise: 'Make this more concise while keeping key information',
-        funnier: 'Add wit, humor, and lighter tone to this text',
-        custom: customInstruction || 'Enhance this text'
+        expand: 'Expand this text with more vivid details and depth. Maintain the same tone and flow so it blends seamlessly with surrounding text.',
+        simplify: 'Simplify and clarify this text while keeping its exact meaning. Ensure it flows naturally with surrounding context.',
+        dramatize: 'Make this text more dramatic and emotionally compelling while maintaining narrative consistency.',
+        descriptive: 'Add rich sensory details and descriptions. Keep the same narrative voice and ensure smooth integration.',
+        emotional: 'Enhance the emotional resonance of this text while preserving its core message and tone.',
+        concise: 'Make this more concise while keeping all key information. Maintain the same writing style.',
+        funnier: 'Add wit, humor, and lighter tone to this text while keeping it appropriate for the context.',
+        custom: customInstruction || 'Enhance this text while maintaining consistency with the surrounding content'
       };
       
       const prompt = enhancementPrompts[enhancementType] || 'Enhance this text';
@@ -158,10 +158,13 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
         }
       }
       
-      setShowEnhanceMenu(false);
-      setSelectedText('');
-      setShowCustomInput(false);
-      setCustomEnhancement('');
+      // Success - close menu after a brief moment to show completion
+      setTimeout(() => {
+        setShowEnhanceMenu(false);
+        setSelectedText('');
+        setShowCustomInput(false);
+        setCustomEnhancement('');
+      }, 500);
     } catch (err) {
       console.error('Enhancement error:', err);
       alert('Failed to enhance text. Please try again.');
@@ -169,7 +172,8 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
       handleUndo();
     } finally {
       setIsEnhancing(false);
-      setStreamedText('');
+      // Show completion message briefly
+      setTimeout(() => setStreamedText(''), 400);
     }
   };
   
@@ -351,10 +355,10 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                 <div className="bg-blue-900 border border-blue-600 rounded p-2 mb-2">
                   <div className="text-blue-300 text-xs mb-1 flex items-center gap-1">
                     <span className="animate-pulse">●</span>
-                    Generating enhanced text...
+                    Streaming directly into your text...
                   </div>
-                  <div className="text-white text-xs opacity-90 max-h-24 overflow-hidden">
-                    {streamedText}
+                  <div className="text-white text-xs opacity-75 italic">
+                    Watch the textarea update in real-time! ↓
                   </div>
                 </div>
               )}
