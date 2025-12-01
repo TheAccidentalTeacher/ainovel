@@ -21,7 +21,7 @@ from models.schemas import (
     AIConfig
 )
 from services.story_bible_service import generate_story_bible_from_premise
-from services.ai_service import generate_ai_content
+from services.ai_service import AIService
 from models.database import get_database
 from pydantic import BaseModel
 
@@ -279,12 +279,17 @@ Original text:
 
 Enhanced version:"""
         
-        enhanced = await generate_ai_content(
+        # Use AIService to generate enhanced text
+        ai_service = AIService()
+        ai_config.max_tokens = 2000
+        ai_config.temperature = 0.8
+        
+        response = await ai_service.generate_text(
             prompt=prompt,
-            ai_config=ai_config,
-            max_tokens=2000,
-            temperature=0.8
+            config=ai_config
         )
+        
+        enhanced = response["content"]
         
         logger.info(f"Text enhancement complete. Original: {len(request.text)} Enhanced: {len(enhanced)}")
         
