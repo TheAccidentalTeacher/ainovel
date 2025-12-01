@@ -723,7 +723,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                           updated[index] = e.target.value;
                           updateField('subplots', updated);
                         }}
-                        onSelect={handleTextSelection}
+                        onSelect={createSelectionHandler({ type: 'subplot', index, field: 'subplots' })}
                         className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-yellow-500"
                       />
                     </div>
