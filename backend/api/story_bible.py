@@ -246,19 +246,22 @@ class EnhanceTextRequest(BaseModel):
     instruction: str
 
 
-@router.post("/projects/{project_id}/enhance-text")
-async def enhance_text(
+@router.post("/projects/{project_id}/enhance-text-stream")
+async def enhance_text_stream(
     project_id: str,
     request: EnhanceTextRequest,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """
-    Enhance text using AI for Story Bible editing.
+    Stream enhanced text using AI for Story Bible editing.
     
     Takes a text selection and an enhancement instruction,
-    returns the enhanced version.
+    streams the enhanced version word by word.
     """
-    logger.info(f"Text enhancement requested for project_id={project_id}")
+    from fastapi.responses import StreamingResponse
+    import json
+    
+    logger.info(f"Text enhancement streaming requested for project_id={project_id}")
     logger.info(f"Text length: {len(request.text)}, Instruction: {request.instruction}")
     
     # Get project to check AI config
@@ -271,34 +274,41 @@ async def enhance_text(
     if "ai_config" in project:
         ai_config = AIConfig(**project["ai_config"])
     
-    try:
-        prompt = f"""{request.instruction}
+    async def generate_stream():
+        try:
+            prompt = f"""{request.instruction}
 
 Original text:
 {request.text}
 
 Enhanced version:"""
-        
-        # Use AIService to generate enhanced text
-        ai_service = AIService()
-        ai_config.max_tokens = 2000
-        ai_config.temperature = 0.8
-        
-        response = await ai_service.generate_text(
-            prompt=prompt,
-            config=ai_config
-        )
-        
-        enhanced = response["content"]
-        
-        logger.info(f"Text enhancement complete. Original: {len(request.text)} Enhanced: {len(enhanced)}")
-        
-        return {
-            "enhanced_text": enhanced.strip(),
-            "original_length": len(request.text),
-            "enhanced_length": len(enhanced)
+            
+            # Use AIService to generate enhanced text with streaming
+            ai_service = AIService()
+            ai_config.max_tokens = 2000
+            ai_config.temperature = 0.8
+            
+            async for chunk in ai_service.generate_text_stream(
+                prompt=prompt,
+                config=ai_config
+            ):
+                # Send each chunk as SSE (Server-Sent Events)
+                yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+            
+            # Send completion signal
+            yield f"data: {json.dumps({'done': True})}\n\n"
+            
+            logger.info(f"Text enhancement streaming complete")
+            
+        except Exception as e:
+            logger.error(f"Text enhancement streaming failed: {e}", exc_info=True)
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+    
+    return StreamingResponse(
+        generate_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
         }
-        
-    except Exception as e:
-        logger.error(f"Text enhancement failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Text enhancement failed: {str(e)}")
+    )

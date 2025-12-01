@@ -39,6 +39,10 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
   const [customEnhancement, setCustomEnhancement] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [streamedText, setStreamedText] = useState('');
+  
+  // Undo state - store original value before enhancement
+  const [undoStack, setUndoStack] = useState<Array<{textarea: HTMLTextAreaElement, value: string}>>([]);
 
   // Save mutation
   const saveMutation = useMutation({
@@ -66,11 +70,16 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
     }
   });
 
-  // AI Enhancement
+  // AI Enhancement with streaming
   const enhanceText = async (enhancementType: string, customInstruction?: string) => {
     if (!selectedText || !currentTextarea) return;
     
+    // Store original value for undo
+    setUndoStack(prev => [...prev, { textarea: currentTextarea, value: currentTextarea.value }]);
+    
     setIsEnhancing(true);
+    setStreamedText('');
+    
     try {
       const enhancementPrompts: Record<string, string> = {
         expand: 'Expand this text with more vivid details and depth',
@@ -85,7 +94,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
       
       const prompt = enhancementPrompts[enhancementType] || 'Enhance this text';
       
-      const response = await fetch(`${API_BASE}/projects/${projectId}/enhance-text`, {
+      const response = await fetch(`${API_BASE}/projects/${projectId}/enhance-text-stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,16 +105,40 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
       
       if (!response.ok) throw new Error('Enhancement failed');
       
-      const data = await response.json();
-      const enhanced = data.enhanced_text || data.result || selectedText;
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let enhanced = '';
       
-      // Replace selected text with enhanced version
-      const currentValue = currentTextarea.value;
-      const before = currentValue.substring(0, selectionStart);
-      const after = currentValue.substring(selectionEnd);
-      const newValue = before + enhanced + after;
-      
-      currentTextarea.value = newValue;
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.chunk) {
+                enhanced += data.chunk;
+                setStreamedText(enhanced);
+                
+                // Update textarea in real-time
+                const currentValue = currentTextarea.value;
+                const before = currentValue.substring(0, selectionStart);
+                const after = currentValue.substring(selectionEnd);
+                currentTextarea.value = before + enhanced + after;
+              } else if (data.done) {
+                break;
+              } else if (data.error) {
+                throw new Error(data.error);
+              }
+            }
+          }
+        }
+      }
       
       // Trigger change event to update state
       const event = new Event('input', { bubbles: true });
@@ -118,9 +151,27 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
     } catch (err) {
       console.error('Enhancement error:', err);
       alert('Failed to enhance text. Please try again.');
+      // Undo on error
+      handleUndo();
     } finally {
       setIsEnhancing(false);
+      setStreamedText('');
     }
+  };
+  
+  // Undo last enhancement
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+    
+    const lastState = undoStack[undoStack.length - 1];
+    lastState.textarea.value = lastState.value;
+    
+    // Trigger change event
+    const event = new Event('input', { bubbles: true });
+    lastState.textarea.dispatchEvent(event);
+    
+    // Remove from stack
+    setUndoStack(prev => prev.slice(0, -1));
   };
 
   // Handle text selection
@@ -140,6 +191,22 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
       setShowEnhanceMenu(false);
     }
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Z for undo
+      if (e.ctrlKey && e.key === 'z' && !e.shiftKey && undoStack.length > 0 && !isEnhancing) {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+    
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, undoStack, isEnhancing]);
 
   // Update character field
   const updateCharacter = (index: number, field: keyof Character, value: any) => {
@@ -232,12 +299,41 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 relative">
+          {/* Undo Button */}
+          {undoStack.length > 0 && !isEnhancing && (
+            <div className="fixed z-50" style={{ top: '80px', right: '40px' }}>
+              <button
+                onClick={handleUndo}
+                className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg shadow-lg text-sm font-medium flex items-center gap-2"
+              >
+                ↶ Undo Enhancement
+              </button>
+            </div>
+          )}
+
           {/* AI Enhancement Menu */}
           {showEnhanceMenu && selectedText && (
             <div className="fixed bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 z-50" style={{ top: '120px', right: '40px' }}>
-              <div className="text-xs text-gray-400 mb-2 px-2">
-                ✨ AI Enhance ({selectedText.length} chars)
+              <div className="text-xs text-gray-400 mb-2 px-2 flex items-center justify-between">
+                <span>✨ AI Enhance ({selectedText.length} chars)</span>
+                {isEnhancing && (
+                  <span className="text-blue-400 animate-pulse">Generating...</span>
+                )}
               </div>
+
+              {/* Streaming Progress */}
+              {isEnhancing && streamedText && (
+                <div className="bg-blue-900 border border-blue-600 rounded p-2 mb-2">
+                  <div className="text-blue-300 text-xs mb-1 flex items-center gap-1">
+                    <span className="animate-pulse">●</span>
+                    Generating enhanced text...
+                  </div>
+                  <div className="text-white text-xs opacity-90 max-h-24 overflow-hidden">
+                    {streamedText}
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col gap-1">
                 <button
                   onClick={() => enhanceText('expand')}
