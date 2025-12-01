@@ -369,7 +369,7 @@ export default function EditableStoryBibleModal({ isOpen, onClose, storyBible, p
                 >
                   <button
                     onClick={() => setExpandedCharacter(expandedCharacter === index ? null : index)}
-                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-800 transition-colors"
+                    className="w-full px-4 py-3 flex items-center justify-between bg-gray-900 hover:bg-gray-800 transition-colors"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
