@@ -1,13 +1,23 @@
 # AI Novel Generator
 
-> **Status (2025-11-29)**: 
+> **Status (2025-12-01)**: 
 > - ✅ **Core Writing System**: Phase 1 complete. Story Bible extraction, structured outline generation, chapter streaming, and bulk generation all live. Comprehensive narrative consistency system with multi-layer context ensures 25-chapter coherence.
 > - ✅ **Book Cover Generator**: Phase 3 complete. End-to-end AI cover design - Story analysis → Claude design brief → DALL-E 3 generation → Typography overlay → Multi-format export (ebook/print/social). Fully operational 5-step wizard.
 > - ✅ **Production Quality Testing**: V1→V2→V3 iterative improvement complete. Anti-AI-tell rules achieved **A- grade** (94% of publication quality). Universal humanization logic working across all genres.
 > - ✅ **Global Chat Widget**: AI assistant available on EVERY page (Studio, Covers, Bots) as floating widget. Never leave your creative flow! 💬⚡
 > - 🦸 **CODE MASTER AI ASSISTANT**: Elite programming specialist - 80's hero personality ACTIVE! ⚔️⚡🐯⭐🥷
-> - 🤖 **Bot System (Phase 2)**: Multi-agent specialist system IN DEVELOPMENT - See [Bot System Architecture](#-bot-system-architecture) below
+> - 🤖 **Bot System (Phase 2)**: Multi-agent specialist system staged for implementation - review [Bot System Architecture](#-bot-system-architecture) + [`docs/BOT_SYSTEM_ARCHITECTURE.md`](docs/BOT_SYSTEM_ARCHITECTURE.md)
+> - 🗺️ **Application System Map**: New high-level atlas – [docs/APPLICATION_SITEMAP.md](docs/APPLICATION_SITEMAP.md)
 > - 📚 **Documentation**: [Complete Index with 50+ guides](DOCUMENTATION_INDEX.md)
+
+---
+
+## 🗺️ Documentation Map
+- **First Stop**: `README.md` (this file) for status, setup, and operating guidance.
+- **System Atlas**: [`docs/APPLICATION_SITEMAP.md`](docs/APPLICATION_SITEMAP.md) links every directory, API route, and supporting doc in one place.
+- **Full Catalog**: [`DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md) tracks 50+ guides with categories, quick navigation, and maintenance status.
+
+Use this trio to keep orientation: README → System Map → Documentation Index.
 
 ---
 
@@ -146,6 +156,7 @@ I'm continuing iterative manuscript improvement. Please:
 | Artifact | Purpose |
 | --- | --- |
 | **`DOCUMENTATION_INDEX.md`** | **📚 Master index for all 50+ documentation files with categorization and quick navigation.** |
+| **`docs/APPLICATION_SITEMAP.md`** | **🗺️ Directory + feature map with backend/frontend/API crosslinks. Fast orientation layer after this README.** |
 | `README.md` (this file) | Status, architecture, and operator guidance. |
 | `docs/system-overview.md` | Deep dive into data flow, domain models, AI prompts, and component wiring. |
 | `docs/phase-plan.md` | Five-phase roadmap with acceptance criteria. |

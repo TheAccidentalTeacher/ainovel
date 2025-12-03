@@ -16,7 +16,7 @@ from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from models.database import get_database
-from services.research_assistant_agent import create_research_assistant
+from services.research_assistant_avatar import create_research_assistant
 from services.debate_orchestrator import create_debate_orchestrator
 from services.avatar_base import Avatar
 
@@ -89,22 +89,34 @@ class HandoffImportRequest(BaseModel):
 _avatar_registry: Dict[str, Avatar] = {}
 
 
-async def get_avatar_registry(db: AsyncIOMotorDatabase = Depends(get_database)) -> Dict[str, Avatar]:
-    """Get or initialize avatar registry"""
+async def get_avatar_registry(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    user_id: Optional[str] = None
+) -> Dict[str, Avatar]:
+    """Get or initialize avatar registry with both built-in and custom avatars
+    
+    Args:
+        db: Database connection
+        user_id: Optional user ID to load custom avatars for that user
+    
+    Returns:
+        Dict mapping avatar_id to Avatar instances (built-in + custom)
+    """
     global _avatar_registry
     
+    # Initialize built-in avatars once
     if not _avatar_registry:
-        # Import all agent factory functions
-        from services.research_assistant_agent import create_research_assistant
-        from services.plot_architect_agent import create_plot_architect
-        from services.character_developer_agent import create_character_developer
-        from services.dialogue_coach_agent import create_dialogue_coach
-        from services.editor_supreme_agent import create_editor_supreme
-        from services.romance_expert_agent import create_romance_expert
-        from services.mystery_master_agent import create_mystery_master
+        # Import all avatar factory functions
+        from services.research_assistant_avatar import create_research_assistant
+        from services.plot_architect_avatar import create_plot_architect
+        from services.character_developer_avatar import create_character_developer
+        from services.dialogue_coach_avatar import create_dialogue_coach
+        from services.editor_supreme_avatar import create_editor_supreme
+        from services.romance_expert_avatar import create_romance_expert
+        from services.mystery_master_avatar import create_mystery_master
         
-        # Initialize all agents
-        agents = [
+        # Initialize all built-in avatars
+        avatars = [
             create_research_assistant(db=db),
             create_plot_architect(db=db),
             create_character_developer(db=db),
@@ -114,49 +126,75 @@ async def get_avatar_registry(db: AsyncIOMotorDatabase = Depends(get_database)) 
             create_mystery_master(db=db),
         ]
         
-        # Register all agents
-        for agent in agents:
-            _agent_registry[agent.agent_id] = agent
+        # Register all built-in avatars
+        for avatar in avatars:
+            _avatar_registry[avatar.avatar_id] = avatar
         
-        print(f"✅ Initialized {len(_agent_registry)} agents: {', '.join([a.short_name for a in agents])}")
+        print(f"✅ Initialized {len(_avatar_registry)} built-in avatars: {', '.join([a.short_name for a in avatars])}")
     
-    return _agent_registry
+    # Start with built-in avatars
+    registry = dict(_avatar_registry)
+    
+    # Load custom avatars for this user if user_id provided
+    if user_id:
+        from services.custom_avatar import list_user_avatars
+        custom_avatars = await list_user_avatars(db, user_id)
+        
+        # Add custom avatars to registry
+        for custom_avatar in custom_avatars:
+            registry[custom_avatar.avatar_id] = custom_avatar
+        
+        if custom_avatars:
+            print(f"✅ Loaded {len(custom_avatars)} custom avatars for user {user_id}")
+    
+    return registry
 
 
 # ==================== Endpoints ====================
 
 @router.get("/list")
-async def list_agents(
+async def list_avatars(
+    user_id: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> Dict[str, Any]:
     """
-    List all available agents with their details.
+    List all available avatars with their details.
+    Includes built-in avatars and custom avatars for the specified user.
     """
-    registry = await get_agent_registry(db)
+    registry = await get_avatar_registry(db, user_id=user_id)
     
-    agents_info = [agent.to_dict() for agent in registry.values()]
+    avatars_info = []
+    for avatar in registry.values():
+        avatar_dict = avatar.to_dict()
+        # Add type indicator (built-in vs custom)
+        from services.custom_avatar import CustomAvatar
+        avatar_dict["is_custom"] = isinstance(avatar, CustomAvatar)
+        avatars_info.append(avatar_dict)
     
     return {
-        "agents": agents_info,
-        "count": len(agents_info)
+        "avatars": avatars_info,
+        "count": len(avatars_info),
+        "built_in_count": len([a for a in avatars_info if not a["is_custom"]]),
+        "custom_count": len([a for a in avatars_info if a["is_custom"]])
     }
 
 
 @router.post("/chat")
-async def agent_chat(
-    request: AgentChatRequest,
+async def avatar_chat(
+    request: AvatarChatRequest,
+    user_id: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_database)
-) -> AgentChatResponse:
+) -> AvatarChatResponse:
     """
-    Chat with a single agent.
+    Chat with a single avatar (built-in or custom).
     """
-    registry = await get_agent_registry(db)
+    registry = await get_avatar_registry(db, user_id=user_id)
     
-    # Get requested agent
+    # Get requested avatar
     if request.agent_id not in registry:
-        raise HTTPException(status_code=404, detail=f"Agent {request.agent_id} not found")
+        raise HTTPException(status_code=404, detail=f"Avatar {request.agent_id} not found")
     
-    agent = registry[request.agent_id]
+    avatar = registry[request.agent_id]
     
     # Process message
     response = await agent.process_message(
@@ -177,27 +215,27 @@ async def agent_chat(
 
 @router.post("/debate")
 async def start_debate(
-    request: DebateRequest,
+    request: CreativeBoardRequest,
     db: AsyncIOMotorDatabase = Depends(get_database)
-) -> DebateResponse:
+) -> CreativeBoardResponse:
     """
-    Start a multi-agent debate.
+    Start a creative board debate.
     
-    Agents will argue about the debate topic with witty, researched arguments
+    Avatars will argue about the debate topic with witty, researched arguments
     citing RESEARCH_SOURCES_COMPILATION.md. Results include votes and synthesis.
     """
     registry = await get_agent_registry(db)
     
-    # Get participating agents
+    # Get participating avatars
     if request.participating_agents:
-        agents = [registry[aid] for aid in request.participating_agents if aid in registry]
-        if not agents:
-            raise HTTPException(status_code=400, detail="No valid agents specified")
+        avatars = [registry[aid] for aid in request.participating_agents if aid in registry]
+        if not avatars:
+            raise HTTPException(status_code=400, detail="No valid avatars specified")
     else:
-        agents = list(registry.values())
+        avatars = list(registry.values())
     
-    # Create debate orchestrator
-    orchestrator = create_debate_orchestrator(agents=agents)
+    # Create Creative Board orchestrator
+    orchestrator = create_debate_orchestrator(agents=avatars)
     
     # Conduct debate
     debate_result = await orchestrator.conduct_debate(
@@ -273,7 +311,7 @@ async def submit_feedback(
     agent = registry[agent_id]
     
     # Record feedback
-    await agent.record_feedback(
+    await avatar.record_feedback(
         interaction_id=request.interaction_id,
         feedback_type=request.feedback_type,
         edited_response=request.edited_response
@@ -281,53 +319,55 @@ async def submit_feedback(
     
     return {
         "status": "success",
-        "message": f"Feedback recorded for {agent.name}"
+        "message": f"Feedback recorded for {avatar.name}"
     }
 
 
 @router.get("/memory/{agent_id}")
-async def get_agent_memory(
+async def get_avatar_memory(
     agent_id: str,
+    user_id: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> Dict[str, Any]:
     """
-    Get agent memory summary (what has been learned).
+    Get avatar memory summary (what has been learned).
     """
-    registry = await get_agent_registry(db)
+    registry = await get_avatar_registry(db, user_id=user_id)
     
     if agent_id not in registry:
-        raise HTTPException(status_code=404, detail="Agent not found")
+        raise HTTPException(status_code=404, detail="Avatar not found")
     
-    agent = registry[agent_id]
+    avatar = registry[agent_id]
     
-    memory_summary = await agent.get_memory_summary()
+    memory_summary = await avatar.get_memory_summary()
     
     return memory_summary
 
 
 @router.post("/memory/reset")
-async def reset_agent_memory(
+async def reset_avatar_memory(
     request: MemoryResetRequest,
+    user_id: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> Dict[str, str]:
     """
-    Reset agent memory (easy data destruction feature).
+    Reset avatar memory (easy data destruction feature).
     """
-    registry = await get_agent_registry(db)
+    registry = await get_avatar_registry(db, user_id=user_id)
     
     if request.agent_id not in registry:
-        raise HTTPException(status_code=404, detail="Agent not found")
+        raise HTTPException(status_code=404, detail="Avatar not found")
     
-    agent = registry[request.agent_id]
+    avatar = registry[request.agent_id]
     
-    await agent.reset_memory(categories=request.categories)
+    await avatar.reset_memory(categories=request.categories)
     
     reset_type = "full" if request.categories is None else "selective"
     
     return {
         "status": "success",
-        "message": f"{reset_type.capitalize()} memory reset for {agent.name}",
-        "agent_id": agent.agent_id
+        "message": f"{reset_type.capitalize()} memory reset for {avatar.name}",
+        "agent_id": avatar.avatar_id
     }
 
 
@@ -360,17 +400,17 @@ async def import_handoff_bot(
 
 
 @router.get("/health")
-async def agent_health(
+async def avatar_health(
     db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> Dict[str, Any]:
     """
-    Health check for agent system.
+    Health check for avatar system.
     """
-    registry = await get_agent_registry(db)
+    registry = await get_avatar_registry(db)
     
     return {
         "status": "healthy",
-        "agents_loaded": len(registry),
+        "avatars_loaded": len(registry),
         "research_doc_loaded": True,  # TODO: Check actual status
         "timestamp": datetime.utcnow()
     }

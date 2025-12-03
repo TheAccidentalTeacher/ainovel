@@ -60,26 +60,49 @@ Set these in Railway dashboard for **both API and Worker services**:
 # Application
 ENVIRONMENT=production
 PORT=8000
+LOG_LEVEL=INFO
 CORS_ORIGINS=https://your-frontend-domain.railway.app
+
+# Security (REQUIRED - Authentication)
+SECRET_KEY=generate-random-32-char-string
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
 
 # Database
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
 MONGODB_DATABASE=ai_novel_generator
 
-# Redis (auto-populated by Railway Redis plugin)
+# Redis (auto-populated by Railway Redis plugin - Optional for workers)
 REDIS_URI=${{Redis.REDIS_URL}}
 CELERY_BROKER_URL=${{Redis.REDIS_URL}}/0
 CELERY_RESULT_BACKEND=${{Redis.REDIS_URL}}/1
 
-# AI Keys
+# AI Keys (REQUIRED)
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 
 # AI Defaults
 DEFAULT_MODEL_PROVIDER=anthropic
-DEFAULT_MODEL_NAME=claude-3-5-sonnet-20241022
+DEFAULT_MODEL_NAME=claude-sonnet-4-20250514
 DEFAULT_TEMPERATURE=0.8
 DEFAULT_MAX_TOKENS=4096
+
+# Web Search (Optional - for chat search feature)
+TAVILY_API_KEY=tvly-...
+
+# Feature Flags
+BOOK_COVERS_ENABLED=true
+
+# Generation Limits
+MAX_PREMISE_WORDS=5000
+MAX_CHAPTER_COUNT=100
+MAX_WORD_COUNT_PER_BOOK=250000
+SUMMARIZATION_THRESHOLD=5
+CONTEXT_WINDOW_CHAPTERS=5
+```
+
+**To generate a secure SECRET_KEY:**
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
 **Variable References**: Railway supports `${{ServiceName.VAR}}` syntax for cross-service references.
@@ -146,15 +169,17 @@ Access Railway dashboard for metrics, CPU/memory usage, and deploy history.
 - Optimize context window size for generation
 
 ## Production Checklist
+- [ ] **SECRET_KEY generated** (use `secrets.token_urlsafe(32)`)
 - [ ] MongoDB backups configured
 - [ ] Railway project has payment method (avoid service suspension)
-- [ ] API keys stored in Railway variables (never in code)
+- [ ] **Required API keys set**: OPENAI_API_KEY, ANTHROPIC_API_KEY
+- [ ] Optional: TAVILY_API_KEY for web search feature
 - [ ] CORS origins restricted to production domains
-- [ ] Sentry or error tracking integrated
-- [ ] Health check endpoint verified
-- [ ] Worker service auto-restart enabled
-- [ ] Rate limiting configured
+- [ ] Frontend VITE_API_URL points to Railway backend
+- [ ] Health check endpoint verified at `/api/health`
 - [ ] Database indexes created (auto-created on first connection)
+- [ ] Test authentication flow (register → login → protected routes)
+- [ ] Test novel generation pipeline (premise → story bible → outline → chapters)
 
 ## Rollback
 Railway keeps deployment history:

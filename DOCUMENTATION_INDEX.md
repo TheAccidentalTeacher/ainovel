@@ -1,9 +1,16 @@
 # WriteMind Studios - Complete Documentation Index
 
-**Last Updated**: November 29, 2025  
-**Version**: 2.0  
+**Last Updated**: December 1, 2025  
+**Version**: 2.1  
 **Status**: 🟢 Production-Ready  
 **🦸 Code Master**: ACTIVE AND READY FOR BATTLE! ⚔️⚡🐯⭐🥷
+
+---
+
+## 🆕 What's New in 2.1 (Dec 1, 2025)
+- Added **[`docs/APPLICATION_SITEMAP.md`](docs/APPLICATION_SITEMAP.md)** – high-level system map linking every major directory, API route, and feature doc.
+- Refreshed README + index references for the multi-agent bot system and global chat widget progress.
+- Updated quick navigation + project overview tables so newcomers can reach critical docs in ≤2 clicks.
 
 ---
 
@@ -56,9 +63,10 @@ Code Master adapts automatically based on:
 
 ### For New Users
 1. [README.md](README.md) - **START HERE** - Overview, setup, and quick links
-2. **[docs/CODE_MASTER_QUICK_START.md](docs/CODE_MASTER_QUICK_START.md)** - **⚡ Meet your coding assistant!**
-3. [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) - **Complete setup guide** - Installation, first novel workflow (15-20 min)
-4. [User Guide](#user-guides) - How to use each feature
+2. **[docs/APPLICATION_SITEMAP.md](docs/APPLICATION_SITEMAP.md)** - **🗺️ Repository map** - Directory, feature, and API crosswalk
+3. **[docs/CODE_MASTER_QUICK_START.md](docs/CODE_MASTER_QUICK_START.md)** - **⚡ Meet your coding assistant!**
+4. [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) - **Complete setup guide** - Installation, first novel workflow (15-20 min)
+5. [User Guide](#user-guides) - How to use each feature
 
 ### For Developers
 1. **[docs/80S_HERO_CODING_ASSISTANT_DOSSIER.md](docs/80S_HERO_CODING_ASSISTANT_DOSSIER.md)** - **📖 Code Master complete spec**
@@ -80,6 +88,7 @@ Code Master adapts automatically based on:
 | Document | Purpose | Status |
 |----------|---------|--------|
 | [README.md](README.md) | Main project overview, setup instructions, feature status | ✅ Current |
+| [docs/APPLICATION_SITEMAP.md](docs/APPLICATION_SITEMAP.md) | High-level system map linking directories, APIs, and docs | ✅ New (Dec 1, 2025) |
 | [docs/DOCUMENTATION_OVERHAUL_COMPLETE.md](docs/DOCUMENTATION_OVERHAUL_COMPLETE.md) | **Documentation overhaul completion summary (Nov 29, 2025)** | ✅ Complete |
 | [docs/PROJECT_STATUS_REPORT.md](docs/PROJECT_STATUS_REPORT.md) | Comprehensive status report, metrics, testing checklist | ✅ Nov 29, 2025 |
 | [docs/phase-plan.md](docs/phase-plan.md) | 5-phase development roadmap with acceptance criteria | ✅ Active |
@@ -261,6 +270,7 @@ Code Master adapts automatically based on:
 | Document | Purpose | Status |
 |----------|---------|--------|
 | [README.md - Architecture Snapshot](README.md#architecture-snapshot) | High-level stack overview | ✅ Current |
+| [docs/APPLICATION_SITEMAP.md](docs/APPLICATION_SITEMAP.md) | Directory + feature map with doc crosslinks | ✅ Current |
 | [README.md - Backend Surface Area](README.md#backend-surface-area) | API endpoints and routers | ✅ Current |
 | [README.md - Frontend Surface Area](README.md#frontend-surface-area) | React components and routes | ✅ Current |
 | [docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md](docs/AGENT_SYSTEM_ARCHITECTURE_DISCUSSION.md) | Custom vs framework agents, licensing path | ✅ Complete |
@@ -487,15 +497,15 @@ Code Master adapts automatically based on:
 
 ### Most Important Documents (Top 10)
 1. [README.md](README.md) - **Main entry point**
-2. [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) - **Setup & first novel (15 min)**
-3. [docs/PROJECT_STATUS_REPORT.md](docs/PROJECT_STATUS_REPORT.md) - **Current state**
-4. [docs/phase-plan.md](docs/phase-plan.md) - **Roadmap**
-5. [config/anti_ai_tell_rules.md](config/anti_ai_tell_rules.md) - **Writing quality rules**
-6. [docs/STORY_BIBLE_FEATURE.md](docs/STORY_BIBLE_FEATURE.md) - **Story Bible complete guide**
-7. [docs/CHATBOT_PHASE1_COMPLETE.md](docs/CHATBOT_PHASE1_COMPLETE.md) - **Chat system**
-8. [docs/GUIDED_PREMISE_BUILDER.md](docs/GUIDED_PREMISE_BUILDER.md) - **Premise wizard**
-9. [docs/TAVILY_ADVANCED_GUIDE.md](docs/TAVILY_ADVANCED_GUIDE.md) - **Web search**
-10. [docs/DEPLOYMENT_TROUBLESHOOTING.md](docs/DEPLOYMENT_TROUBLESHOOTING.md) - **Deployment & debugging**
+2. [docs/APPLICATION_SITEMAP.md](docs/APPLICATION_SITEMAP.md) - **System map & doc atlas**
+3. [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) - **Setup & first novel (15 min)**
+4. [docs/PROJECT_STATUS_REPORT.md](docs/PROJECT_STATUS_REPORT.md) - **Current state**
+5. [docs/phase-plan.md](docs/phase-plan.md) - **Roadmap**
+6. [config/anti_ai_tell_rules.md](config/anti_ai_tell_rules.md) - **Writing quality rules**
+7. [docs/STORY_BIBLE_FEATURE.md](docs/STORY_BIBLE_FEATURE.md) - **Story Bible complete guide**
+8. [docs/CHATBOT_PHASE1_COMPLETE.md](docs/CHATBOT_PHASE1_COMPLETE.md) - **Chat system**
+9. [docs/GUIDED_PREMISE_BUILDER.md](docs/GUIDED_PREMISE_BUILDER.md) - **Premise wizard**
+10. [docs/TAVILY_ADVANCED_GUIDE.md](docs/TAVILY_ADVANCED_GUIDE.md) - **Web search**
 
 ### Key Configuration Files
 - `config/anti_ai_tell_rules.md` - Writing quality rules
@@ -534,6 +544,11 @@ Code Master adapts automatically based on:
 ---
 
 ## 📜 Version History
+
+### Version 2.1 (December 1, 2025)
+- Added Application System Map + quick navigation hooks
+- Updated README/index crosslinks for chat + bot system
+- Refreshed quick reference, version metadata, and onboarding guidance
 
 ### Version 2.0 (November 29, 2025)
 - **Created comprehensive master index**

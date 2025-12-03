@@ -1,8 +1,8 @@
 """
-Base Agent Class - Foundation for All Specialist Agents
+Base Avatar Class - Foundation for All Specialist Avatars
 
-This module defines the base Agent class that all specialist agents inherit from.
-Provides core functionality: personality, memory, tool access, debate mode support.
+This module defines the base Avatar class that all specialist avatars inherit from.
+Provides core functionality: personality, memory, tool access, creative board support.
 """
 
 from abc import ABC, abstractmethod
@@ -18,8 +18,8 @@ from config.settings import get_settings
 settings = get_settings()
 
 
-class AgentRole(str, Enum):
-    """Agent specialist roles"""
+class AvatarRole(str, Enum):
+    """Avatar specialist roles"""
     RESEARCH_ASSISTANT = "research_assistant"
     PLOT_ARCHITECT = "plot_architect"
     CHARACTER_DEVELOPER = "character_developer"
@@ -43,59 +43,62 @@ class ProactiveMode(str, Enum):
     AUTO_PILOT = "auto_pilot"
 
 
-class Agent(ABC):
+class Avatar(ABC):
     """
-    Base Agent class - all specialist agents inherit from this.
+    Base Avatar class - all specialist avatars inherit from this.
     
     Provides:
     - Personality system (name, role, voice, humor style)
     - Memory system (learned preferences, feedback tracking)
     - Tool access (web search, document analysis, etc.)
-    - Debate mode support (argument generation, voting)
+    - Creative Board support (argument generation, voting)
     - Learning system (aggressive with easy reset)
     """
     
     def __init__(
         self,
-        agent_id: str,
+        avatar_id: str,
         name: str,
-        role: AgentRole,
+        role: AvatarRole,
         short_name: str,
         personality_description: str,
-        debate_catchphrase: str,
+        creative_board_catchphrase: str,
         db: AsyncIOMotorDatabase,
-        user_id: str = "alana"
+        user_id: str = "alana",
+        emoji: str = "🤖"
     ):
         """
-        Initialize base agent.
+        Initialize base avatar.
         
         Args:
-            agent_id: Unique identifier (e.g., "research_assistant_001")
+            avatar_id: Unique identifier (e.g., "research_assistant_001")
             name: Display name (e.g., "Research Assistant")
-            role: AgentRole enum value
+            role: AvatarRole enum value
             short_name: Abbreviated name for UI (e.g., "Research")
             personality_description: One-line personality (e.g., "Dry British wit")
-            debate_catchphrase: Signature phrase in debates
+            creative_board_catchphrase: Signature phrase in creative board sessions
             db: MongoDB database connection
-            user_id: User this agent serves
+            user_id: User this avatar serves
+            emoji: Visual emoji representation (e.g., "🔬")
         """
-        self.agent_id = agent_id
+        self.avatar_id = avatar_id
         self.name = name
         self.role = role
         self.short_name = short_name
         self.personality_description = personality_description
-        self.debate_catchphrase = debate_catchphrase
+        self.creative_board_catchphrase = creative_board_catchphrase
+        self.emoji = emoji
         self.db = db
         self.user_id = user_id
         
         # Claude client for AI responses
         self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
         
-        # Agent brain (memory storage)
-        self.brain_collection = db.agent_brains
+        # Avatar brain (memory storage)
+        self.brain_collection = db.avatar_brains
         
         # Feedback tracking
-        self.feedback_collection = db.agent_feedback
+        self.feedback_collection = db.avatar_feedback
         
         # Tools registry
         self.available_tools: Dict[str, Callable] = {}
@@ -489,14 +492,15 @@ USER CONTEXT:
         }
     
     def to_dict(self) -> Dict[str, Any]:
-        """Serialize agent info for API responses"""
+        """Serialize avatar info for API responses"""
         return {
-            "agent_id": self.agent_id,
+            "avatar_id": self.avatar_id,
             "name": self.name,
             "short_name": self.short_name,
             "role": self.role,
             "personality_description": self.personality_description,
-            "debate_catchphrase": self.debate_catchphrase,
-            "expertise_domains": self.get_expertise_domains(),
+            "emoji": self.emoji,
+            "creative_board_style": self.creative_board_catchphrase,
+            "expertise": self.get_expertise_domains(),
             "available_tools": list(self.available_tools.keys())
         }

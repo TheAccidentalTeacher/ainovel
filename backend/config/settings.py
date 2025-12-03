@@ -37,6 +37,14 @@ class Settings(BaseSettings):
         description="Allowed CORS origins"
     )
     api_key_header: str = Field(default="X-API-Key", description="API key header name")
+    secret_key: str = Field(
+        default="YOUR-SECRET-KEY-CHANGE-IN-PRODUCTION-USE-RANDOM-STRING",
+        description="JWT secret key - MUST be changed in production"
+    )
+    access_token_expire_minutes: int = Field(
+        default=10080,  # 7 days
+        description="JWT access token expiration in minutes"
+    )
     
     # Database
     mongodb_uri: str = Field(

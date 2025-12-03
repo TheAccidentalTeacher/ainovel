@@ -7,11 +7,11 @@ Debate Style: Analyzes logical consistency and clue fairness
 """
 
 from typing import List, Dict, Any
-from services.agent_base import Agent, AgentRole
+from services.avatar_base import Avatar, AvatarRole
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
-class MysteryMasterAgent(Agent):
+class MysteryMasterAvatar(Avatar):
     """
     Mystery Master: The architect of satisfying puzzles and fair-play reveals.
     
@@ -42,7 +42,8 @@ class MysteryMasterAgent(Agent):
             role=AgentRole.MYSTERY_MASTER,
             short_name="Mystery",
             personality_description="Clever detective who loves fair-play mysteries",
-            debate_catchphrase="But does the reader have enough clues to solve this?",
+            creative_board_catchphrase="But does the reader have enough clues to solve this?",
+            emoji="🔍",
             db=db,
             user_id=user_id
         )
@@ -105,6 +106,6 @@ Your goal: Help craft mysteries so clever readers want to immediately reread to 
         return "Analyzes logical consistency and clue fairness, argues for reader trust over shocking twists"
 
 
-def create_mystery_master(db: AsyncIOMotorDatabase, user_id: str = "alana") -> MysteryMasterAgent:
-    """Factory function to create Mystery Master agent"""
-    return MysteryMasterAgent(db=db, user_id=user_id)
+def create_mystery_master(db: AsyncIOMotorDatabase, user_id: str = "alana") -> MysteryMasterAvatar:
+    """Factory function to create Mystery Master Avatar instance"""
+    return MysteryMasterAvatar(db=db, user_id=user_id)

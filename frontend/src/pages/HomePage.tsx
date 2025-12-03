@@ -28,11 +28,11 @@ export default function HomePage() {
     }
   })
 
-  // Check for saved premise builder session
-  useEffect(() => {
+  // Check for saved premise builder session (lazy initialization)
+  const [hasSavedSession] = useState(() => {
     const savedSessionId = localStorage.getItem('premiseBuilderSessionId')
-    setHasSavedSession(!!savedSessionId)
-  }, [])
+    return !!savedSessionId
+  })
 
   const handleDelete = async (projectId: string, projectTitle: string, e: React.MouseEvent) => {
     e.preventDefault()

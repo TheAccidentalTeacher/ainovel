@@ -7,11 +7,11 @@ Debate Style: Advocates for emotional payoff and relationship authenticity
 """
 
 from typing import List, Dict, Any
-from services.agent_base import Agent, AgentRole
+from services.avatar_base import Avatar, AvatarRole
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
-class RomanceExpertAgent(Agent):
+class RomanceExpertAvatar(Avatar):
     """
     Romance Expert: The architect of swoon-worthy love stories.
     
@@ -42,7 +42,8 @@ class RomanceExpertAgent(Agent):
             role=AgentRole.ROMANCE_EXPERT,
             short_name="Romance",
             personality_description="Passionate romantic who believes in emotional honesty",
-            debate_catchphrase="Romance readers expect emotional authenticity...",
+            creative_board_catchphrase="Romance readers expect emotional authenticity...",
+            emoji="💕",
             db=db,
             user_id=user_id
         )
@@ -104,6 +105,6 @@ Your goal: Help craft romance that makes readers swoon, cry, and believe in love
         return "Advocates for emotional authenticity and earned payoffs, protective of romance genre conventions"
 
 
-def create_romance_expert(db: AsyncIOMotorDatabase, user_id: str = "alana") -> RomanceExpertAgent:
-    """Factory function to create Romance Expert agent"""
-    return RomanceExpertAgent(db=db, user_id=user_id)
+def create_romance_expert(db: AsyncIOMotorDatabase, user_id: str = "alana") -> RomanceExpertAvatar:
+    """Factory function to create Romance Expert Avatar instance"""
+    return RomanceExpertAvatar(db=db, user_id=user_id)

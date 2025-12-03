@@ -7,31 +7,31 @@ Implements Alana's requested "Option C" debate mode with research compilation ci
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from services.agent_base import Agent
+from services.avatar_base import Avatar
 from services.research_doc_service import get_research_doc_service
 import asyncio
 
 
 class DebateOrchestrator:
     """
-    Orchestrates debates between multiple agents.
+    Orchestrates debates between multiple avatars.
     
     Features:
-    - Multi-agent witty arguments
+    - Multi-avatar witty arguments
     - Research compilation citations
     - Democratic voting system
     - Synthesis of winning arguments into actionable advice
     - Cross-genre connections
     """
     
-    def __init__(self, agents: List[Agent]):
+    def __init__(self, avatars: List[Avatar]):
         """
         Initialize debate orchestrator.
         
         Args:
-            agents: List of agents participating in debate
+            avatars: List of avatars participating in debate
         """
-        self.agents = agents
+        self.agents = avatars
         self.research_service = get_research_doc_service()
     
     async def conduct_debate(
@@ -371,6 +371,6 @@ REASON: [One sentence why]
         }
 
 
-def create_debate_orchestrator(agents: List[Agent]) -> DebateOrchestrator:
+def create_debate_orchestrator(avatars: List[Avatar]) -> DebateOrchestrator:
     """Factory function to create debate orchestrator"""
-    return DebateOrchestrator(agents=agents)
+    return DebateOrchestrator(avatars=avatars)

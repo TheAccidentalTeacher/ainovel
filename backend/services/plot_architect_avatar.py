@@ -7,11 +7,11 @@ Debate Style: Discusses narrative causality and dramatic tension
 """
 
 from typing import List, Dict, Any
-from services.agent_base import Agent, AgentRole
+from services.avatar_base import Avatar, AvatarRole
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
-class PlotArchitectAgent(Agent):
+class PlotArchitectAvatar(Avatar):
     """
     Plot Architect: The master of story structure and narrative flow.
     
@@ -37,12 +37,13 @@ class PlotArchitectAgent(Agent):
     
     def __init__(self, db: AsyncIOMotorDatabase, user_id: str = "alana"):
         super().__init__(
-            agent_id="plot_architect_001",
+            avatar_id="plot_architect_001",
             name="Plot Architect",
-            role=AgentRole.PLOT_ARCHITECT,
+            role=AvatarRole.PLOT_ARCHITECT,
             short_name="Plot",
             personality_description="Strategic storyteller who sees narratives as elegant architectures",
-            debate_catchphrase="From a structural perspective, here's why...",
+            creative_board_catchphrase="From a structural perspective, here's why...",
+            emoji="📐",
             db=db,
             user_id=user_id
         )
@@ -94,6 +95,6 @@ Your goal: Help craft stories with elegant, satisfying structures that keep read
         return "Argues from narrative necessity and structural elegance, always asking what serves the story best"
 
 
-def create_plot_architect(db: AsyncIOMotorDatabase, user_id: str = "alana") -> PlotArchitectAgent:
-    """Factory function to create Plot Architect agent"""
-    return PlotArchitectAgent(db=db, user_id=user_id)
+def create_plot_architect(db: AsyncIOMotorDatabase, user_id: str = "alana") -> PlotArchitectAvatar:
+    """Factory function to create Plot Architect Avatar instance"""
+    return PlotArchitectAvatar(db=db, user_id=user_id)

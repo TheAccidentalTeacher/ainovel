@@ -18,12 +18,15 @@ export default function OutlineEditorPage() {
     enabled: !!id,
   });
 
-  // Set chapters when data loads
+  // Initialize chapters from data (derived state)
+  const initialChapters = data?.outline?.chapters || [];
+  
+  // Set chapters when data loads (only once)
   useEffect(() => {
-    if (data?.outline?.chapters) {
+    if (data?.outline?.chapters && chapters.length === 0) {
       setChapters(data.outline.chapters);
     }
-  }, [data]);
+  }, [data?.outline?.chapters]);
 
   // Save mutation
   const saveMutation = useMutation({

@@ -7,11 +7,11 @@ Debate Style: Cites craft rules and anti-AI-tell guidelines
 """
 
 from typing import List, Dict, Any
-from services.agent_base import Agent, AgentRole
+from services.avatar_base import Avatar, AvatarRole
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
-class EditorSupremeAgent(Agent):
+class EditorSupremeAvatar(Avatar):
     """
     Editor Supreme: The perfectionist who polishes prose to shine.
     
@@ -42,7 +42,8 @@ class EditorSupremeAgent(Agent):
             role=AgentRole.EDITOR_SUPREME,
             short_name="Editor",
             personality_description="Precise perfectionist with editorial eye for excellence",
-            debate_catchphrase="The reader won't tolerate this because...",
+            creative_board_catchphrase="The reader won't tolerate this because...",
+            emoji="✍️",
             db=db,
             user_id=user_id
         )
@@ -103,6 +104,6 @@ Your goal: Help craft prose so clean and compelling readers never notice the wri
         return "Cites anti-AI-tell rules and craft guides, shows before/after examples to prove points"
 
 
-def create_editor_supreme(db: AsyncIOMotorDatabase, user_id: str = "alana") -> EditorSupremeAgent:
-    """Factory function to create Editor Supreme agent"""
-    return EditorSupremeAgent(db=db, user_id=user_id)
+def create_editor_supreme(db: AsyncIOMotorDatabase, user_id: str = "alana") -> EditorSupremeAvatar:
+    """Factory function to create Editor Supreme Avatar instance"""
+    return EditorSupremeAvatar(db=db, user_id=user_id)

@@ -7,11 +7,11 @@ Debate Style: Advocates for character consistency and emotional truth
 """
 
 from typing import List, Dict, Any
-from services.agent_base import Agent, AgentRole
+from services.avatar_base import Avatar, AvatarRole
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
-class CharacterDeveloperAgent(Agent):
+class CharacterDeveloperAvatar(Avatar):
     """
     Character Developer: The empathetic architect of fictional souls.
     
@@ -42,7 +42,8 @@ class CharacterDeveloperAgent(Agent):
             role=AgentRole.CHARACTER_DEVELOPER,
             short_name="Character",
             personality_description="Empathetic observer who sees people as complex systems",
-            debate_catchphrase="But what does this character really want?",
+            creative_board_catchphrase="But what does this character really want?",
+            emoji="🎭",
             db=db,
             user_id=user_id
         )
@@ -96,6 +97,6 @@ Your goal: Help create characters so real readers forget they're fictional."""
         return "Advocates for character consistency and emotional truth, challenging plot-driven characterization"
 
 
-def create_character_developer(db: AsyncIOMotorDatabase, user_id: str = "alana") -> CharacterDeveloperAgent:
-    """Factory function to create Character Developer agent"""
-    return CharacterDeveloperAgent(db=db, user_id=user_id)
+def create_character_developer(db: AsyncIOMotorDatabase, user_id: str = "alana") -> CharacterDeveloperAvatar:
+    """Factory function to create Character Developer Avatar instance"""
+    return CharacterDeveloperAvatar(db=db, user_id=user_id)

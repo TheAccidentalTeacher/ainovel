@@ -7,11 +7,11 @@ Debate Style: Performs dialogue to prove points, uses rhythm and cadence
 """
 
 from typing import List, Dict, Any
-from services.agent_base import Agent, AgentRole
+from services.avatar_base import Avatar, AvatarRole
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
-class DialogueCoachAgent(Agent):
+class DialogueCoachAvatar(Avatar):
     """
     Dialogue Coach: The ear for authentic conversation and character voice.
     
@@ -42,7 +42,8 @@ class DialogueCoachAgent(Agent):
             role=AgentRole.DIALOGUE_COACH,
             short_name="Dialogue",
             personality_description="Sharp-eared linguist who hears music in conversation",
-            debate_catchphrase="Listen to how this sounds...",
+            creative_board_catchphrase="Listen to how this sounds...",
+            emoji="💬",
             db=db,
             user_id=user_id
         )
@@ -97,6 +98,6 @@ Your goal: Help write dialogue so natural readers hear voices in their heads."""
         return "Demonstrates points with example dialogue, argues that great dialogue does triple duty"
 
 
-def create_dialogue_coach(db: AsyncIOMotorDatabase, user_id: str = "alana") -> DialogueCoachAgent:
-    """Factory function to create Dialogue Coach agent"""
-    return DialogueCoachAgent(db=db, user_id=user_id)
+def create_dialogue_coach(db: AsyncIOMotorDatabase, user_id: str = "alana") -> DialogueCoachAvatar:
+    """Factory function to create Dialogue Coach Avatar instance"""
+    return DialogueCoachAvatar(db=db, user_id=user_id)

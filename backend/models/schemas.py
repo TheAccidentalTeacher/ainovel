@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Optional, List, Dict, Any
 from uuid import uuid4
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, EmailStr
 
 
 class ProjectStatus(str, Enum):
@@ -398,7 +398,7 @@ class StoryBibleResponse(BaseModel):
     story_bible: StoryBible
 
 
-# ==================== Chat & Bot Models (Phase 1 & 2) ====================
+# ==================== Chat & Avatar Models (Phase 1 & 2) ====================
 
 class Conversation(BaseModel):
     """
@@ -409,7 +409,7 @@ class Conversation(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()), description="Conversation ID")
     user_id: str = Field(..., description="Owner user ID (alana, scott, etc.)")
     project_id: Optional[str] = Field(None, description="Optional project context")
-    bot_id: Optional[str] = Field(None, description="Bot used in this conversation (Phase 2)")
+    avatar_id: Optional[str] = Field(None, description="Avatar used in this conversation (Phase 2)")
     title: str = Field(default="New Chat", description="Conversation title (auto-generated or user-renamed)")
     message_count: int = Field(default=0, description="Total messages in conversation")
     total_tokens: int = Field(default=0, description="Cumulative token count")
@@ -456,32 +456,32 @@ class ConversationSummary(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
-class Bot(BaseModel):
+class Avatar(BaseModel):
     """
-    Custom bot with personality, expertise, and knowledge base.
+    Custom avatar with personality, expertise, and knowledge base.
     
-    Phase 2: Users create their own bots with custom personalities and uploaded documents.
+    Phase 2: Users create their own avatars with custom personalities and uploaded documents.
     """
-    id: str = Field(default_factory=lambda: str(uuid4()), description="Bot ID")
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Avatar ID")
     user_id: str = Field(..., description="Owner user ID")
-    name: str = Field(..., min_length=1, max_length=100, description="Bot name (e.g., 'Dialogue Coach')")
+    name: str = Field(..., min_length=1, max_length=100, description="Avatar name (e.g., 'Dialogue Coach')")
     personality: str = Field(default="", description="Personality description for system prompt")
     system_prompt: str = Field(default="", description="Full system prompt for AI")
     expertise: List[str] = Field(default_factory=list, description="Tags: dialogue, plot, character, romance, etc.")
-    avatar_url: Optional[str] = Field(None, description="Bot avatar image (Phase 3)")
-    is_default: bool = Field(default=False, description="Default bot for new chats")
+    avatar_url: Optional[str] = Field(None, description="Avatar image (Phase 3)")
+    is_default: bool = Field(default=False, description="Default avatar for new chats")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 
-class BotBrain(BaseModel):
+class AvatarBrain(BaseModel):
     """
-    Knowledge base document for a bot.
+    Knowledge base document for an avatar.
     
-    Phase 2: Uploaded manuscripts, character sheets, research docs that bot can reference.
+    Phase 2: Uploaded manuscripts, character sheets, research docs that avatar can reference.
     """
     id: str = Field(default_factory=lambda: str(uuid4()), description="Brain document ID")
-    bot_id: str = Field(..., description="Parent bot ID")
+    avatar_id: str = Field(..., description="Parent avatar ID")
     content_type: str = Field(..., description="Type: manuscript, character_sheet, research, world_building")
     filename: str = Field(..., description="Original filename")
     text_content: str = Field(..., description="Extracted text from uploaded file")
@@ -489,19 +489,19 @@ class BotBrain(BaseModel):
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
 
 
-class BoardConsultation(BaseModel):
+class CreativeBoard(BaseModel):
     """
-    Board of Directors multi-bot consultation session.
+    Avatar Creative Board multi-avatar consultation session.
     
-    Phase 2: User asks one question, gets responses from multiple specialist bots.
+    Phase 2: User asks one question, gets responses from multiple specialist avatars.
     """
-    id: str = Field(default_factory=lambda: str(uuid4()), description="Consultation ID")
+    id: str = Field(default_factory=lambda: str(uuid4()), description="Creative Board session ID")
     conversation_id: str = Field(..., description="Parent conversation ID")
     user_id: str = Field(..., description="User who requested consultation")
-    question: str = Field(..., description="Question asked to the board")
-    bot_ids: List[str] = Field(..., description="Bots consulted (2-5 specialists)")
+    question: str = Field(..., description="Question asked to the creative board")
+    avatar_ids: List[str] = Field(..., description="Avatars consulted (2-5 specialists)")
     mode: str = Field(default="parallel", description="Consultation mode: parallel, sequential, debate")
-    responses: Dict[str, str] = Field(default_factory=dict, description="Bot ID -> response mapping")
+    responses: Dict[str, str] = Field(default_factory=dict, description="Avatar ID -> response mapping")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -511,7 +511,7 @@ class CreateConversationRequest(BaseModel):
     """Request to create a new conversation."""
     user_id: str = Field(..., description="User ID (alana, scott, etc.)")
     project_id: Optional[str] = Field(None, description="Optional project context")
-    bot_id: Optional[str] = Field(None, description="Optional bot to use")
+    avatar_id: Optional[str] = Field(None, description="Optional avatar to use")
     title: Optional[str] = Field(None, description="Optional custom title")
 
 
@@ -537,54 +537,109 @@ class ConversationListResponse(BaseModel):
     total: int
 
 
-class CreateBotRequest(BaseModel):
-    """Request to create a custom bot (Phase 2)."""
+class CreateAvatarRequest(BaseModel):
+    """Request to create a custom avatar (Phase 2)."""
     user_id: str = Field(..., description="Owner user ID")
-    name: str = Field(..., min_length=1, max_length=100, description="Bot name")
+    name: str = Field(..., min_length=1, max_length=100, description="Avatar name")
     personality: str = Field(default="", description="Personality description")
     system_prompt: Optional[str] = Field(None, description="Custom system prompt")
     expertise: List[str] = Field(default_factory=list, description="Expertise tags")
 
 
-class UpdateBotRequest(BaseModel):
-    """Request to update a bot (Phase 2)."""
-    name: Optional[str] = Field(None, description="New bot name")
+class UpdateAvatarRequest(BaseModel):
+    """Request to update an avatar (Phase 2)."""
+    name: Optional[str] = Field(None, description="New avatar name")
     personality: Optional[str] = Field(None, description="New personality")
     system_prompt: Optional[str] = Field(None, description="New system prompt")
     expertise: Optional[List[str]] = Field(None, description="New expertise tags")
 
 
-class BotResponse(BaseModel):
-    """Single bot response."""
-    bot: Bot
+class AvatarResponse(BaseModel):
+    """Single avatar response."""
+    avatar: Avatar
 
 
-class BotListResponse(BaseModel):
-    """List of bots."""
-    bots: List[Bot]
+class AvatarListResponse(BaseModel):
+    """List of avatars."""
+    avatars: List[Avatar]
 
 
-class UploadBotBrainRequest(BaseModel):
-    """Request to upload knowledge document to bot brain (Phase 2)."""
-    bot_id: str = Field(..., description="Target bot ID")
+class UploadAvatarBrainRequest(BaseModel):
+    """Request to upload knowledge document to avatar brain (Phase 2)."""
+    avatar_id: str = Field(..., description="Target avatar ID")
     content_type: str = Field(..., description="Type: manuscript, character_sheet, research, world_building")
     filename: str = Field(..., description="Original filename")
     text_content: str = Field(..., description="Extracted text content")
 
 
-class BotBrainResponse(BaseModel):
-    """Bot brain documents."""
-    documents: List[BotBrain]
+class AvatarBrainResponse(BaseModel):
+    """Avatar brain documents."""
+    documents: List[AvatarBrain]
 
 
-class BoardConsultRequest(BaseModel):
-    """Request Board of Directors consultation (Phase 2)."""
+class CreativeBoardRequest(BaseModel):
+    """Request Creative Board consultation (Phase 2)."""
     conversation_id: str = Field(..., description="Conversation ID")
-    bot_ids: List[str] = Field(..., min_items=2, max_items=5, description="2-5 specialist bots")
+    avatar_ids: List[str] = Field(..., min_length=2, max_length=5, description="2-5 specialist avatars")
     question: str = Field(..., min_length=1, description="Question for the board")
     mode: str = Field(default="parallel", description="Consultation mode")
 
 
-class BoardConsultResponse(BaseModel):
-    """Board consultation response with all bot responses."""
-    consultation: BoardConsultation
+class CreativeBoardResponse(BaseModel):
+    """Creative Board consultation response with all avatar responses."""
+    consultation: CreativeBoard
+
+
+# ==================== Authentication Models ====================
+
+class User(BaseModel):
+    """User account model for authentication and profile."""
+    id: str = Field(default_factory=lambda: str(uuid4()), description="User ID")
+    email: EmailStr = Field(..., description="Unique email address")
+    hashed_password: str = Field(..., description="Bcrypt hashed password")
+    name: str = Field(..., description="Full name or display name")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    is_active: bool = Field(default=True, description="Account active status")
+    is_premium: bool = Field(default=False, description="Premium subscription status")
+    last_login: Optional[datetime] = Field(None, description="Last login timestamp")
+    
+    # Usage metrics
+    custom_avatars_count: int = Field(default=0, description="Number of custom avatars created")
+    projects_count: int = Field(default=0, description="Number of projects created")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "email": "writer@example.com",
+                "name": "Aspiring Author",
+                "is_premium": False
+            }
+        }
+
+
+class UserCreate(BaseModel):
+    """Registration request."""
+    email: EmailStr = Field(..., description="Email address")
+    password: str = Field(..., min_length=8, description="Password (minimum 8 characters)")
+    name: str = Field(..., min_length=1, max_length=100, description="Full name")
+
+
+class UserLogin(BaseModel):
+    """Login request."""
+    email: EmailStr = Field(..., description="Email address")
+    password: str = Field(..., description="Password")
+
+
+class Token(BaseModel):
+    """JWT token response."""
+    access_token: str = Field(..., description="JWT access token")
+    token_type: str = Field(default="bearer", description="Token type")
+    user: Dict[str, Any] = Field(..., description="User info (excluding password)")
+
+
+class TokenData(BaseModel):
+    """Decoded JWT payload."""
+    user_id: str = Field(..., description="User ID from token")
+    email: str = Field(..., description="Email from token")
+    exp: datetime = Field(..., description="Token expiration")

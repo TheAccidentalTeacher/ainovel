@@ -15,7 +15,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, MessageCircle, Send, Loader2, Plus, Search, Image, Newspaper, Globe, HelpCircle, Info, Zap, Clock, BookOpen, Bot, Users } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatApi, type ConversationResponse } from '../services/chatService';
-import { agentApi, type Agent } from '../services/agentService';
+import { avatarApi, type Avatar } from '../services/avatarService';
 import { SearchFeatureTour } from './SearchFeatureTour';
 import { useConversation } from '../hooks/useConversation';
 
@@ -28,8 +28,8 @@ interface Message {
   token_count?: number;
   model?: string;
   search_type?: string;
-  agent_id?: string;
-  agent_name?: string;
+  avatar_id?: string;
+  avatar_name?: string;
 }
 
 interface ChatWidgetProps {
@@ -63,10 +63,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchTour, setShowSearchTour] = useState(false);
   const [searchType, setSearchType] = useState<string>('');
-  const [botMode, setBotMode] = useState<'standard' | 'agent' | 'debate'>('standard');
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
-  const [showBotSelector, setShowBotSelector] = useState(false);
-  const [debateAgents, setDebateAgents] = useState<string[]>([]);
+  const [botMode, setBotMode] = useState<'standard' | 'avatar' | 'creative-board'>('standard');
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
+  const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+  const [creativeBoardAvatars, setCreativeBoardAvatars] = useState<string[]>([]);
 
   // Show tour when web search is first enabled
   useEffect(() => {
@@ -92,10 +92,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
     queryFn: () => chatApi.getAvailableModels(),
   });
 
-  // Fetch available agents
-  const { data: agentsData } = useQuery({
-    queryKey: ['agents'],
-    queryFn: () => agentApi.listAgents(),
+  // Fetch available avatars
+  const { data: avatarsData } = useQuery({
+    queryKey: ['avatars'],
+    queryFn: () => avatarApi.listAvatars(),
     enabled: isOpen, // Only fetch when chat is open
   });
 
@@ -206,24 +206,24 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
     const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
 
     try {
-      // AGENT MODE: Chat with specific agent
-      if (botMode === 'agent' && selectedAgentId) {
-        const response = await agentApi.chatWithAgent({
-          agent_id: selectedAgentId,
+      // AVATAR MODE: Chat with specific avatar
+      if (botMode === 'avatar' && selectedAvatarId) {
+        const response = await avatarApi.chatWithAvatar({
+          avatar_id: selectedAvatarId,
           message: userMessage,
           project_id: projectId,
           conversation_history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
         });
 
         const assistantMessage: Message = {
-          id: `agent-${Date.now()}`,
+          id: `avatar-${Date.now()}`,
           conversation_id: conversationId || undefined,
           role: 'assistant',
           content: response.response,
           timestamp: response.timestamp,
           token_count: 0,
-          agent_id: response.agent_id,
-          agent_name: response.agent_name,
+          avatar_id: response.avatar_id,
+          avatar_name: response.avatar_name,
         };
         
         setMessages(prev => [...prev, assistantMessage]);
@@ -232,38 +232,38 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
         return;
       }
 
-      // DEBATE MODE: Multi-agent debate
-      if (botMode === 'debate' && debateAgents.length > 0) {
-        const debateResponse = await agentApi.startDebate({
-          debate_topic: userMessage,
+      // CREATIVE BOARD MODE: Multi-avatar consultation
+      if (botMode === 'creative-board' && creativeBoardAvatars.length > 0) {
+        const creativeBoardResponse = await avatarApi.startCreativeBoardConsultation({
+          consultation_topic: userMessage,
           project_id: projectId,
           context: {
             genre: 'general',
             conversation_context: messages.slice(-5).map(m => m.content).join('\n'),
           },
-          participating_agents: debateAgents,
+          participating_avatars: creativeBoardAvatars,
           rounds: 1,
         });
 
-        // Format debate as message
-        let debateContent = `🗳️ **Debate Results**\n\n`;
-        debateContent += `**Topic:** ${debateResponse.debate_topic}\n\n`;
-        debateContent += `**Participants:** ${debateResponse.participants.join(', ')}\n\n`;
+        // Format Creative Board consultation as message
+        let consultationContent = `🎭 **Creative Board Results**\n\n`;
+        consultationContent += `**Topic:** ${creativeBoardResponse.consultation_topic}\n\n`;
+        consultationContent += `**Participants:** ${creativeBoardResponse.participants.join(', ')}\n\n`;
         
-        debateResponse.arguments.forEach(arg => {
-          debateContent += `**${arg.agent_name}** (${arg.vote}):\n${arg.argument}\n\n`;
+        creativeBoardResponse.contributions.forEach(contribution => {
+          consultationContent += `**${contribution.avatar_name}** (${contribution.vote}):\n${contribution.argument}\n\n`;
         });
         
-        debateContent += `**Winner:** ${debateResponse.vote_tally.winner}\n`;
-        debateContent += `**Vote:** Support: ${debateResponse.vote_tally.support}, Oppose: ${debateResponse.vote_tally.oppose}, Abstain: ${debateResponse.vote_tally.abstain}\n\n`;
-        debateContent += `**Synthesis:**\n${debateResponse.synthesis}`;
+        consultationContent += `**Winner:** ${creativeBoardResponse.vote_tally.winner}\n`;
+        consultationContent += `**Vote:** Support: ${creativeBoardResponse.vote_tally.support}, Oppose: ${creativeBoardResponse.vote_tally.oppose}, Abstain: ${creativeBoardResponse.vote_tally.abstain}\n\n`;
+        consultationContent += `**Synthesis:**\n${creativeBoardResponse.synthesis}`;
 
         const assistantMessage: Message = {
-          id: `debate-${Date.now()}`,
+          id: `creative-board-${Date.now()}`,
           conversation_id: conversationId || undefined,
           role: 'assistant',
-          content: debateContent,
-          timestamp: debateResponse.timestamp,
+          content: consultationContent,
+          timestamp: creativeBoardResponse.timestamp,
           token_count: 0,
         };
         
@@ -465,7 +465,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 ) : null;
               })()}
               
-              {/* Bot Mode Selector */}
+              {/* Avatar Mode Selector */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setBotMode('standard')}
@@ -482,47 +482,47 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 </button>
                 <button
                   onClick={() => {
-                    setBotMode('agent');
-                    setShowBotSelector(true);
+                    setBotMode('avatar');
+                    setShowAvatarSelector(true);
                   }}
-                  disabled={isStreaming || !agentsData?.agents?.length}
+                  disabled={isStreaming || !avatarsData?.avatars?.length}
                   className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
-                    botMode === 'agent'
+                    botMode === 'avatar'
                       ? 'bg-violet-600 text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   } disabled:opacity-50`}
-                  title="Chat with specialist bot"
+                  title="Chat with specialist avatar"
                 >
                   <Bot size={14} />
-                  <span>Agent</span>
+                  <span>Avatar</span>
                 </button>
                 <button
                   onClick={() => {
-                    setBotMode('debate');
-                    setShowBotSelector(true);
+                    setBotMode('creative-board');
+                    setShowAvatarSelector(true);
                   }}
-                  disabled={isStreaming || !agentsData?.agents?.length}
+                  disabled={isStreaming || !avatarsData?.avatars?.length}
                   className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
-                    botMode === 'debate'
+                    botMode === 'creative-board'
                       ? 'bg-purple-600 text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   } disabled:opacity-50`}
-                  title="Multi-bot debate mode"
+                  title="Multi-avatar Creative Board"
                 >
                   <Users size={14} />
-                  <span>Debate</span>
+                  <span>Board</span>
                 </button>
               </div>
 
-              {/* Active Agent Display */}
-              {botMode === 'agent' && selectedAgentId && agentsData?.agents && (
+              {/* Active Avatar Display */}
+              {botMode === 'avatar' && selectedAvatarId && avatarsData?.avatars && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-md">
-                  <Bot size={14} className="text-violet-600" />
+                  <span className="text-lg">{avatarsData.avatars.find((a: Avatar) => a.avatar_id === selectedAvatarId)?.emoji || '🤖'}</span>
                   <span className="text-xs font-medium text-violet-700 dark:text-violet-300">
-                    {agentsData.agents.find((a: Agent) => a.agent_id === selectedAgentId)?.name || 'Unknown Agent'}
+                    {avatarsData.avatars.find((a: Avatar) => a.avatar_id === selectedAvatarId)?.name || 'Unknown Avatar'}
                   </span>
                   <button
-                    onClick={() => setShowBotSelector(true)}
+                    onClick={() => setShowAvatarSelector(true)}
                     className="ml-auto text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
                   >
                     Change
@@ -530,15 +530,15 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                 </div>
               )}
 
-              {/* Active Debate Agents Display */}
-              {botMode === 'debate' && debateAgents.length > 0 && agentsData?.agents && (
+              {/* Active Creative Board Avatars Display */}
+              {botMode === 'creative-board' && creativeBoardAvatars.length > 0 && avatarsData?.avatars && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 dark:bg-purple-900/20 rounded-md">
                   <Users size={14} className="text-purple-600" />
                   <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
-                    {debateAgents.length} agents in debate
+                    {creativeBoardAvatars.length} avatars on board
                   </span>
                   <button
-                    onClick={() => setShowBotSelector(true)}
+                    onClick={() => setShowAvatarSelector(true)}
                     className="ml-auto text-xs text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
                   >
                     Change
@@ -738,12 +738,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
                   }`}
                 >
-                  {/* Agent Badge */}
-                  {message.role === 'assistant' && message.agent_name && (
+                  {/* Avatar Badge */}
+                  {message.role === 'assistant' && message.avatar_name && (
                     <div className="flex items-center gap-1 mb-2 text-xs px-2 py-1 rounded bg-violet-100 dark:bg-violet-900/30 w-fit">
-                      <Bot size={12} className="text-violet-700 dark:text-violet-300" />
+                      <span className="text-base">{avatarsData?.avatars.find((a: Avatar) => a.avatar_id === message.avatar_id)?.emoji || '🤖'}</span>
                       <span className="text-violet-700 dark:text-violet-300 font-medium">
-                        {message.agent_name}
+                        {message.avatar_name}
                       </span>
                     </div>
                   )}
@@ -906,8 +906,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
         </div>
       )}
 
-      {/* Bot Selector Modal */}
-      {showBotSelector && agentsData?.agents && (
+      {/* Avatar Selector Modal */}
+      {showAvatarSelector && avatarsData?.avatars && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
@@ -915,16 +915,16 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {botMode === 'agent' ? 'Select an Agent' : 'Select Debate Agents'}
+                    {botMode === 'avatar' ? 'Select an Avatar' : 'Select Creative Board Avatars'}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {botMode === 'agent' 
+                    {botMode === 'avatar' 
                       ? 'Choose a specialist to chat with' 
-                      : 'Select multiple agents to participate in the debate'}
+                      : 'Select multiple avatars to participate in the Creative Board'}
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowBotSelector(false)}
+                  onClick={() => setShowAvatarSelector(false)}
                   className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
                   <X size={20} />
@@ -932,32 +932,32 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
               </div>
             </div>
 
-            {/* Agent List */}
+            {/* Avatar List */}
             <div className="flex-1 overflow-y-auto p-4">
               <div className="space-y-3">
-                {agentsData.agents.map((agent: Agent) => {
-                  const isSelected = botMode === 'agent' 
-                    ? selectedAgentId === agent.agent_id 
-                    : debateAgents.includes(agent.agent_id);
+                {avatarsData.avatars.map((avatar: Avatar) => {
+                  const isSelected = botMode === 'avatar' 
+                    ? selectedAvatarId === avatar.avatar_id 
+                    : creativeBoardAvatars.includes(avatar.avatar_id);
                   
                   return (
                     <div
-                      key={agent.agent_id}
+                      key={avatar.avatar_id}
                       className={`group relative p-5 rounded-xl border-2 transition-all cursor-pointer shadow-sm hover:shadow-md ${
                         isSelected
-                          ? botMode === 'agent'
+                          ? botMode === 'avatar'
                             ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 shadow-violet-200 dark:shadow-violet-900/50'
                             : 'border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 shadow-purple-200 dark:shadow-purple-900/50'
                           : 'border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-600 bg-white dark:bg-gray-800'
                       }`}
                       onClick={() => {
-                        if (botMode === 'agent') {
-                          setSelectedAgentId(agent.agent_id);
+                        if (botMode === 'avatar') {
+                          setSelectedAvatarId(avatar.avatar_id);
                         } else {
-                          setDebateAgents(prev =>
-                            prev.includes(agent.agent_id)
-                              ? prev.filter(id => id !== agent.agent_id)
-                              : [...prev, agent.agent_id]
+                          setCreativeBoardAvatars(prev =>
+                            prev.includes(avatar.avatar_id)
+                              ? prev.filter(id => id !== avatar.avatar_id)
+                              : [...prev, avatar.avatar_id]
                           );
                         }
                       }}
@@ -965,7 +965,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                       {/* Selection Indicator */}
                       {isSelected && (
                         <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center ${
-                          botMode === 'agent' ? 'bg-violet-600' : 'bg-purple-600'
+                          botMode === 'avatar' ? 'bg-violet-600' : 'bg-purple-600'
                         }`}>
                           <svg className="w-4 h-4 text-white" fill="none" strokeWidth="3" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -974,51 +974,51 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                       )}
                       
                       <div className="flex items-start gap-4">
-                        {/* Bot Avatar */}
-                        <div className={`relative p-3 rounded-xl transition-all ${
+                        {/* Avatar Icon */}
+                        <div className={`relative p-3 rounded-xl transition-all flex items-center justify-center ${
                           isSelected
-                            ? botMode === 'agent'
+                            ? botMode === 'avatar'
                               ? 'bg-gradient-to-br from-violet-600 to-purple-600 shadow-lg shadow-violet-400/50'
                               : 'bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-400/50'
                             : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 group-hover:from-violet-400 group-hover:to-purple-400'
                         }`}>
-                          <Bot size={24} className={
-                            isSelected ? 'text-white' : 'text-gray-700 dark:text-gray-300 group-hover:text-white'
-                          } />
+                          <span className="text-3xl" style={{ filter: isSelected ? 'brightness(0) invert(1)' : 'none' }}>
+                            {avatar.emoji || '🤖'}
+                          </span>
                           {/* Pulse effect when selected */}
                           {isSelected && (
                             <div className={`absolute inset-0 rounded-xl animate-ping opacity-20 ${
-                              botMode === 'agent' ? 'bg-violet-600' : 'bg-purple-600'
+                              botMode === 'avatar' ? 'bg-violet-600' : 'bg-purple-600'
                             }`} />
                           )}
                         </div>
                         
-                        {/* Bot Info */}
+                        {/* Avatar Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-bold text-lg text-gray-900 dark:text-white">
-                              {agent.name}
+                              {avatar.name}
                             </h4>
                             <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                               isSelected
                                 ? 'bg-white/80 text-violet-700 dark:bg-gray-900/50 dark:text-violet-300'
                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                             }`}>
-                              {agent.short_name}
+                              {avatar.short_name}
                             </span>
                           </div>
                           
                           <p className="text-xs uppercase tracking-wide font-semibold text-violet-600 dark:text-violet-400 mb-2">
-                            {agent.role}
+                            {avatar.role}
                           </p>
                           
                           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3 italic">
-                            "{agent.personality_description}"
+                            "{avatar.personality_description}"
                           </p>
                           
                           {/* Expertise Tags */}
                           <div className="flex flex-wrap gap-1.5">
-                            {agent.expertise.map((exp, idx) => (
+                            {avatar.expertise.map((exp, idx) => (
                               <span
                                 key={idx}
                                 className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors ${
@@ -1032,11 +1032,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
                             ))}
                           </div>
                           
-                          {/* Debate Style (for debate mode) */}
-                          {botMode === 'debate' && agent.debate_style && (
+                          {/* Creative Board Style (for creative-board mode) */}
+                          {botMode === 'creative-board' && avatar.creative_board_style && (
                             <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                <span className="font-semibold">Debate Style:</span> {agent.debate_style}
+                                <span className="font-semibold">Creative Board Style:</span> {avatar.creative_board_style}
                               </p>
                             </div>
                           )}
@@ -1050,35 +1050,35 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, projectId, fullS
 
             {/* Modal Footer */}
             <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-              {botMode === 'debate' && (
+              {botMode === 'creative-board' && (
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Selected: {debateAgents.length} agent(s) {debateAgents.length < 2 && '(minimum 2 required)'}
+                  Selected: {creativeBoardAvatars.length} avatar(s) {creativeBoardAvatars.length < 2 && '(minimum 2 required)'}
                 </p>
               )}
               <div className="flex gap-2">
                 <button
-                  onClick={() => setShowBotSelector(false)}
+                  onClick={() => setShowAvatarSelector(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => {
-                    if (botMode === 'agent' && !selectedAgentId) return;
-                    if (botMode === 'debate' && debateAgents.length < 2) return;
-                    setShowBotSelector(false);
+                    if (botMode === 'avatar' && !selectedAvatarId) return;
+                    if (botMode === 'creative-board' && creativeBoardAvatars.length < 2) return;
+                    setShowAvatarSelector(false);
                   }}
                   disabled={
-                    (botMode === 'agent' && !selectedAgentId) ||
-                    (botMode === 'debate' && debateAgents.length < 2)
+                    (botMode === 'avatar' && !selectedAvatarId) ||
+                    (botMode === 'creative-board' && creativeBoardAvatars.length < 2)
                   }
                   className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    botMode === 'agent'
+                    botMode === 'avatar'
                       ? 'bg-violet-600 hover:bg-violet-700 text-white'
                       : 'bg-purple-600 hover:bg-purple-700 text-white'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {botMode === 'agent' ? 'Chat with Agent' : 'Start Debate'}
+                  {botMode === 'avatar' ? 'Chat with Avatar' : 'Start Creative Board'}
                 </button>
               </div>
             </div>
