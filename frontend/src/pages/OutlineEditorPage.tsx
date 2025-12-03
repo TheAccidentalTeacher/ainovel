@@ -17,9 +17,6 @@ export default function OutlineEditorPage() {
     queryFn: () => apiClient.getProject(id!),
     enabled: !!id,
   });
-
-  // Initialize chapters from data (derived state)
-  const initialChapters = data?.outline?.chapters || [];
   
   // Set chapters when data loads (only once)
   useEffect(() => {

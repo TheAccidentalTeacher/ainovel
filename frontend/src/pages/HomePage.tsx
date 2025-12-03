@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PlusIcon, TrashIcon, FolderIcon } from '@heroicons/react/24/outline'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import apiClient from '../lib/apiClient'
 import type { Project } from '../types'
 
 export default function HomePage() {
-  const [hasSavedSession, setHasSavedSession] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const queryClient = useQueryClient()
 
