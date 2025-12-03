@@ -96,11 +96,10 @@ def create_application() -> FastAPI:
     )
     
     # Register API routes
-    from api import health, projects, genres, outlines, story_bible, chapters, summaries, bulk_generation, export, premise_builder, chat, contexts, health_check, avatars, auth, seed
+    from api import health, projects, genres, outlines, story_bible, chapters, summaries, bulk_generation, export, premise_builder, chat, contexts, health_check, avatars, auth
     
     # 🦸 CODE MASTER: Authentication First! (BraveStarr's Justice)
     app.include_router(auth.router, prefix="/api", tags=["authentication"])
-    app.include_router(seed.router, prefix="/api", tags=["seed"])  # 🦸 TEST USER SEEDING
     app.include_router(health.router, prefix="/api", tags=["health"])
     app.include_router(health_check.router, prefix="/api", tags=["health-check"])  # 🦸 CODE MASTER: Comprehensive testing!
     app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
