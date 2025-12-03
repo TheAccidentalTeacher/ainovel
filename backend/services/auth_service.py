@@ -9,11 +9,14 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import jwt
-import bcrypt
+from passlib.context import CryptContext
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import HTTPException, status
 
 from models.schemas import User, TokenData
+
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class AuthService:
@@ -35,7 +38,7 @@ class AuthService:
     
     def hash_password(self, password: str) -> str:
         """
-        Hash password with bcrypt.
+        Hash password with bcrypt via passlib.
         
         Args:
             password: Plain text password
@@ -43,7 +46,7 @@ class AuthService:
         Returns:
             Bcrypt hashed password
         """
-        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        return pwd_context.hash(password)
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """
@@ -56,7 +59,7 @@ class AuthService:
         Returns:
             True if password matches, False otherwise
         """
-        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+        return pwd_context.verify(plain_password, hashed_password)
     
     def create_access_token(self, user_id: str, email: str) -> str:
         """
