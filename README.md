@@ -1,5 +1,20 @@
 # AI Novel Generator
 
+> ## 🚨 IMPORTANT: AUTHENTICATION CURRENTLY DISABLED 🚨
+> 
+> **Authentication is DISABLED for rapid testing.** App launches directly to studio - no login required.
+> 
+> **TO RE-ENABLE AUTHENTICATION:**
+> 1. Open `frontend/src/App.tsx`
+> 2. Uncomment the `ProtectedRoute` import (line 11)
+> 3. Uncomment all `<ProtectedRoute>` wrapper components (lines 36, 45, 54, 63)
+> 4. Change line 32 from `<Navigate to="/studio" replace />` to `<Navigate to="/landing" replace />`
+> 5. Commit and redeploy
+> 
+> See `frontend/src/App.tsx` for detailed instructions and original configuration.
+
+---
+
 > **Status (2025-12-01)**: 
 > - ✅ **Core Writing System**: Phase 1 complete. Story Bible extraction, structured outline generation, chapter streaming, and bulk generation all live. Comprehensive narrative consistency system with multi-layer context ensures 25-chapter coherence.
 > - ✅ **Book Cover Generator**: Phase 3 complete. End-to-end AI cover design - Story analysis → Claude design brief → DALL-E 3 generation → Typography overlay → Multi-format export (ebook/print/social). Fully operational 5-step wizard.

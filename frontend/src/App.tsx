@@ -7,51 +7,63 @@ import { BotsPage } from './pages/BotsPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
-import { ProtectedRoute } from './components/ProtectedRoute'
+// import { ProtectedRoute } from './components/ProtectedRoute'
+
+/**
+ * 🚨 AUTHENTICATION DISABLED FOR TESTING 🚨
+ * 
+ * TO RE-ENABLE AUTHENTICATION:
+ * 1. Uncomment the ProtectedRoute import above
+ * 2. Wrap routes with <ProtectedRoute> as shown in commented sections below
+ * 3. Change root redirect from "/studio" to "/landing"
+ * 4. Redeploy
+ * 
+ * See git history for original protected route configuration.
+ */
 
 function App() {
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Public Routes - Keep for when auth is re-enabled */}
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Root - redirect to landing for now */}
-      <Route path="/" element={<Navigate to="/landing" replace />} />
+      {/* Root - BYPASS LANDING PAGE - Go directly to studio */}
+      <Route path="/" element={<Navigate to="/studio" replace />} />
 
-      {/* Chat - Home Page (with sidebar) - Protected */}
+      {/* Chat - Home Page (with sidebar) - UNPROTECTED FOR TESTING */}
       <Route path="/chat" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AppLayout showSidebar={true}>
             <ChatPage />
           </AppLayout>
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
 
-      {/* Novel Studio - All existing routes - Protected */}
+      {/* Novel Studio - All existing routes - UNPROTECTED FOR TESTING */}
       <Route path="/studio/*" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <StudioPage />
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
 
-      {/* Covers - Future feature - Protected */}
+      {/* Covers - Future feature - UNPROTECTED FOR TESTING */}
       <Route path="/covers" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AppLayout>
             <CoversPage />
           </AppLayout>
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
 
-      {/* Bots - Phase 2 - Protected */}
+      {/* Bots - Phase 2 - UNPROTECTED FOR TESTING */}
       <Route path="/bots" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AppLayout>
             <BotsPage />
           </AppLayout>
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
 
       {/* Fallback */}
