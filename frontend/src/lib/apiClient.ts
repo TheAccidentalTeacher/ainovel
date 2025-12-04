@@ -1,8 +1,9 @@
 import axios, { type AxiosInstance } from 'axios';
 import type { Character, Setting, StoryBible, AIConfig } from '../types';
 
-// In production, API is served from same origin at /api
-// In development, VITE_API_URL can override (or use Vite proxy)
+// API Base URL Configuration
+// Production: Uses Railway backend URL from .env.production
+// Development: Uses localhost or Vite proxy
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
 
 class APIClient {
